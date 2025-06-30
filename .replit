@@ -1,0 +1,6 @@
+run = "run = \"streamlit run ui/streamlit_ui.py\"  [interpreter]   mode = \"python3\""
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+run = ["sh", "-c", "run = \"streamlit run ui/streamlit_ui.py\"  [interpreter]   mode = \"python3\""]
