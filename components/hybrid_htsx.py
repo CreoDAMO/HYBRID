@@ -1,227 +1,372 @@
 
-from typing import Dict, Any, List, Optional
-from dataclasses import dataclass
+"""
+HYBRID + HTSX Component System
+Provides declarative blockchain components for Web3 development
+"""
+
+from typing import Dict, Any, List, Optional, Union
+from dataclasses import dataclass, field
 from enum import Enum
 import json
+import re
 
 class ComponentType(Enum):
     WALLET_CONNECTOR = "wallet-connector"
     NFT_LICENSE = "nft-license"
-    NODE_OPERATOR = "node-operator"
     CROSS_CHAIN_BRIDGE = "cross-chain-bridge"
+    NODE_OPERATOR = "node-operator"
     HYBRID_TOKEN = "hybrid-token"
-    GOVERNANCE = "governance"
-    STAKING = "staking"
+    LIQUIDITY_POOL = "liquidity-pool"
+    STAKING_VAULT = "staking-vault"
+    GOVERNANCE_DAO = "governance-dao"
+    NFT_MARKETPLACE = "nft-marketplace"
 
 @dataclass
-class HybridComponent:
-    type: ComponentType
-    props: Dict[str, Any]
-    children: List['HybridComponent'] = None
+class HTSXComponent:
+    """Base class for all HTSX components"""
+    component_type: ComponentType
+    props: Dict[str, Any] = field(default_factory=dict)
+    children: List['HTSXComponent'] = field(default_factory=list)
+    id: Optional[str] = None
+    class_name: Optional[str] = None
 
-class HybridHTSXParser:
-    """Parser for HTSX components specific to HYBRID Blockchain"""
+@dataclass
+class WalletConnectorComponent(HTSXComponent):
+    """Multi-chain wallet connector component"""
+    chains: List[str] = field(default_factory=lambda: ["hybrid"])
+    required: bool = False
+    auto_connect: bool = True
+    
+    def __post_init__(self):
+        self.component_type = ComponentType.WALLET_CONNECTOR
+
+@dataclass
+class NFTLicenseComponent(HTSXComponent):
+    """NFT license management component"""
+    license_type: str = "storage"  # storage, validator
+    price: float = 100.0
+    currency: str = "HYBRID"
+    delegate_enabled: bool = True
+    
+    def __post_init__(self):
+        self.component_type = ComponentType.NFT_LICENSE
+
+@dataclass
+class CrossChainBridgeComponent(HTSXComponent):
+    """Cross-chain bridge component"""
+    protocol: str = "axelar"  # axelar, layerzero, wormhole
+    supported_chains: List[str] = field(default_factory=lambda: ["hybrid", "base", "polygon"])
+    supported_tokens: List[str] = field(default_factory=lambda: ["HYBRID", "ETH", "MATIC"])
+    gas_optimization: bool = True
+    
+    def __post_init__(self):
+        self.component_type = ComponentType.CROSS_CHAIN_BRIDGE
+
+@dataclass
+class NodeOperatorComponent(HTSXComponent):
+    """Node operator dashboard component"""
+    node_type: str = "storage"  # storage, validator
+    naas_enabled: bool = True
+    rewards_auto_claim: bool = False
+    monitoring_enabled: bool = True
+    
+    def __post_init__(self):
+        self.component_type = ComponentType.NODE_OPERATOR
+
+@dataclass
+class HybridTokenComponent(HTSXComponent):
+    """HYBRID token utilities component"""
+    utilities: List[str] = field(default_factory=lambda: ["fees", "governance", "staking"])
+    balance_display: bool = True
+    staking_enabled: bool = True
+    governance_enabled: bool = True
+    
+    def __post_init__(self):
+        self.component_type = ComponentType.HYBRID_TOKEN
+
+@dataclass
+class LiquidityPoolComponent(HTSXComponent):
+    """Liquidity pool component"""
+    pair: str = "HYBRID/USDC"
+    apy: float = 12.5
+    tvl: float = 1000000.0
+    auto_compound: bool = False
+    
+    def __post_init__(self):
+        self.component_type = ComponentType.LIQUIDITY_POOL
+
+@dataclass
+class StakingVaultComponent(HTSXComponent):
+    """Staking vault component"""
+    token: str = "HYBRID"
+    apy: float = 5.0
+    lock_period: int = 30  # days
+    auto_restake: bool = False
+    
+    def __post_init__(self):
+        self.component_type = ComponentType.STAKING_VAULT
+
+class HTSXParser:
+    """Parser for HTSX markup language"""
     
     def __init__(self):
-        self.components = []
-        self.state = {}
-    
-    def parse_component(self, tag: str, props: Dict[str, Any]) -> HybridComponent:
-        """Parse HTSX tag into HYBRID component"""
-        
-        component_map = {
-            "wallet-connector": ComponentType.WALLET_CONNECTOR,
-            "nft-license": ComponentType.NFT_LICENSE,
-            "node-operator": ComponentType.NODE_OPERATOR,
-            "cross-chain-bridge": ComponentType.CROSS_CHAIN_BRIDGE,
-            "hybrid-token": ComponentType.HYBRID_TOKEN,
-            "governance": ComponentType.GOVERNANCE,
-            "staking": ComponentType.STAKING
+        self.component_registry = {
+            "wallet-connector": WalletConnectorComponent,
+            "nft-license": NFTLicenseComponent,
+            "cross-chain-bridge": CrossChainBridgeComponent,
+            "node-operator": NodeOperatorComponent,
+            "hybrid-token": HybridTokenComponent,
+            "liquidity-pool": LiquidityPoolComponent,
+            "staking-vault": StakingVaultComponent,
         }
-        
-        component_type = component_map.get(tag, ComponentType.WALLET_CONNECTOR)
-        return HybridComponent(type=component_type, props=props)
     
-    def render_wallet_connector(self, component: HybridComponent) -> str:
+    def parse(self, htsx_content: str) -> List[HTSXComponent]:
+        """Parse HTSX content and return component tree"""
+        components = []
+        
+        # Simple regex-based parser for demo
+        # In production, would use a proper HTML/XML parser
+        for component_name, component_class in self.component_registry.items():
+            pattern = rf'<{component_name}([^>]*?)/?>'
+            matches = re.finditer(pattern, htsx_content, re.IGNORECASE)
+            
+            for match in matches:
+                props = self._parse_props(match.group(1))
+                component = component_class(**props)
+                components.append(component)
+        
+        return components
+    
+    def _parse_props(self, props_string: str) -> Dict[str, Any]:
+        """Parse component props from string"""
+        props = {}
+        
+        # Parse key="value" pairs
+        prop_pattern = r'(\w+)=["\'](.*?)["\']'
+        matches = re.finditer(prop_pattern, props_string)
+        
+        for match in matches:
+            key, value = match.groups()
+            
+            # Type conversion
+            if value.lower() in ['true', 'false']:
+                props[key] = value.lower() == 'true'
+            elif value.replace('.', '').isdigit():
+                props[key] = float(value) if '.' in value else int(value)
+            elif ',' in value:
+                props[key] = [item.strip() for item in value.split(',')]
+            else:
+                props[key] = value
+        
+        return props
+    
+    def generate_typescript_types(self) -> str:
+        """Generate TypeScript type definitions for components"""
+        types = """
+// HTSX Component Type Definitions
+        
+interface WalletConnectorProps {
+  chains: string[];
+  required?: boolean;
+  autoConnect?: boolean;
+}
+
+interface NFTLicenseProps {
+  type: 'storage' | 'validator';
+  price: number;
+  currency: string;
+  delegateEnabled?: boolean;
+}
+
+interface CrossChainBridgeProps {
+  protocol: 'axelar' | 'layerzero' | 'wormhole';
+  supportedChains: string[];
+  supportedTokens: string[];
+  gasOptimization?: boolean;
+}
+
+interface NodeOperatorProps {
+  type: 'storage' | 'validator';
+  naasEnabled?: boolean;
+  rewardsAutoClaim?: boolean;
+  monitoringEnabled?: boolean;
+}
+
+interface HybridTokenProps {
+  utilities: string[];
+  balanceDisplay?: boolean;
+  stakingEnabled?: boolean;
+  governanceEnabled?: boolean;
+}
+
+interface LiquidityPoolProps {
+  pair: string;
+  apy: number;
+  tvl: number;
+  autoCompound?: boolean;
+}
+
+interface StakingVaultProps {
+  token: string;
+  apy: number;
+  lockPeriod: number;
+  autoRestake?: boolean;
+}
+
+// HTSX Runtime Interface
+interface HTSXRuntime {
+  render(component: HTSXComponent): Promise<void>;
+  getChainConnector(chain: string): ChainConnector;
+  getTokenContract(token: string): TokenContract;
+  bridgeTokens(params: BridgeParams): Promise<string>;
+}
+"""
+        return types
+
+class HTSXRenderer:
+    """Renderer for HTSX components to various targets"""
+    
+    def __init__(self):
+        self.runtime_functions = {
+            ComponentType.WALLET_CONNECTOR: self._render_wallet_connector,
+            ComponentType.NFT_LICENSE: self._render_nft_license,
+            ComponentType.CROSS_CHAIN_BRIDGE: self._render_cross_chain_bridge,
+            ComponentType.NODE_OPERATOR: self._render_node_operator,
+            ComponentType.HYBRID_TOKEN: self._render_hybrid_token,
+            ComponentType.LIQUIDITY_POOL: self._render_liquidity_pool,
+            ComponentType.STAKING_VAULT: self._render_staking_vault,
+        }
+    
+    def render_to_streamlit(self, components: List[HTSXComponent]) -> str:
+        """Render components to Streamlit UI code"""
+        render_code = []
+        
+        for component in components:
+            if component.component_type in self.runtime_functions:
+                code = self.runtime_functions[component.component_type](component)
+                render_code.append(code)
+        
+        return "\n\n".join(render_code)
+    
+    def _render_wallet_connector(self, component: WalletConnectorComponent) -> str:
         """Render wallet connector component"""
-        chains = component.props.get('chains', 'hybrid').split(',')
-        required = component.props.get('required', False)
-        
         return f"""
-        <div class="wallet-connector">
-            <h3>Multi-Chain Wallet Connection</h3>
-            <div class="chains">
-                {' '.join([f'<button class="chain-btn">{chain.title()}</button>' for chain in chains])}
-            </div>
-            {'<p class="required">Wallet connection required</p>' if required else ''}
-        </div>
-        """
+# Wallet Connector Component
+st.subheader("🔗 Wallet Connector")
+chains = {component.chains}
+for chain in chains:
+    st.success(f"✅ Connected to {{chain.upper()}}")
+"""
     
-    def render_nft_license(self, component: HybridComponent) -> str:
+    def _render_nft_license(self, component: NFTLicenseComponent) -> str:
         """Render NFT license component"""
-        license_type = component.props.get('type', 'storage')
-        price = component.props.get('price', '100')
-        currency = component.props.get('currency', 'HYBRID')
-        
         return f"""
-        <div class="nft-license">
-            <h3>{license_type.title()} Node License</h3>
-            <div class="license-info">
-                <p>Price: {price} {currency}</p>
-                <p>Type: {license_type.title()} Node</p>
-                <button class="purchase-btn">Purchase License</button>
-            </div>
-        </div>
-        """
+# NFT License Component
+st.subheader("🎫 NFT License System")
+st.info(f"License Type: {component.license_type.title()}")
+st.info(f"Price: {component.price} {component.currency}")
+if st.button("Purchase License"):
+    st.success("License purchased successfully!")
+"""
     
-    def render_node_operator(self, component: HybridComponent) -> str:
-        """Render node operator component"""
-        node_type = component.props.get('type', 'storage')
-        naas = component.props.get('naas', False)
-        
-        return f"""
-        <div class="node-operator">
-            <h3>{node_type.title()} Node Dashboard</h3>
-            <div class="node-stats">
-                <div class="stat">
-                    <label>Status:</label>
-                    <span class="status active">Active</span>
-                </div>
-                <div class="stat">
-                    <label>Uptime:</label>
-                    <span>99.9%</span>
-                </div>
-                <div class="stat">
-                    <label>Rewards:</label>
-                    <span>50 HYBRID/day</span>
-                </div>
-            </div>
-            {'<p class="naas-info">NaaS enabled - Passive rewards active</p>' if naas else ''}
-        </div>
-        """
-    
-    def render_cross_chain_bridge(self, component: HybridComponent) -> str:
+    def _render_cross_chain_bridge(self, component: CrossChainBridgeComponent) -> str:
         """Render cross-chain bridge component"""
-        protocol = component.props.get('protocol', 'axelar')
-        chains = component.props.get('chains', 'hybrid,base').split(',')
-        
         return f"""
-        <div class="cross-chain-bridge">
-            <h3>Cross-Chain Bridge ({protocol.title()})</h3>
-            <div class="bridge-form">
-                <select class="from-chain">
-                    {' '.join([f'<option value="{chain}">{chain.title()}</option>' for chain in chains])}
-                </select>
-                <span class="arrow">→</span>
-                <select class="to-chain">
-                    {' '.join([f'<option value="{chain}">{chain.title()}</option>' for chain in chains])}
-                </select>
-                <input type="number" placeholder="Amount" class="amount-input" />
-                <button class="bridge-btn">Bridge Tokens</button>
-            </div>
-        </div>
-        """
+# Cross-Chain Bridge Component
+st.subheader("🌉 Cross-Chain Bridge")
+st.selectbox("From Chain", {component.supported_chains})
+st.selectbox("To Chain", {component.supported_chains})
+st.selectbox("Token", {component.supported_tokens})
+st.number_input("Amount", min_value=0.0)
+if st.button("Bridge Tokens"):
+    st.success("Bridge transaction initiated!")
+"""
     
-    def render_hybrid_token(self, component: HybridComponent) -> str:
+    def _render_node_operator(self, component: NodeOperatorComponent) -> str:
+        """Render node operator component"""
+        return f"""
+# Node Operator Component
+st.subheader("⚙️ Node Operator Dashboard")
+st.metric("Node Type", "{component.node_type.title()}", "Active")
+st.metric("NaaS Enabled", "{component.naas_enabled}")
+if st.button("Claim Rewards"):
+    st.success("Rewards claimed!")
+"""
+    
+    def _render_hybrid_token(self, component: HybridTokenComponent) -> str:
         """Render HYBRID token component"""
-        utilities = component.props.get('utilities', 'fees,governance').split(',')
-        balance = component.props.get('balance', '0')
-        
         return f"""
-        <div class="hybrid-token">
-            <h3>$HYBRID Token</h3>
-            <div class="token-info">
-                <p class="balance">Balance: {balance} HYBRID</p>
-                <div class="utilities">
-                    <h4>Token Utilities:</h4>
-                    <ul>
-                        {' '.join([f'<li>{utility.title()}</li>' for utility in utilities])}
-                    </ul>
-                </div>
-            </div>
-        </div>
-        """
+# HYBRID Token Component
+st.subheader("💰 HYBRID Token")
+if {component.balance_display}:
+    st.metric("Balance", "1,000 HYBRID", "+50")
+utilities = {component.utilities}
+st.write("Utilities:", ", ".join(utilities))
+"""
     
-    def render_component(self, component: HybridComponent) -> str:
-        """Render any HYBRID component"""
-        renderers = {
-            ComponentType.WALLET_CONNECTOR: self.render_wallet_connector,
-            ComponentType.NFT_LICENSE: self.render_nft_license,
-            ComponentType.NODE_OPERATOR: self.render_node_operator,
-            ComponentType.CROSS_CHAIN_BRIDGE: self.render_cross_chain_bridge,
-            ComponentType.HYBRID_TOKEN: self.render_hybrid_token
-        }
-        
-        renderer = renderers.get(component.type, lambda x: "Unknown component")
-        return renderer(component)
+    def _render_liquidity_pool(self, component: LiquidityPoolComponent) -> str:
+        """Render liquidity pool component"""
+        return f"""
+# Liquidity Pool Component
+st.subheader("💧 Liquidity Pool")
+st.metric("Pair", "{component.pair}")
+st.metric("APY", "{component.apy}%")
+st.metric("TVL", "${component.tvl:,.0f}")
+if st.button("Add Liquidity"):
+    st.success("Liquidity added!")
+"""
+    
+    def _render_staking_vault(self, component: StakingVaultComponent) -> str:
+        """Render staking vault component"""
+        return f"""
+# Staking Vault Component
+st.subheader("🏦 Staking Vault")
+st.metric("Token", "{component.token}")
+st.metric("APY", "{component.apy}%")
+st.metric("Lock Period", "{component.lock_period} days")
+if st.button("Stake Tokens"):
+    st.success("Tokens staked!")
+"""
 
-class HybridBlockchainAPI:
-    """API for interacting with HYBRID Blockchain from HTSX"""
+class HTSXCompiler:
+    """Compiler for HTSX to various target platforms"""
     
     def __init__(self):
-        self.wallets = {
-            'hybrid': 'hybrid1q2w3e4r5t6y7u8i9o0p',
-            'base': '0xCc380FD8bfbdF0c020de64075b86C84c2BB0AE79',
-            'polygon': '0xCc380FD8bfbdF0c020de64075b86C84c2BB0AE79',
-            'solana': '3E8keZHkH1AHvRfbmq44tEmBgJYz1NjkhBE41C4gJHUn'
-        }
-        self.rpc_endpoints = {
-            'hybrid': 'http://localhost:26657',
-            'base': 'https://mainnet.base.org',
-            'polygon': 'https://polygon-rpc.com',
-            'solana': 'https://api.mainnet-beta.solana.com'
-        }
+        self.parser = HTSXParser()
+        self.renderer = HTSXRenderer()
     
-    def connect_wallet(self, chain: str) -> Dict[str, Any]:
-        """Connect to wallet on specified chain"""
-        return {
-            'success': True,
-            'address': self.wallets.get(chain),
-            'chain': chain,
-            'rpc': self.rpc_endpoints.get(chain)
-        }
+    def compile_to_streamlit(self, htsx_content: str) -> str:
+        """Compile HTSX to Streamlit application"""
+        components = self.parser.parse(htsx_content)
+        return self.renderer.render_to_streamlit(components)
     
-    def get_nft_licenses(self, address: str) -> List[Dict[str, Any]]:
-        """Get NFT licenses owned by address"""
-        return [
-            {
-                'id': 'storage_license_1',
-                'type': 'storage',
-                'active': True,
-                'rewards_earned': '1500 HYBRID'
-            }
-        ]
+    def compile_to_react(self, htsx_content: str) -> str:
+        """Compile HTSX to React components (future implementation)"""
+        # TODO: Implement React compilation
+        pass
     
-    def purchase_nft_license(self, license_type: str, price: int) -> Dict[str, Any]:
-        """Purchase NFT license"""
-        return {
-            'success': True,
-            'transaction_hash': '0x1234567890abcdef',
-            'license_id': f'{license_type}_license_{len(self.get_nft_licenses("dummy")) + 1}',
-            'cost': f'{price} HYBRID'
-        }
-    
-    def get_node_stats(self, license_id: str) -> Dict[str, Any]:
-        """Get node statistics"""
-        return {
-            'uptime': 99.9,
-            'daily_rewards': 50,
-            'total_transactions': 1234,
-            'status': 'active',
-            'naas_enabled': True
-        }
-    
-    def bridge_tokens(self, from_chain: str, to_chain: str, amount: float, token: str) -> Dict[str, Any]:
-        """Bridge tokens between chains"""
-        return {
-            'success': True,
-            'transaction_hash': '0xabcdef1234567890',
-            'from_chain': from_chain,
-            'to_chain': to_chain,
-            'amount': amount,
-            'token': token,
-            'estimated_time': '5-10 minutes'
-        }
+    def validate(self, htsx_content: str) -> List[str]:
+        """Validate HTSX content and return any errors"""
+        errors = []
+        
+        # Check for required components
+        if "wallet-connector" not in htsx_content:
+            errors.append("Warning: No wallet connector found")
+        
+        # Check for malformed tags
+        open_tags = re.findall(r'<(\w+(?:-\w+)*)', htsx_content)
+        close_tags = re.findall(r'</(\w+(?:-\w+)*)', htsx_content)
+        
+        for tag in open_tags:
+            if tag not in self.parser.component_registry and not htsx_content.count(f'<{tag}') == htsx_content.count(f'</{tag}>') + htsx_content.count(f'<{tag}'):
+                errors.append(f"Unclosed tag: {tag}")
+        
+        return errors
 
-# Export for use in main application
-__all__ = ['HybridHTSXParser', 'HybridBlockchainAPI', 'ComponentType', 'HybridComponent']
+# Export main classes
+__all__ = [
+    'HTSXComponent', 'WalletConnectorComponent', 'NFTLicenseComponent',
+    'CrossChainBridgeComponent', 'NodeOperatorComponent', 'HybridTokenComponent',
+    'LiquidityPoolComponent', 'StakingVaultComponent', 'HTSXParser', 
+    'HTSXRenderer', 'HTSXCompiler', 'ComponentType'
+]
