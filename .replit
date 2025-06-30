@@ -1,9 +1,14 @@
-run = "run = \"streamlit run ui/streamlit_ui.py\"  [interpreter]   mode = \"python3\""
+
+run = "streamlit run ui/streamlit_ui.py"
+
+[interpreter]
+mode = "python3"
+
 [nix]
 channel = "stable-24_05"
 
 [deployment]
-run = ["sh", "-c", "run = \"streamlit run ui/streamlit_ui.py\"  [interpreter]   mode = \"python3\""]
+run = ["sh", "-c", "streamlit run ui/streamlit_ui.py --server.address=0.0.0.0 --server.port=5000"]
 
 [workflows]
 runButton = "Run HYBRID + HTSX App"
@@ -15,4 +20,4 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python main.py"
+args = "streamlit run ui/streamlit_ui.py --server.address=0.0.0.0 --server.port=5000"

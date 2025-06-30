@@ -226,5 +226,6 @@ def main():
             st.write("• Simplified dApp creation")
             st.write("• Multi-AI code generation")
 
+# This allows the script to be imported without running main()
 if __name__ == "__main__":
     main()
