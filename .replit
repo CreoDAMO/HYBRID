@@ -4,3 +4,15 @@ channel = "stable-24_05"
 
 [deployment]
 run = ["sh", "-c", "run = \"streamlit run ui/streamlit_ui.py\"  [interpreter]   mode = \"python3\""]
+
+[workflows]
+runButton = "Run HYBRID + HTSX App"
+
+[[workflows.workflow]]
+name = "Run HYBRID + HTSX App"
+author = 44454800
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py"
