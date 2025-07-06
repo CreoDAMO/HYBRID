@@ -1,14 +1,11 @@
-
-run = "streamlit run ui/streamlit_ui.py"
-
-[interpreter]
-mode = "python3"
+run = "streamlit run main.py"
+modules = ["python-3.12"]
 
 [nix]
 channel = "stable-24_05"
 
 [deployment]
-run = ["sh", "-c", "streamlit run ui/streamlit_ui.py --server.address=0.0.0.0 --server.port=5000"]
+run = ["sh", "-c", "streamlit run main.py"]
 
 [workflows]
 runButton = "Run HYBRID + HTSX App"
