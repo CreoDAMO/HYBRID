@@ -19,6 +19,8 @@ from blockchain.hybrid_node import (
     NFTLicense
 )
 from blockchain.hybrid_wallet import hybrid_wallet_manager, get_founder_wallet, create_hybrid_wallet
+from blockchain.agglayer_integration import agglayer
+from blockchain.coinbase_integration import hybrid_agent, paymaster, onramper, onchain_kit
 
 # HYBRID Blockchain Integration
 class ChainType(Enum):
@@ -175,6 +177,20 @@ Micro-HYBRID: {founder.balance:,} µHYBRID
 Created: {founder.created_at}
 Type: Genesis Founder Wallet
         """)
+        
+        # Secure access to sensitive data
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("🔐 Show Mnemonic Phrase", help="Your 24-word recovery phrase"):
+                st.warning("⚠️ Keep this secure! Never share your mnemonic phrase.")
+                st.code(founder.mnemonic, language="text")
+        
+        with col2:
+            if st.button("🔑 Show Private Key", help="Your wallet private key"):
+                st.error("🚨 DANGER: Private key gives full control of wallet!")
+                st.code(founder.private_key, language="text")
+        
+        st.info("💡 Tip: Use the CLI command `python -m blockchain.hybrid_cli wallet founder` to view wallet details")
         
         if st.button("💰 Create New User Wallet"):
             new_wallet = create_hybrid_wallet("New User Wallet")
@@ -414,8 +430,38 @@ def main():
     st.set_page_config(
         page_title="HYBRID Blockchain + HTSX Integration",
         page_icon="🚀",
-        layout="wide"
+        layout="wide",
+        initial_sidebar_state="expanded"
     )
+    
+    # Modern CSS styling
+    st.markdown("""
+    <style>
+    .main > div {
+        padding-top: 2rem;
+    }
+    .stMetric {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 1rem;
+        border-radius: 10px;
+        color: white;
+    }
+    .stButton > button {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        border: none;
+        border-radius: 20px;
+        color: white;
+        font-weight: bold;
+    }
+    .hybrid-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    </style>
+    """, unsafe_allow_html=True)
     
     st.title("🚀 HYBRID Blockchain + HTSX Integration")
     st.markdown("*Fully Operational Cosmos SDK Blockchain with HTSX Runtime Engine*")
@@ -589,6 +635,65 @@ def main():
                     render_hybrid_token_interface(component_data)
                 
                 st.divider()
+    
+    # Advanced Web3 Integrations
+    st.divider()
+    st.subheader("🚀 Advanced Web3 Integrations")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("### 🔗 Polygon AggLayer")
+        with st.container():
+            st.info("""
+            **Unified Liquidity Layer**
+            - Cross-chain liquidity aggregation
+            - Unified settlement on Ethereum
+            - 50M HYBRID total liquidity
+            - 8.5% yield across chains
+            """)
+            
+            if st.button("🌊 Access AggLayer"):
+                with st.spinner("Connecting to AggLayer..."):
+                    liquidity_data = asyncio.run(agglayer.get_unified_liquidity())
+                    st.success(f"Connected! Total liquidity: {liquidity_data['total_liquidity']}")
+    
+    with col2:
+        st.markdown("### 🤖 Coinbase AgentKit")
+        with st.container():
+            st.success("""
+            **AI-Powered Operations**
+            - Autonomous node management
+            - Smart delegation strategies
+            - Gasless transactions (Paymaster)
+            - Fiat onramp integration
+            """)
+            
+            if st.button("🧠 Launch AI Agent"):
+                with st.spinner("Initializing AI agent..."):
+                    agent_action = asyncio.run(hybrid_agent.execute_agent_action(
+                        "buy_node_license", 
+                        {"type": "storage", "auto_delegate": True}
+                    ))
+                    st.success(f"AI Agent: {agent_action['agent_reasoning']}")
+    
+    with col3:
+        st.markdown("### 💳 OnRamp Integration")
+        with st.container():
+            st.warning("""
+            **Fiat to HYBRID**
+            - Buy HYBRID with USD/EUR
+            - Apple Pay, Google Pay support
+            - Instant settlement
+            - $10 per HYBRID
+            """)
+            
+            amount = st.number_input("Amount (USD)", min_value=10, value=100, step=10)
+            if st.button("💰 Buy HYBRID"):
+                with st.spinner("Creating onramp session..."):
+                    onramp_session = asyncio.run(onramper.create_onramp_session(amount))
+                    st.success(f"Session created! Get {onramp_session['amount_hybrid']}")
+                    st.markdown(f"[Complete Purchase]({onramp_session['payment_url']})")
     
     # Integration benefits footer
     with st.expander("🎯 Why HYBRID Blockchain + HTSX?"):

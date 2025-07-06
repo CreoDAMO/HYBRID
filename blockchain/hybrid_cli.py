@@ -183,6 +183,45 @@ def info(address: str):
         click.echo(f"❌ Wallet not found: {address}")
 
 @wallet.command()
+@click.argument('address')
+@click.option('--show-private', is_flag=True, help='Show private key (DANGEROUS)')
+@click.option('--format', type=click.Choice(['json', 'text']), default='text')
+def export(address: str, show_private: bool, format: str):
+    """Export wallet credentials (mnemonic and optionally private key)"""
+    wallet = hybrid_wallet_manager.get_wallet(address)
+    if not wallet:
+        click.echo(f"❌ Wallet not found: {address}")
+        return
+    
+    if format == 'json':
+        import json
+        export_data = {
+            "address": wallet.address,
+            "mnemonic": wallet.mnemonic,
+            "label": wallet.label
+        }
+        if show_private:
+            export_data["private_key"] = wallet.private_key
+        click.echo(json.dumps(export_data, indent=2))
+    else:
+        click.echo("🔐 HYBRID Wallet Export")
+        click.echo("=" * 40)
+        click.echo(f"Address: {wallet.address}")
+        click.echo(f"Label: {wallet.label}")
+        click.echo(f"\n📝 Mnemonic Phrase:")
+        click.echo(f"{wallet.mnemonic}")
+        
+        if show_private:
+            click.echo(f"\n🔑 Private Key:")
+            click.echo(f"{wallet.private_key}")
+            click.echo("\n🚨 WARNING: Keep this private key secure! Never share it!")
+        
+        click.echo(f"\n💡 Usage:")
+        click.echo(f"• Import this mnemonic into any HYBRID wallet")
+        click.echo(f"• Use with MetaMask, Trust Wallet, etc.")
+        click.echo(f"• Private key gives full control of wallet")
+
+@wallet.command()
 @click.option('--from-addr', required=True, help='Sender address')
 @click.option('--to-addr', required=True, help='Recipient address')
 @click.option('--amount', required=True, type=float, help='Amount in HYBRID')
