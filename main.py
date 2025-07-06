@@ -540,6 +540,18 @@ def main():
     # Add cloud mining dashboard
     st.divider()
     render_cloud_mining_dashboard(runtime)
+    
+    # Add HybridScan blockchain explorer
+    st.divider()
+    st.subheader("🔍 HybridScan Blockchain Explorer")
+    
+    if st.button("🚀 Launch HybridScan Explorer", type="primary"):
+        st.session_state.show_hybridscan = True
+    
+    if st.session_state.get('show_hybridscan', False):
+        from ui.hybridscan_ui import create_hybridscan_interface
+        st.markdown("---")
+        create_hybridscan_interface()
 
     # Run stress test if requested
     if st.session_state.get('run_stress_test', False):
