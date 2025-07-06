@@ -56,6 +56,14 @@ class HybridConsensus:
         self.current_height = 0
         self.validator_power = {v: 1 for v in validators}  # Equal voting power
         
+        # Import real consensus
+        from blockchain.consensus import TendermintConsensus, ValidatorSet
+        validator_set = ValidatorSet(
+            validators={v: 1 for v in validators},
+            total_power=len(validators)
+        )
+        self.real_consensus = TendermintConsensus(node_id, validator_set)
+        
     async def propose_block(self, transactions: List[Transaction]) -> Block:
         """Propose a new block"""
         prev_block = await self.get_latest_block()
@@ -394,6 +402,10 @@ class HybridBlockchainNode:
         self.peers = []
         self.rpc_port = 26657
         self.p2p_port = 26656
+        
+        # Import P2P networking
+        from blockchain.p2p_network import P2PNetwork
+        self.p2p_network = P2PNetwork(self.node_id, self.p2p_port)
     
     async def start(self):
         """Start the blockchain node"""
@@ -504,8 +516,23 @@ class HybridBlockchainNode:
     async def _start_p2p_network(self):
         """Start P2P networking"""
         logger.info(f"Starting P2P network on port {self.p2p_port}...")
+        
+        # Start P2P server
+        await self.p2p_network.start_server()
+        
+        # Connect to seed nodes (in production, these would be known peers)
+        seed_nodes = [
+            # ("peer1.hybrid.local", 26656),
+            # ("peer2.hybrid.local", 26656)
+        ]
+        
+        for address, port in seed_nodes:
+            await self.p2p_network.connect_to_peer(address, port)
+        
+        # P2P maintenance loop
         while self.is_running:
-            await asyncio.sleep(5)  # P2P loop
+            await asyncio.sleep(30)  # Ping peers every 30 seconds
+            await self.p2p_network.ping_peers()
     
     async def _start_block_producer(self):
         """Start block production (validators only)"""
