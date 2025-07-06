@@ -545,13 +545,24 @@ def main():
     st.divider()
     st.subheader("🔍 HybridScan Blockchain Explorer")
     
-    if st.button("🚀 Launch HybridScan Explorer", type="primary"):
-        st.session_state.show_hybridscan = True
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("🚀 Launch HybridScan Explorer", type="primary"):
+            st.session_state.show_hybridscan = True
+    
+    with col2:
+        if st.button("🧠 Launch Anthropic AI Interface", type="primary"):
+            st.session_state.show_anthropic_ai = True
     
     if st.session_state.get('show_hybridscan', False):
         from ui.hybridscan_ui import create_hybridscan_interface
         st.markdown("---")
         create_hybridscan_interface()
+    
+    if st.session_state.get('show_anthropic_ai', False):
+        from ui.anthropic_ai_interface import create_anthropic_ai_interface
+        st.markdown("---")
+        create_anthropic_ai_interface()
 
     # Run stress test if requested
     if st.session_state.get('run_stress_test', False):
@@ -696,6 +707,126 @@ def main():
                     render_hybrid_token_interface(component_data)
 
                 st.divider()
+
+    # Anthropic AI Integration
+    st.divider()
+    st.subheader("🧠 Anthropic AI Integration")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("### 🤖 Claude Sonnet (Coding Expert)")
+        with st.container():
+            st.info("""
+            **Specialized for:**
+            - Smart contract analysis
+            - Code review and optimization
+            - HTSX component generation
+            - DeFi strategy analysis
+            """)
+            
+            sonnet_query = st.text_area("Ask Claude Sonnet", 
+                placeholder="Analyze this smart contract...", 
+                height=100, key="sonnet_query")
+            
+            if st.button("🧠 Query Sonnet", type="primary"):
+                if sonnet_query:
+                    with st.spinner("Claude Sonnet thinking..."):
+                        from blockchain.x_moe import anthropic_moe
+                        result = asyncio.run(anthropic_moe.route_query(sonnet_query, "coding"))
+                        
+                        st.success(f"✅ Response from Claude Sonnet")
+                        st.markdown(result.response)
+                        
+                        col1, col2, col3 = st.columns(3)
+                        with col1:
+                            st.metric("Tokens Used", f"{result.tokens_used:,}")
+                        with col2:
+                            st.metric("Cost", f"${result.cost_usd:.6f}")
+                        with col3:
+                            st.metric("Confidence", f"{result.confidence_score:.1%}")
+    
+    with col2:
+        st.markdown("### 🎯 Claude Opus (Architecture Expert)")
+        with st.container():
+            st.warning("""
+            **Specialized for:**
+            - System architecture design
+            - Tokenomics modeling
+            - Governance frameworks
+            - Complex reasoning tasks
+            """)
+            
+            opus_query = st.text_area("Ask Claude Opus", 
+                placeholder="Design tokenomics for...", 
+                height=100, key="opus_query")
+            
+            if st.button("🎯 Query Opus", type="primary"):
+                if opus_query:
+                    with st.spinner("Claude Opus reasoning..."):
+                        from blockchain.x_moe import anthropic_moe
+                        result = asyncio.run(anthropic_moe.route_query(opus_query, "architecture"))
+                        
+                        st.success(f"✅ Response from Claude Opus")
+                        st.markdown(result.response)
+                        
+                        col1, col2, col3 = st.columns(3)
+                        with col1:
+                            st.metric("Tokens Used", f"{result.tokens_used:,}")
+                        with col2:
+                            st.metric("Cost", f"${result.cost_usd:.6f}")
+                        with col3:
+                            st.metric("Confidence", f"{result.confidence_score:.1%}")
+    
+    # AI Usage Statistics
+    st.subheader("📊 AI Usage Statistics")
+    try:
+        from blockchain.x_moe import anthropic_moe
+        stats = anthropic_moe.get_model_stats()
+        
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("Total Queries", stats["total_inferences"])
+        with col2:
+            st.metric("Sonnet Queries", stats["sonnet_inferences"])
+        with col3:
+            st.metric("Opus Queries", stats["opus_inferences"])
+        with col4:
+            st.metric("Total Cost", f"${stats['total_cost_usd']:.4f}")
+    except:
+        st.info("No AI queries yet. Try asking Claude Sonnet or Opus a question!")
+    
+    # Quick AI Actions
+    st.subheader("⚡ Quick AI Actions")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if st.button("🔍 Analyze HYBRID Tokenomics"):
+            with st.spinner("Claude Opus analyzing..."):
+                from blockchain.x_moe import anthropic_moe
+                query = "Analyze the HYBRID blockchain tokenomics model with 1B total supply, staking rewards, and cross-chain utilities"
+                result = asyncio.run(anthropic_moe.design_tokenomics(query))
+                st.success("Analysis complete!")
+                st.markdown(result.response)
+    
+    with col2:
+        if st.button("🏗️ Generate HTSX Component"):
+            with st.spinner("Claude Sonnet generating..."):
+                from blockchain.x_moe import anthropic_moe
+                query = "Create an HTSX component for NFT license marketplace with purchase, delegation, and rewards tracking"
+                result = asyncio.run(anthropic_moe.generate_htsx_components(query))
+                st.success("Component generated!")
+                st.code(result.response, language="typescript")
+    
+    with col3:
+        if st.button("🛡️ Security Audit"):
+            with st.spinner("Claude Sonnet auditing..."):
+                from blockchain.x_moe import anthropic_moe
+                query = "Perform security audit on HYBRID blockchain architecture focusing on NFT licenses, cross-chain bridges, and staking mechanisms"
+                result = asyncio.run(anthropic_moe.analyze_smart_contract("HYBRID Blockchain System"))
+                st.success("Audit complete!")
+                st.markdown(result.response)
 
     # Advanced Web3 Integrations
     st.divider()
