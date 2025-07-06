@@ -18,6 +18,7 @@ from blockchain.hybrid_node import (
     NodeType,
     NFTLicense
 )
+from blockchain.hybrid_wallet import hybrid_wallet_manager, get_founder_wallet, create_hybrid_wallet
 
 # HYBRID Blockchain Integration
 class ChainType(Enum):
@@ -43,11 +44,14 @@ class NodeOperatorStats:
 
 class HybridHTSXRuntime:
     def __init__(self):
+        # Get the founder wallet
+        self.founder_wallet = get_founder_wallet()
+        
         self.wallets = {
             ChainType.BASE: WalletConfig("0xCc380FD8bfbdF0c020de64075b86C84c2BB0AE79", ChainType.BASE, "https://mainnet.base.org", 5.2),
             ChainType.POLYGON: WalletConfig("0xCc380FD8bfbdF0c020de64075b86C84c2BB0AE79", ChainType.POLYGON, "https://polygon-rpc.com", 150.8),
             ChainType.SOLANA: WalletConfig("3E8keZHkH1AHvRfbmq44tEmBgJYz1NjkhBE41C4gJHUn", ChainType.SOLANA, "https://api.mainnet-beta.solana.com", 12.5),
-            ChainType.HYBRID: WalletConfig("hybrid1q2w3e4r5t6y7u8i9o0p", ChainType.HYBRID, "http://0.0.0.0:26657", 1000.0)
+            ChainType.HYBRID: WalletConfig(self.founder_wallet.address, ChainType.HYBRID, "http://0.0.0.0:26657", self.founder_wallet.balance / 1_000_000)
         }
         
         self.nft_licenses = {
@@ -132,6 +136,65 @@ class HybridHTSXRuntime:
             if chain.value in htsx_content:
                 chains.append(chain.value)
         return chains if chains else ["hybrid", "base", "polygon", "solana"]
+
+def render_founder_wallet():
+    """Render founder wallet information"""
+    st.subheader("👑 HYBRID Founder Wallet")
+    
+    founder = get_founder_wallet()
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.metric(
+            "Founder Address", 
+            f"{founder.address[:12]}...{founder.address[-8:]}", 
+            "🚀 Lead Engineer & Developer"
+        )
+    
+    with col2:
+        st.metric(
+            "HYBRID Balance", 
+            f"{founder.balance / 1_000_000:,.0f} HYBRID",
+            f"${founder.balance / 1_000_000 * 10:,.0f} USD (at $10/HYBRID)"
+        )
+    
+    with col3:
+        st.metric(
+            "Wallet Status",
+            "🟢 Active",
+            "Genesis Wallet"
+        )
+    
+    with st.expander("📋 Full Founder Wallet Details"):
+        st.code(f"""
+Address: {founder.address}
+Label: {founder.label}
+Balance: {founder.balance / 1_000_000:,.6f} HYBRID
+Micro-HYBRID: {founder.balance:,} µHYBRID
+Created: {founder.created_at}
+Type: Genesis Founder Wallet
+        """)
+        
+        if st.button("💰 Create New User Wallet"):
+            new_wallet = create_hybrid_wallet("New User Wallet")
+            
+            # Transfer 1000 HYBRID to new wallet
+            success = hybrid_wallet_manager.transfer(
+                founder.address,
+                new_wallet.address,
+                1000 * 1_000_000  # 1000 HYBRID
+            )
+            
+            if success:
+                st.success(f"✅ New wallet created and funded!")
+                st.code(f"""
+New Wallet Address: {new_wallet.address}
+Mnemonic: {new_wallet.mnemonic}
+Balance: 1,000 HYBRID (funded by founder)
+                """)
+            else:
+                st.error("Failed to create and fund wallet")
 
 def render_blockchain_status():
     """Render blockchain node status"""
@@ -364,6 +427,10 @@ def main():
     if 'blockchain_initialized' not in st.session_state:
         asyncio.run(runtime.initialize_blockchain_node())
         st.session_state.blockchain_initialized = True
+    
+    # Render founder wallet first
+    render_founder_wallet()
+    st.divider()
     
     # Render blockchain status
     render_blockchain_status()

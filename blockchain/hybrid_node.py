@@ -9,6 +9,7 @@ import grpc
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519
 import requests
+from blockchain.hybrid_wallet import hybrid_wallet_manager, get_founder_wallet
 
 logger = logging.getLogger(__name__)
 
@@ -373,6 +374,13 @@ class HybridBlockchainNode:
         self.token_economics = HybridTokenEconomics()
         self.htsx_runtime = HTSXRuntimeEngine(self)
         
+        # Initialize with founder wallet
+        self.wallet_manager = hybrid_wallet_manager
+        self.founder_wallet = get_founder_wallet()
+        
+        # Sync founder balance with token economics
+        self.token_economics.balances[self.founder_wallet.address] = self.founder_wallet.balance
+        
         # Blockchain state
         self.chain_state = {
             "height": 0,
@@ -429,9 +437,53 @@ class HybridBlockchainNode:
         
         @app.get("/balance/{address}")
         async def get_balance(address: str):
+            # Check both token economics and wallet manager
+            wallet_balance = self.wallet_manager.get_balance(address)
+            token_balance = self.token_economics.balances.get(address, 0)
+            
+            # Use wallet manager as primary source
+            balance = max(wallet_balance, token_balance)
+            
             return {
                 "address": address,
-                "balance": self.token_economics.balances.get(address, 0)
+                "balance": balance,
+                "balance_hybrid": balance / 1_000_000,
+                "is_founder": address == self.founder_wallet.address
+            }
+        
+        @app.get("/wallet/{address}")
+        async def get_wallet_info(address: str):
+            wallet = self.wallet_manager.get_wallet(address)
+            if wallet:
+                return {
+                    "address": wallet.address,
+                    "balance": wallet.balance,
+                    "balance_hybrid": wallet.balance / 1_000_000,
+                    "label": wallet.label,
+                    "created_at": wallet.created_at,
+                    "is_founder": address == self.founder_wallet.address
+                }
+            return {"error": "Wallet not found"}
+        
+        @app.post("/wallet/create")
+        async def create_wallet(wallet_data: dict):
+            label = wallet_data.get("label", "")
+            new_wallet = self.wallet_manager.create_new_wallet(label)
+            return {
+                "address": new_wallet.address,
+                "mnemonic": new_wallet.mnemonic,
+                "balance": new_wallet.balance,
+                "label": new_wallet.label
+            }
+        
+        @app.get("/founder")
+        async def get_founder_info():
+            return {
+                "address": self.founder_wallet.address,
+                "balance": self.founder_wallet.balance,
+                "balance_hybrid": self.founder_wallet.balance / 1_000_000,
+                "label": self.founder_wallet.label,
+                "created_at": self.founder_wallet.created_at
             }
         
         @app.post("/tx/send")

@@ -7,7 +7,29 @@
 The HYBRID Blockchain is a Layer 1 blockchain built with the Cosmos SDK, featuring EVM compatibility, a Mixture of Experts (MoE) approach for AI model training, and a node operation model gated by NFT licenses (Storage and Validator Nodes). It supports cross-chain interactions with Base, Polygon, and Solana, using wallets:
 - **Base/Polygon**: `0xCc380FD8bfbdF0c020de64075b86C84c2BB0AE79`
 - **Solana**: `3E8keZHkH1AHvRfbmq44tEmBgJYz1NjkhBE41C4gJHUn`
-- **HybridChain**: `hybrid1q2w3e4r5t6y7u8i9o0p` (from prior wallet creation)
+- **HYBRID Founder (Native)**: Auto-generated founder wallet pre-funded with 100M HYBRID tokens
+
+## 👑 HYBRID Native Wallet System
+
+### Founder Wallet (Genesis)
+The HYBRID blockchain includes a native wallet system with the founder wallet automatically generated and pre-funded:
+
+- **Purpose**: Founder, Lead Engineer & Developer genesis wallet
+- **Initial Supply**: 100,000,000 HYBRID tokens
+- **Address Format**: Bech32 with `hybrid` prefix (e.g., `hybrid1abc123...`)
+- **Features**: 
+  - Ed25519 cryptographic keys
+  - 24-word mnemonic phrase
+  - Native $HYBRID balance tracking
+  - Wallet creation and funding capabilities
+
+### Wallet Features
+- **Native Integration**: Direct blockchain integration, no external dependencies
+- **Secure Key Management**: Ed25519 private/public key pairs
+- **Bech32 Addresses**: Standard Cosmos ecosystem format
+- **Multi-Wallet Support**: Create unlimited wallets with funding from founder
+- **Balance Tracking**: Real-time HYBRID token balances
+- **Mnemonic Recovery**: 24-word seed phrases for wallet recovery
 
 The blockchain uses $HYBRID tokens for transactions and rewards, with node operators requiring NFT licenses for participation ().
 

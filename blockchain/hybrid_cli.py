@@ -6,6 +6,7 @@ import json
 import requests
 from typing import Dict, Any
 from blockchain.hybrid_node import create_hybrid_node, NodeType
+from blockchain.hybrid_wallet import hybrid_wallet_manager, get_founder_wallet, create_hybrid_wallet
 
 @click.group()
 def cli():
@@ -122,6 +123,87 @@ def issue_license(license_type: str, owner: str):
     click.echo(f"Token ID: {token_id}")
     click.echo(f"Owner: {owner}")
     click.echo(f"Type: {license_type}")
+
+@cli.group()
+def wallet():
+    """HYBRID wallet management commands"""
+    pass
+
+@wallet.command()
+def founder():
+    """Show founder wallet information"""
+    founder = get_founder_wallet()
+    click.echo("👑 HYBRID Founder Wallet")
+    click.echo("=" * 40)
+    click.echo(f"Address: {founder.address}")
+    click.echo(f"Label: {founder.label}")
+    click.echo(f"Balance: {founder.balance / 1_000_000:,.2f} HYBRID")
+    click.echo(f"USD Value: ${founder.balance / 1_000_000 * 10:,.2f} (at $10/HYBRID)")
+    click.echo(f"Created: {founder.created_at}")
+
+@wallet.command()
+@click.option('--label', default='', help='Wallet label')
+def create(label: str):
+    """Create a new HYBRID wallet"""
+    new_wallet = create_hybrid_wallet(label)
+    click.echo("📱 New HYBRID Wallet Created")
+    click.echo("=" * 40)
+    click.echo(f"Address: {new_wallet.address}")
+    click.echo(f"Label: {new_wallet.label}")
+    click.echo(f"Mnemonic: {new_wallet.mnemonic}")
+    click.echo(f"Balance: {new_wallet.balance / 1_000_000:,.2f} HYBRID")
+    click.echo("\n⚠️ IMPORTANT: Save your mnemonic phrase securely!")
+
+@wallet.command()
+def list():
+    """List all wallets"""
+    wallets = hybrid_wallet_manager.list_wallets()
+    click.echo("📋 HYBRID Wallets")
+    click.echo("=" * 60)
+    
+    for wallet in wallets:
+        status = "👑 FOUNDER" if wallet.address == hybrid_wallet_manager.founder_address else "📱 USER"
+        click.echo(f"{status} {wallet.address[:20]}... | {wallet.balance / 1_000_000:>12,.2f} HYBRID | {wallet.label}")
+
+@wallet.command()
+@click.argument('address')
+def info(address: str):
+    """Get wallet information"""
+    wallet = hybrid_wallet_manager.get_wallet(address)
+    if wallet:
+        click.echo(f"📱 Wallet Information")
+        click.echo("=" * 40)
+        click.echo(f"Address: {wallet.address}")
+        click.echo(f"Label: {wallet.label}")
+        click.echo(f"Balance: {wallet.balance / 1_000_000:,.6f} HYBRID")
+        click.echo(f"Created: {wallet.created_at}")
+        if wallet.address == hybrid_wallet_manager.founder_address:
+            click.echo("👑 Status: FOUNDER WALLET")
+    else:
+        click.echo(f"❌ Wallet not found: {address}")
+
+@wallet.command()
+@click.option('--from-addr', required=True, help='Sender address')
+@click.option('--to-addr', required=True, help='Recipient address')
+@click.option('--amount', required=True, type=float, help='Amount in HYBRID')
+def transfer(from_addr: str, to_addr: str, amount: float):
+    """Transfer HYBRID tokens between wallets"""
+    amount_micro = int(amount * 1_000_000)
+    
+    success = hybrid_wallet_manager.transfer(from_addr, to_addr, amount_micro)
+    
+    if success:
+        click.echo(f"✅ Successfully transferred {amount} HYBRID")
+        click.echo(f"From: {from_addr}")
+        click.echo(f"To: {to_addr}")
+        
+        # Show updated balances
+        from_balance = hybrid_wallet_manager.get_balance_hybrid(from_addr)
+        to_balance = hybrid_wallet_manager.get_balance_hybrid(to_addr)
+        click.echo(f"Sender balance: {from_balance:,.6f} HYBRID")
+        click.echo(f"Recipient balance: {to_balance:,.6f} HYBRID")
+    else:
+        click.echo(f"❌ Transfer failed - insufficient balance or invalid addresses")
 
 if __name__ == '__main__':
     cli()
