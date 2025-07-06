@@ -6,13 +6,20 @@ import sys
 import time
 import signal
 import os
+import shlex
 
 def run_command(cmd, background=False):
-    """Run a command"""
-    if background:
-        return subprocess.Popen(cmd, shell=True)
+    """Run a command safely"""
+    # Split command safely to prevent injection
+    if isinstance(cmd, str):
+        cmd_list = shlex.split(cmd)
     else:
-        return subprocess.run(cmd, shell=True)
+        cmd_list = cmd
+    
+    if background:
+        return subprocess.Popen(cmd_list)
+    else:
+        return subprocess.run(cmd_list)
 
 async def start_blockchain_node():
     """Start the blockchain node in background"""
@@ -32,7 +39,9 @@ async def start_blockchain_node():
 def start_streamlit():
     """Start Streamlit UI"""
     print("🖥️ Starting HYBRID Streamlit UI...")
-    return run_command("streamlit run main.py --server.address=0.0.0.0 --server.port=5000", background=True)
+    # Use Python module execution to avoid path issues
+    cmd = [sys.executable, "-m", "streamlit", "run", "main.py", "--server.address=0.0.0.0", "--server.port=5000"]
+    return subprocess.Popen(cmd)
 
 def main():
     print("🌟 HYBRID Blockchain + HTSX Runtime Starting...")
