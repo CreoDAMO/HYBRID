@@ -1,0 +1,10 @@
+
+[server]
+headless = true
+port = 5000
+enableCORS = false
+enableXsrfProtection = false
+allowRunOnSave = true
+
+[browser]
+gatherUsageStats = false
