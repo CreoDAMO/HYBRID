@@ -1,0 +1,189 @@
+
+<htsx>
+  <html>
+    <head>
+      <title>HYBRID Node Operator Dashboard</title>
+      <style>
+        .dashboard { font-family: 'Arial', sans-serif; padding: 20px; background: #1a1a2e; color: #eee; }
+        .node-card { background: #16213e; border-radius: 12px; padding: 20px; margin: 15px 0; }
+        .status-green { color: #4ade80; }
+        .status-yellow { color: #fbbf24; }
+        .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .metric { background: #0f3460; padding: 15px; border-radius: 8px; text-align: center; }
+      </style>
+    </head>
+    <body>
+      <div id="dashboard" class="dashboard">
+        <h1>⚙️ HYBRID Node Operator Dashboard</h1>
+        
+        <wallet-connector chains="hybrid" required="true" />
+        
+        <nft-license 
+          type="storage"
+          price="100"
+          currency="HYBRID"
+          delegate-enabled="true"
+        />
+        
+        <div class="node-card">
+          <node-operator 
+            type="storage"
+            naas-enabled="true"
+            rewards-auto-claim="false"
+            monitoring-enabled="true"
+          />
+          
+          <div class="metric-grid">
+            <div class="metric">
+              <h3>Node Status</h3>
+              <p class="status-green">🟢 Online</p>
+            </div>
+            <div class="metric">
+              <h3>Uptime</h3>
+              <p>99.95%</p>
+            </div>
+            <div class="metric">
+              <h3>Daily Rewards</h3>
+              <p>45.6 HYBRID</p>
+            </div>
+            <div class="metric">
+              <h3>Total Earned</h3>
+              <p>12,450 HYBRID</p>
+            </div>
+          </div>
+        </div>
+        
+        <hybrid-token 
+          utilities="fees,governance,staking"
+          balance-display="true"
+          staking-enabled="true"
+        />
+        
+        <script lang="hybrid">
+          interface NodeMetrics {
+            uptime: number;
+            transactions_processed: number;
+            storage_used: number;
+            bandwidth_used: number;
+            rewards_earned: number;
+          }
+          
+          interface NodeConfig {
+            id: string;
+            type: 'storage' | 'validator';
+            license_nft: string;
+            operator: string;
+            naas_provider?: string;
+          }
+          
+          class NodeOperator {
+            config: NodeConfig;
+            metrics: NodeMetrics;
+            
+            constructor(config: NodeConfig) {
+              this.config = config;
+              this.metrics = {
+                uptime: 99.95,
+                transactions_processed: 50000,
+                storage_used: 75.5,
+                bandwidth_used: 45.2,
+                rewards_earned: 12450
+              };
+            }
+            
+            async startNode(): Promise<void> {
+              // Verify NFT license
+              const hasLicense = await this.verifyLicense();
+              if (!hasLicense) {
+                throw new Error('No valid NFT license found');
+              }
+              
+              // Initialize node
+              console.log('Starting HYBRID node...');
+              await hybridChain.startNode({
+                nodeId: this.config.id,
+                type: this.config.type,
+                license: this.config.license_nft
+              });
+            }
+            
+            async verifyLicense(): Promise<boolean> {
+              return await hybridChain.verifyNFTLicense({
+                tokenId: this.config.license_nft,
+                operator: this.config.operator,
+                nodeType: this.config.type
+              });
+            }
+            
+            async claimRewards(): Promise<string> {
+              const pendingRewards = await this.getPendingRewards();
+              
+              const tx = await hybridChain.claimNodeRewards({
+                nodeId: this.config.id,
+                amount: pendingRewards
+              });
+              
+              this.metrics.rewards_earned += pendingRewards;
+              return tx.hash;
+            }
+            
+            async getPendingRewards(): Promise<number> {
+              return await hybridChain.getNodeRewards(this.config.id);
+            }
+            
+            async delegateToNaaS(provider: string): Promise<string> {
+              const tx = await hybridChain.delegateNode({
+                nodeId: this.config.id,
+                licensee: this.config.operator,
+                operator: provider
+              });
+              
+              this.config.naas_provider = provider;
+              return tx.hash;
+            }
+            
+            getMetrics(): NodeMetrics {
+              return this.metrics;
+            }
+          }
+          
+          // Initialize node operator
+          const nodeConfig: NodeConfig = {
+            id: 'hybrid_node_001',
+            type: 'storage',
+            license_nft: 'STOR-001',
+            operator: 'hybrid1q2w3e4r5t6y7u8i9o0p'
+          };
+          
+          const operator = new NodeOperator(nodeConfig);
+          
+          // Update dashboard with real metrics
+          const metrics = operator.getMetrics();
+          document.getElementById('dashboard').innerHTML += `
+            <div class="node-card">
+              <h2>Real-time Metrics</h2>
+              <div class="metric-grid">
+                <div class="metric">
+                  <h4>Transactions Processed</h4>
+                  <p>${metrics.transactions_processed.toLocaleString()}</p>
+                </div>
+                <div class="metric">
+                  <h4>Storage Used</h4>
+                  <p>${metrics.storage_used}%</p>
+                </div>
+                <div class="metric">
+                  <h4>Bandwidth Used</h4>
+                  <p>${metrics.bandwidth_used}%</p>
+                </div>
+                <div class="metric">
+                  <h4>Total Rewards</h4>
+                  <p>${metrics.rewards_earned.toLocaleString()} HYBRID</p>
+                </div>
+              </div>
+            </div>
+          `;
+        </script>
+      </div>
+    </body>
+  </html>
+</htsx>

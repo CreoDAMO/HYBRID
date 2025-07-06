@@ -1,0 +1,141 @@
+
+<htsx>
+  <html>
+    <head>
+      <title>HYBRID DeFi Protocol</title>
+      <style>
+        .defi-container { padding: 20px; border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .pool-card { background: rgba(255,255,255,0.1); padding: 16px; border-radius: 8px; margin: 10px 0; }
+        .metric { text-align: center; margin: 10px; }
+      </style>
+    </head>
+    <body>
+      <div id="defi-app" class="defi-container">
+        <h1>🏦 HYBRID DeFi Protocol</h1>
+        
+        <wallet-connector chains="hybrid,base,polygon" required="true" auto-connect="true" />
+        
+        <div class="pool-card">
+          <liquidity-pool 
+            pair="HYBRID/USDC"
+            apy="12.5%"
+            tvl="2500000"
+            auto-compound="false"
+          />
+        </div>
+        
+        <div class="pool-card">
+          <staking-vault 
+            token="HYBRID"
+            apy="8.0%"
+            lock-period="30"
+            auto-restake="true"
+          />
+        </div>
+        
+        <cross-chain-bridge 
+          protocol="axelar"
+          supported-chains="hybrid,base,polygon"
+          gas-optimization="true"
+        />
+        
+        <script lang="hybrid">
+          interface PoolPosition {
+            amount: number;
+            rewards: number;
+            apy: number;
+          }
+          
+          interface StakePosition {
+            amount: number;
+            lock_end: Date;
+            rewards: number;
+          }
+          
+          class DeFiProtocol {
+            pools: Map<string, PoolPosition> = new Map();
+            stakes: StakePosition[] = [];
+            
+            async provideLiquidity(pair: string, amount: number): Promise<string> {
+              // Check balance
+              const balance = await this.getBalance('HYBRID');
+              if (balance < amount) {
+                throw new Error('Insufficient balance');
+              }
+              
+              // Add liquidity to pool
+              const tx = await hybridChain.addLiquidity({
+                pair: pair,
+                amount: amount,
+                slippage: 0.5
+              });
+              
+              this.pools.set(pair, {
+                amount: amount,
+                rewards: 0,
+                apy: 12.5
+              });
+              
+              return tx.hash;
+            }
+            
+            async stakeTokens(amount: number, lockDays: number): Promise<string> {
+              const tx = await hybridChain.stake({
+                amount: amount,
+                duration: lockDays * 24 * 60 * 60
+              });
+              
+              this.stakes.push({
+                amount: amount,
+                lock_end: new Date(Date.now() + lockDays * 24 * 60 * 60 * 1000),
+                rewards: 0
+              });
+              
+              return tx.hash;
+            }
+            
+            async getBalance(token: string): Promise<number> {
+              return await hybridChain.getBalance(token);
+            }
+            
+            async claimRewards(): Promise<string> {
+              let totalRewards = 0;
+              
+              // Calculate pool rewards
+              for (const [pair, position] of this.pools) {
+                totalRewards += position.rewards;
+              }
+              
+              // Calculate staking rewards
+              for (const stake of this.stakes) {
+                totalRewards += stake.rewards;
+              }
+              
+              const tx = await hybridChain.claimRewards({
+                amount: totalRewards
+              });
+              
+              return tx.hash;
+            }
+          }
+          
+          // Initialize DeFi protocol
+          const defi = new DeFiProtocol();
+          
+          // Render UI
+          document.getElementById('defi-app').innerHTML += `
+            <div class="metric">
+              <h3>Total Value Locked</h3>
+              <p>$2.5M USD</p>
+            </div>
+            <div class="metric">
+              <h3>Your Positions</h3>
+              <p>${defi.pools.size} LP Positions</p>
+              <p>${defi.stakes.length} Staking Positions</p>
+            </div>
+          `;
+        </script>
+      </div>
+    </body>
+  </html>
+</htsx>
