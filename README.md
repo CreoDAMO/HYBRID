@@ -1,13 +1,30 @@
-# HYBRID
+# HYBRID Blockchain — Technical Implementation v0.1.0
 
+[![MIT License with NFT Clause](https://img.shields.io/badge/license-MIT%20%2B%20NFT-blue.svg)](LICENSE)
+[![Cosmos SDK](https://img.shields.io/badge/cosmos--sdk-v0.47-green.svg)](https://cosmos.network)
+[![Ethermint](https://img.shields.io/badge/ethermint-EVM%20compatible-orange.svg)](https://ethermint.dev)
 
 ---
 
 ## Overview of HYBRID Blockchain
-The HYBRID Blockchain is a Layer 1 blockchain built with the Cosmos SDK, featuring EVM compatibility, a Mixture of Experts (MoE) approach for AI model training, and a node operation model gated by NFT licenses (Storage and Validator Nodes). It supports cross-chain interactions with Base, Polygon, and Solana, using wallets:
+The HYBRID Blockchain is a Layer 1 blockchain built with the Cosmos SDK v0.47, featuring:
+
+### 🏗️ Core Architecture
+- **Chain ID**: `hybrid-1` (mainnet) / `hybrid-test-1` (testnet)
+- **Consensus**: Tendermint BFT (5s block time, 2/3+1 voting power)
+- **Address Prefix**: `hybrid` (Bech32 format)
+- **Token**: `uhybrid` (1 HYBRID = 1,000,000 uhybrid)
+
+### 💰 Token Economics
+- **Total Supply**: 100,000,000,000 HYBRID (100 Billion)
+- **Genesis Allocation**: 10B HYBRID to founder wallet (10% of total supply)
+- **Inflation**: 7% → 2% taper over 8 years
+- **Block Rewards**: 50% validators, 20% storage, 20% community, 10% dev fund
+
+### 🔗 Multi-Chain Integration
 - **Base/Polygon**: `0xCc380FD8bfbdF0c020de64075b86C84c2BB0AE79`
 - **Solana**: `3E8keZHkH1AHvRfbmq44tEmBgJYz1NjkhBE41C4gJHUn`
-- **HYBRID Founder (Native)**: Auto-generated founder wallet pre-funded with 100M HYBRID tokens
+- **HYBRID Native**: Auto-generated founder wallet pre-funded with 10B HYBRID tokens
 
 ## 👑 HYBRID Native Wallet System
 
@@ -23,15 +40,45 @@ The HYBRID blockchain includes a native wallet system with the founder wallet au
   - Native $HYBRID balance tracking
   - Wallet creation and funding capabilities
 
-### Wallet Features
-- **Native Integration**: Direct blockchain integration, no external dependencies
-- **Secure Key Management**: Ed25519 private/public key pairs
-- **Bech32 Addresses**: Standard Cosmos ecosystem format
-- **Multi-Wallet Support**: Create unlimited wallets with funding from founder
-- **Balance Tracking**: Real-time HYBRID token balances
-- **Mnemonic Recovery**: 24-word seed phrases for wallet recovery
+## 🧩 Core Modules
 
-The blockchain uses $HYBRID tokens for transactions and rewards, with node operators requiring NFT licenses for participation ().
+### x/licence Module
+NFT-gated node participation system:
+- **Validator License (HNL-VAL)**: 1,000 HYBRID mint price
+- **Storage License (HNL-STR)**: 250 HYBRID mint price
+- Cross-chain license verification via relayer
+- Delegation support for license owners
+- Slashing protection with blacklisting
+
+### x/naas Module  
+Node-as-a-Service delegation:
+- **Revenue Split**: 70% owner, 30% operator (default)
+- Provider registration with uptime guarantees
+- Automated reward distribution
+- Delegation management
+
+### x/moe Module
+AI Mixture-of-Experts integration:
+- On-chain model registry (IPFS-backed)
+- Inference call coordination
+- **Fee Structure**: 90% to experts, 10% burned
+- Expert reputation system
+- gRPC inference gateway
+
+### Ethermint EVM Subsystem
+- **EVM Compatibility**: Dual-state (SDK + EVM) from block 1
+- **Gas Token**: uhybrid (1 gwei ≈ 0.001 uhybrid)
+- **Precompiles**: NFT license verification at 0x000...HNL
+- Solidity contract verification via Sourcify
+
+### Native Wallet System
+- **Secure Key Management**: Ed25519 cryptographic keys
+- **Bech32 Addresses**: Standard Cosmos ecosystem format (`hybrid1...`)
+- **Multi-Wallet Support**: Create unlimited wallets with founder funding
+- **24-Word Recovery**: BIP-39 mnemonic phrases
+- **Cross-Chain Bridge**: Integrated Axelar/Wormhole support
+
+The blockchain uses $HYBRID tokens for all operations, with NFT licenses required for node participation.
 
 ---
 

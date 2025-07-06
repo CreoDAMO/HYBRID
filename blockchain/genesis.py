@@ -35,17 +35,18 @@ class GenesisGenerator:
     """Generate genesis configuration for HYBRID blockchain"""
     
     def __init__(self):
-        self.chain_id = "hybrid-mainnet-1"
+        self.chain_id = "hybrid-1"  # Main chain ID per spec
         self.genesis_time = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         
     def create_genesis(self) -> GenesisConfig:
         """Create genesis configuration"""
         founder_wallet = get_founder_wallet()
         
-        # Create founder account
+        # Create founder account with proper allocation from 100B total supply
+        founder_initial_allocation = 10_000_000_000 * 1_000_000  # 10B HYBRID (10% of total supply)
         founder_account = GenesisAccount(
             address=founder_wallet.address,
-            balance=founder_wallet.balance,  # 100M HYBRID tokens
+            balance=founder_initial_allocation,
             sequence=0
         )
         

@@ -10,6 +10,9 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519
 import requests
 from blockchain.hybrid_wallet import hybrid_wallet_manager, get_founder_wallet
+from blockchain.x_licence import licence_module, LicenseType
+from blockchain.x_naas import naas_module
+from blockchain.x_moe import moe_module
 
 logger = logging.getLogger(__name__)
 
@@ -377,10 +380,15 @@ class HybridBlockchainNode:
         
         # Core components
         self.consensus = HybridConsensus(node_id, [])
-        self.nft_manager = NFTLicenseManager()
+        self.nft_manager = NFTLicenseManager()  # Legacy, now using x/licence
         self.bridge = CrossChainBridge()
         self.token_economics = HybridTokenEconomics()
         self.htsx_runtime = HTSXRuntimeEngine(self)
+        
+        # Core modules (per technical spec)
+        self.licence_module = licence_module
+        self.naas_module = naas_module
+        self.moe_module = moe_module
         
         # Initialize with founder wallet
         self.wallet_manager = hybrid_wallet_manager
@@ -411,8 +419,9 @@ class HybridBlockchainNode:
         """Start the blockchain node"""
         logger.info(f"Starting HYBRID node {self.node_id} (type: {self.node_type.value})")
         
-        # Verify NFT license
-        if not self.nft_manager.verify_license(self.node_id, self.node_type):
+        # Verify NFT license using x/licence module
+        license_type = LicenseType.VALIDATOR if self.node_type == NodeType.VALIDATOR else LicenseType.STORAGE
+        if not self.licence_module.verify_license(self.node_id, license_type):
             raise Exception(f"No valid NFT license for {self.node_type.value} node operation")
         
         self.is_running = True

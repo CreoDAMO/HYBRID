@@ -40,8 +40,8 @@ class HybridWalletManager:
             label="🚀 HYBRID Founder - Lead Engineer & Developer"
         )
         
-        # Pre-fund with initial supply allocation
-        founder_initial_supply = 100_000_000 * 1_000_000  # 100M HYBRID tokens
+        # Pre-fund with initial supply allocation (10% of 100B total supply)
+        founder_initial_supply = 10_000_000_000 * 1_000_000  # 10B HYBRID tokens (10% of 100B)
         founder_wallet.balance = founder_initial_supply
         
         self.founder_address = founder_wallet.address
