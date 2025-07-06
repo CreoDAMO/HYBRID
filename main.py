@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from enum import Enum
 import sys
 import os
+import time
+import random
 
 # Add blockchain module to path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'blockchain'))
@@ -428,6 +430,49 @@ def render_hybrid_token_interface(token_data: Dict[str, Any]):
         if st.button("🗳️ Governance"):
             st.info("Governance voting interface would open here")
 
+def create_stress_test_ui():
+    st.subheader("🔥 Stress Test")
+    st.write("Run a stress test on the HYBRID Blockchain.")
+
+def create_nvidia_cloud_demo(runtime):
+    st.subheader("🚀 NVIDIA Cloud Demo")
+    st.write("Demo of NVIDIA Cloud integration.")
+
+def render_cloud_mining_dashboard(runtime):
+    """Render Cloud Mining Dashboard"""
+    st.subheader("⛏️ Cloud Mining Dashboard")
+
+    # Mining metrics
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.metric("Mining Status", "🟢 Active", "Mining HYBRID")
+    with col2:
+        st.metric("Hashrate", "120 MH/s", "+10 MH/s")
+    with col3:
+        st.metric("Daily Earnings", "5 HYBRID", "+0.5 HYBRID")
+
+    # Available coins
+    coins = ["HYBRID", "Monero", "Litecoin", "Bitcoin"]
+    selected_coin = st.selectbox("Select Coin to Mine", coins)
+
+    # Mining controls
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if st.button("Start Mining"):
+            st.success(f"Started mining {selected_coin}!")
+    with col2:
+        if st.button("Stop Mining"):
+            st.warning("Mining stopped.")
+
+    # Auto LP functionality
+    st.subheader("💧 Auto Liquidity Pool")
+    st.write("Automatically create liquidity pools with mined coins and HYBRID.")
+
+    if st.button("Create LP"):
+        st.success("Liquidity pool created with HYBRID and mined coins!")
+
 def main():
     st.set_page_config(
         page_title="HYBRID Blockchain + HTSX Integration",
@@ -488,11 +533,13 @@ def main():
         if st.button("⚡ Performance Test"):
             st.session_state.run_perf_test = True
     with col4:
-        if st.button("🔄 Reset Tests"):
-            for key in list(st.session_state.keys()):
-                if 'test' in key or 'monitor' in key:
-                    del st.session_state[key]
-            st.rerun()
+        # NVIDIA Cloud Integration
+        if st.button("🚀 NVIDIA Cloud Demo"):
+            create_nvidia_cloud_demo(runtime)
+
+    # Add cloud mining dashboard
+    st.divider()
+    render_cloud_mining_dashboard(runtime)
 
     # Run stress test if requested
     if st.session_state.get('run_stress_test', False):
