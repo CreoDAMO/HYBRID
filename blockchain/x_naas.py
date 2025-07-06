@@ -189,7 +189,8 @@ demo_providers = [
         commission_rate=0.25,  # 25%
         max_delegations=100,
         uptime_guarantee=0.999,
-        managed_nodes=[]
+        managed_nodes=[],
+        total_delegated_power=0
     ),
     NaaSProvider(
         provider_id="naas_provider_2", 
@@ -198,7 +199,8 @@ demo_providers = [
         commission_rate=0.30,  # 30%
         max_delegations=50,
         uptime_guarantee=0.995,
-        managed_nodes=[]
+        managed_nodes=[],
+        total_delegated_power=0
     )
 ]
 
