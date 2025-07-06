@@ -797,7 +797,7 @@ def main():
             st.session_state.run_perf_test = True
     with col4:
         # NVIDIA Cloud Integration
-        if st.button("🚀 NVIDIA Cloud Demo"):
+        if st.button("🚀 NVIDIA Cloud Demo", key="nvidia_cloud_demo_main"):
             create_nvidia_cloud_demo(runtime)
 
     # Add cloud mining dashboard
@@ -1073,7 +1073,7 @@ def main():
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        if st.button("🔍 Analyze HYBRID Tokenomics"):
+        if st.button("🔍 Analyze HYBRID Tokenomics", key="analyze_tokenomics"):
             with st.spinner("Claude Opus analyzing..."):
                 from blockchain.x_moe import anthropic_moe
                 query = "Analyze the HYBRID blockchain tokenomics model with 1B total supply, staking rewards, and cross-chain utilities"
@@ -1082,7 +1082,7 @@ def main():
                 st.markdown(result.response)
     
     with col2:
-        if st.button("🏗️ Generate HTSX Component"):
+        if st.button("🏗️ Generate HTSX Component", key="generate_htsx"):
             with st.spinner("Claude Sonnet generating..."):
                 from blockchain.x_moe import anthropic_moe
                 query = "Create an HTSX component for NFT license marketplace with purchase, delegation, and rewards tracking"
@@ -1091,7 +1091,7 @@ def main():
                 st.code(result.response, language="typescript")
     
     with col3:
-        if st.button("🛡️ Security Audit"):
+        if st.button("🛡️ Security Audit", key="security_audit"):
             with st.spinner("Claude Sonnet auditing..."):
                 from blockchain.x_moe import anthropic_moe
                 query = "Perform security audit on HYBRID blockchain architecture focusing on NFT licenses, cross-chain bridges, and staking mechanisms"
@@ -1116,7 +1116,7 @@ def main():
             - 8.5% yield across chains
             """)
 
-            if st.button("🌊 Access AggLayer"):
+            if st.button("🌊 Access AggLayer", key="access_agglayer"):
                 with st.spinner("Connecting to AggLayer..."):
                     liquidity_data = asyncio.run(agglayer.get_unified_liquidity())
                     st.success(f"Connected! Total liquidity: {liquidity_data['total_liquidity']}")
@@ -1132,7 +1132,7 @@ def main():
             - Fiat onramp integration
             """)
 
-            if st.button("🧠 Launch AI Agent"):
+            if st.button("🧠 Launch AI Agent", key="launch_ai_agent"):
                 with st.spinner("Initializing AI agent..."):
                     agent_action = asyncio.run(hybrid_agent.execute_agent_action(
                         "buy_node_license", 
@@ -1152,7 +1152,7 @@ def main():
             """)
 
             amount = st.number_input("Amount (USD)", min_value=10, value=100, step=10)
-            if st.button("💰 Buy HYBRID"):
+            if st.button("💰 Buy HYBRID", key="buy_hybrid_onramp"):
                 with st.spinner("Creating onramp session..."):
                     onramp_session = asyncio.run(onramper.create_onramp_session(amount))
                     st.success(f"Session created! Get {onramp_session['amount_hybrid']}")
@@ -1192,7 +1192,7 @@ def main():
 
     with col2:
         # NVIDIA Cloud Integration
-        if st.button("🚀 NVIDIA Cloud Demo"):
+        if st.button("🚀 NVIDIA Cloud Demo", key="nvidia_cloud_demo_integration"):
             create_nvidia_cloud_demo(runtime)
 
 if __name__ == "__main__":
