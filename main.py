@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 import streamlit as st
 import asyncio
@@ -21,6 +20,9 @@ from blockchain.hybrid_node import (
 from blockchain.hybrid_wallet import hybrid_wallet_manager, get_founder_wallet, create_hybrid_wallet
 from blockchain.agglayer_integration import agglayer
 from blockchain.coinbase_integration import hybrid_agent, paymaster, onramper, onchain_kit
+
+# Import NVIDIA Cloud integration
+from blockchain.nvidia_cloud_integration import NVIDIACloudManager, HTSXNVIDIAComponents
 
 # HYBRID Blockchain Integration
 class ChainType(Enum):
@@ -48,19 +50,19 @@ class HybridHTSXRuntime:
     def __init__(self):
         # Get the founder wallet
         self.founder_wallet = get_founder_wallet()
-        
+
         self.wallets = {
             ChainType.BASE: WalletConfig("0xCc380FD8bfbdF0c020de64075b86C84c2BB0AE79", ChainType.BASE, "https://mainnet.base.org", 5.2),
             ChainType.POLYGON: WalletConfig("0xCc380FD8bfbdF0c020de64075b86C84c2BB0AE79", ChainType.POLYGON, "https://polygon-rpc.com", 150.8),
             ChainType.SOLANA: WalletConfig("3E8keZHkH1AHvRfbmq44tEmBgJYz1NjkhBE41C4gJHUn", ChainType.SOLANA, "https://api.mainnet-beta.solana.com", 12.5),
             ChainType.HYBRID: WalletConfig(self.founder_wallet.address, ChainType.HYBRID, "http://0.0.0.0:26657", self.founder_wallet.balance / 1_000_000)
         }
-        
+
         self.nft_licenses = {
             "storage": NFTLicense("STOR-001", "hybrid1q2w3e4r5t6y7u8i9o0p", NodeType.STORAGE, "2024-01-01", None),
             "validator": NFTLicense("VAL-001", "", NodeType.VALIDATOR, "", None)
         }
-        
+
         self.node_stats = NodeOperatorStats(
             uptime=99.9,
             daily_rewards=50.0,
@@ -68,15 +70,15 @@ class HybridHTSXRuntime:
             staked_amount=500.0,
             license_type="storage"
         )
-        
+
         # Initialize blockchain node
         self.blockchain_node = None
-        
+
     async def initialize_blockchain_node(self, node_type: str = "storage"):
         """Initialize the HYBRID blockchain node"""
         if not self.blockchain_node:
             self.blockchain_node = create_hybrid_node(node_type)
-            
+
     def parse_htsx_components(self, htsx_content: str) -> Dict[str, List[Dict[str, Any]]]:
         """Enhanced HTSX parser for blockchain components"""
         components = {
@@ -87,7 +89,7 @@ class HybridHTSXRuntime:
             "hybrid_tokens": [],
             "defi_protocols": []
         }
-        
+
         # Parse wallet connector
         if "wallet-connector" in htsx_content:
             chains = self._extract_chains(htsx_content)
@@ -96,14 +98,14 @@ class HybridHTSXRuntime:
                 "connected": True,
                 "wallets": self.wallets
             })
-        
+
         # Parse NFT licenses
         if "nft-license" in htsx_content:
             components["nft_licenses"].append({
                 "licenses": self.nft_licenses,
                 "purchase_enabled": True
             })
-        
+
         # Parse cross-chain bridges
         if "cross-chain-bridge" in htsx_content:
             components["cross_chain_bridges"].append({
@@ -111,7 +113,7 @@ class HybridHTSXRuntime:
                 "supported_chains": ["hybrid", "base", "polygon", "solana"],
                 "fees": {"hybrid_to_base": 0.1, "base_to_hybrid": 0.15}
             })
-        
+
         # Parse node operators
         if "node-operator" in htsx_content:
             components["node_operators"].append({
@@ -119,7 +121,7 @@ class HybridHTSXRuntime:
                 "stats": self.node_stats,
                 "naas_enabled": True
             })
-        
+
         # Parse HYBRID token
         if "hybrid-token" in htsx_content:
             components["hybrid_tokens"].append({
@@ -128,9 +130,9 @@ class HybridHTSXRuntime:
                 "price_usd": 10.0,
                 "utilities": ["fees", "governance", "staking", "nft_purchase"]
             })
-            
+
         return components
-    
+
     def _extract_chains(self, htsx_content: str) -> List[str]:
         """Extract chain names from HTSX content"""
         chains = []
@@ -142,32 +144,32 @@ class HybridHTSXRuntime:
 def render_founder_wallet():
     """Render founder wallet information"""
     st.subheader("👑 HYBRID Founder Wallet")
-    
+
     founder = get_founder_wallet()
-    
+
     col1, col2, col3 = st.columns(3)
-    
+
     with col1:
         st.metric(
             "Founder Address", 
             f"{founder.address[:12]}...{founder.address[-8:]}", 
             "🚀 Lead Engineer & Developer"
         )
-    
+
     with col2:
         st.metric(
             "HYBRID Balance", 
             f"{founder.balance / 1_000_000:,.0f} HYBRID",
             f"${founder.balance / 1_000_000 * 10:,.0f} USD (at $10/HYBRID)"
         )
-    
+
     with col3:
         st.metric(
             "Wallet Status",
             "🟢 Active",
             "Genesis Wallet"
         )
-    
+
     with st.expander("📋 Full Founder Wallet Details"):
         st.code(f"""
 Address: {founder.address}
@@ -177,31 +179,31 @@ Micro-HYBRID: {founder.balance:,} µHYBRID
 Created: {founder.created_at}
 Type: Genesis Founder Wallet
         """)
-        
+
         # Secure access to sensitive data
         col1, col2 = st.columns(2)
         with col1:
             if st.button("🔐 Show Mnemonic Phrase", help="Your 24-word recovery phrase"):
                 st.warning("⚠️ Keep this secure! Never share your mnemonic phrase.")
                 st.code(founder.mnemonic, language="text")
-        
+
         with col2:
             if st.button("🔑 Show Private Key", help="Your wallet private key"):
                 st.error("🚨 DANGER: Private key gives full control of wallet!")
                 st.code(founder.private_key, language="text")
-        
+
         st.info("💡 Tip: Use the CLI command `python -m blockchain.hybrid_cli wallet founder` to view wallet details")
-        
+
         if st.button("💰 Create New User Wallet"):
             new_wallet = create_hybrid_wallet("New User Wallet")
-            
+
             # Transfer 1000 HYBRID to new wallet
             success = hybrid_wallet_manager.transfer(
                 founder.address,
                 new_wallet.address,
                 1000 * 1_000_000  # 1000 HYBRID
             )
-            
+
             if success:
                 st.success(f"✅ New wallet created and funded!")
                 st.code(f"""
@@ -215,9 +217,9 @@ Balance: 1,000 HYBRID (funded by founder)
 def render_blockchain_status():
     """Render blockchain node status"""
     st.subheader("⛓️ HYBRID Blockchain Status")
-    
+
     col1, col2, col3, col4 = st.columns(4)
-    
+
     with col1:
         st.metric("Node Status", "🟢 Online", "Active")
     with col2:
@@ -226,18 +228,18 @@ def render_blockchain_status():
         st.metric("Validators", "21", "0")
     with col4:
         st.metric("TPS", "2,500", "+150")
-    
+
     # Blockchain metrics
     with st.expander("📊 Detailed Blockchain Metrics"):
         col1, col2 = st.columns(2)
-        
+
         with col1:
             st.write("**Network Statistics:**")
             st.write("• Network: HYBRID Mainnet")
             st.write("• Consensus: Tendermint")
             st.write("• Average Block Time: 6 seconds")
             st.write("• Total Transactions: 12,345,678")
-            
+
         with col2:
             st.write("**Token Economics:**")
             st.write("• Total Supply: 1,000,000,000 HYBRID")
@@ -248,10 +250,10 @@ def render_blockchain_status():
 def render_wallet_connector(wallet_data: Dict[str, Any]):
     """Render multi-chain wallet connector component"""
     st.subheader("🔗 Multi-Chain Wallet Connector")
-    
+
     wallets = wallet_data.get("wallets", {})
     cols = st.columns(len(wallets))
-    
+
     for i, (chain, wallet) in enumerate(wallets.items()):
         with cols[i]:
             chain_name = chain.value.upper()
@@ -261,18 +263,18 @@ def render_wallet_connector(wallet_data: Dict[str, Any]):
                 value=f"{wallet.balance:.2f}",
                 delta=truncated_address
             )
-    
+
     if st.button("🔄 Refresh Balances"):
         st.success("Wallet balances refreshed!")
 
 def render_nft_license_system(license_data: Dict[str, Any]):
     """Render NFT license management system"""
     st.subheader("🎫 HYBRID Node License NFTs")
-    
+
     licenses = license_data.get("licenses", {})
-    
+
     col1, col2 = st.columns(2)
-    
+
     with col1:
         storage_license = licenses.get("storage")
         if storage_license:
@@ -285,7 +287,7 @@ def render_nft_license_system(license_data: Dict[str, Any]):
             - Earns transaction fees
             - Status: {status}
             """)
-    
+
     with col2:
         validator_license = licenses.get("validator")
         if validator_license:
@@ -298,7 +300,7 @@ def render_nft_license_system(license_data: Dict[str, Any]):
             - Earns block rewards
             - Status: {status}
             """)
-            
+
             if not validator_license.token_id:
                 if st.button("Purchase Validator License"):
                     st.success("🚀 Initiating validator license purchase...")
@@ -307,21 +309,21 @@ def render_nft_license_system(license_data: Dict[str, Any]):
 def render_cross_chain_bridge(bridge_data: Dict[str, Any]):
     """Render cross-chain bridge interface"""
     st.subheader("🌉 Cross-Chain Bridge")
-    
+
     supported_chains = bridge_data.get("supported_chains", [])
     protocol = bridge_data.get("protocol", "axelar")
-    
+
     with st.form("bridge_transaction"):
         col1, col2 = st.columns(2)
-        
+
         with col1:
             from_chain = st.selectbox("From Chain", [chain.upper() for chain in supported_chains])
             amount = st.number_input("Amount", min_value=0.0, value=100.0, step=0.1)
-        
+
         with col2:
             to_chain = st.selectbox("To Chain", [chain.upper() for chain in supported_chains])
             token = st.selectbox("Token", ["HYBRID", "ETH", "MATIC", "SOL"])
-        
+
         if st.form_submit_button("🌉 Bridge Tokens"):
             if from_chain != to_chain:
                 st.success(f"Bridging {amount} {token} from {from_chain} to {to_chain} via {protocol.upper()}...")
@@ -332,13 +334,13 @@ def render_cross_chain_bridge(bridge_data: Dict[str, Any]):
 def render_node_operator_dashboard(node_data: Dict[str, Any]):
     """Render node operator dashboard"""
     st.subheader("⚙️ Node Operations Dashboard")
-    
+
     stats = node_data.get("stats")
     node_type = node_data.get("type", "storage")
-    
+
     # Metrics
     col1, col2, col3, col4 = st.columns(4)
-    
+
     with col1:
         st.metric("Node Type", node_type.title(), "Active")
     with col2:
@@ -347,24 +349,24 @@ def render_node_operator_dashboard(node_data: Dict[str, Any]):
         st.metric("Daily Rewards", f"{stats.daily_rewards} HYBRID", "+5")
     with col4:
         st.metric("Transactions", f"{stats.total_transactions:,}", "+50")
-    
+
     # Tabs for detailed view
     tab1, tab2, tab3 = st.tabs(["📊 Performance", "💰 Rewards", "⚙️ Settings"])
-    
+
     with tab1:
         # Performance chart
         import pandas as pd
         import numpy as np
-        
+
         dates = pd.date_range(start="2024-01-01", periods=30, freq="D")
         performance_data = pd.DataFrame({
             "Date": dates,
             "Uptime": np.random.normal(99.5, 0.5, 30),
             "Transactions": np.random.poisson(50, 30)
         })
-        
+
         st.line_chart(performance_data.set_index("Date"))
-    
+
     with tab2:
         # Rewards tracking
         reward_data = {
@@ -374,15 +376,15 @@ def render_node_operator_dashboard(node_data: Dict[str, Any]):
             "Monthly": [450, 750, 300]
         }
         st.dataframe(pd.DataFrame(reward_data))
-        
+
         if st.button("💰 Claim Pending Rewards"):
             st.success("Claimed 50 HYBRID tokens!")
-    
+
     with tab3:
         naas_enabled = st.checkbox("Enable Node-as-a-Service (NaaS)", value=True)
         if naas_enabled:
             st.info("Your node is managed by a NaaS provider. You earn 70% of rewards passively.")
-        
+
         delegation_address = st.text_input("Delegate to Address", value="")
         if st.button("Delegate Node") and delegation_address:
             st.success(f"Node delegated to {delegation_address}")
@@ -390,14 +392,14 @@ def render_node_operator_dashboard(node_data: Dict[str, Any]):
 def render_hybrid_token_interface(token_data: Dict[str, Any]):
     """Render HYBRID token interface"""
     st.subheader("💰 $HYBRID Token")
-    
+
     balance = token_data.get("balance", 0)
     price_usd = token_data.get("price_usd", 10.0)
     utilities = token_data.get("utilities", [])
-    
+
     # Token metrics
     col1, col2, col3 = st.columns(3)
-    
+
     with col1:
         st.metric("Balance", f"{balance:,.0f} HYBRID", "+50")
     with col2:
@@ -405,23 +407,23 @@ def render_hybrid_token_interface(token_data: Dict[str, Any]):
     with col3:
         staked_amount = 500
         st.metric("Staked", f"{staked_amount} HYBRID", "5% APY")
-    
+
     # Token utilities
     with st.expander("🔧 Token Utilities"):
         for utility in utilities:
             st.write(f"• {utility.replace('_', ' ').title()}")
-    
+
     # Token actions
     col1, col2, col3 = st.columns(3)
-    
+
     with col1:
         if st.button("💸 Send HYBRID"):
             st.info("Send token interface would open here")
-    
+
     with col2:
         if st.button("🏦 Stake Tokens"):
             st.info("Staking interface would open here")
-    
+
     with col3:
         if st.button("🗳️ Governance"):
             st.info("Governance voting interface would open here")
@@ -433,7 +435,7 @@ def main():
         layout="wide",
         initial_sidebar_state="expanded"
     )
-    
+
     # Modern CSS styling
     st.markdown("""
     <style>
@@ -462,18 +464,18 @@ def main():
     }
     </style>
     """, unsafe_allow_html=True)
-    
+
     st.title("🚀 HYBRID Blockchain + HTSX Integration")
     st.markdown("*Fully Operational Cosmos SDK Blockchain with HTSX Runtime Engine*")
-    
+
     # Initialize runtime
     runtime = HybridHTSXRuntime()
-    
+
     # Initialize blockchain node
     if 'blockchain_initialized' not in st.session_state:
         asyncio.run(runtime.initialize_blockchain_node())
         st.session_state.blockchain_initialized = True
-    
+
     # Add stress test button
     col1, col2, col3, col4 = st.columns(4)
     with col1:
@@ -491,17 +493,17 @@ def main():
                 if 'test' in key or 'monitor' in key:
                     del st.session_state[key]
             st.rerun()
-    
+
     # Run stress test if requested
     if st.session_state.get('run_stress_test', False):
         st.markdown("---")
         st.subheader("🧪 SUPER STRESS TEST IN PROGRESS")
-        
+
         with st.spinner("Running comprehensive stress test..."):
             # Show progress bar
             progress_bar = st.progress(0)
             status_text = st.empty()
-            
+
             # Simulate stress test progress
             test_phases = [
                 "Initializing test environment...",
@@ -517,12 +519,12 @@ def main():
                 "Testing performance limits...",
                 "Generating results..."
             ]
-            
+
             for i, phase in enumerate(test_phases):
                 status_text.text(phase)
                 progress_bar.progress((i + 1) / len(test_phases))
                 time.sleep(0.5)  # Simulate test time
-        
+
         # Show test results
         col1, col2, col3, col4 = st.columns(4)
         with col1:
@@ -533,7 +535,7 @@ def main():
             st.metric("🔥 Peak TPS", "2,847", "+347")
         with col4:
             st.metric("💪 Success Rate", "98.5%", "+2.1%")
-        
+
         # Detailed results
         with st.expander("📋 Detailed Test Results", expanded=True):
             test_results = {
@@ -544,18 +546,18 @@ def main():
                 "Success Rate": ["100%", "100%", "100%", "100%", "100%", "100%", "85%", "100%", "100%", "60%"]
             }
             st.dataframe(test_results, use_container_width=True)
-        
+
         st.success("🏆 HYBRID Blockchain passed the super stress test! System is highly robust and performant.")
         st.session_state.run_stress_test = False
-    
+
     # Show real-time monitor
     if st.session_state.get('show_monitor', False):
         st.markdown("---")
         st.subheader("📊 Real-time System Monitor")
-        
+
         # Create metrics that update
         metric_cols = st.columns(6)
-        
+
         with metric_cols[0]:
             st.metric("🔥 Live TPS", f"{random.randint(1200, 2800)}", f"{random.randint(-50, 150)}")
         with metric_cols[1]:
@@ -568,26 +570,26 @@ def main():
             st.metric("💰 HYBRID Price", f"${random.uniform(9.5, 12.5):.2f}", f"{random.uniform(-0.5, 0.8):.2f}")
         with metric_cols[5]:
             st.metric("🔄 Network Load", f"{random.randint(45, 95)}%", f"{random.randint(-10, 15)}%")
-        
+
         # Live chart simulation
         import numpy as np
         chart_data = np.random.randn(50, 3) * 100 + [1500, 75, 10]
         chart_data = np.abs(chart_data)
-        
+
         st.line_chart(chart_data, height=300)
-        
+
         if st.button("🛑 Stop Monitoring"):
             st.session_state.show_monitor = False
             st.rerun()
-    
+
     # Render founder wallet first
     render_founder_wallet()
     st.divider()
-    
+
     # Render blockchain status
     render_blockchain_status()
     st.divider()
-    
+
     # Sample HTSX for demonstration
     sample_htsx = """
     <htsx>
@@ -598,27 +600,27 @@ def main():
       <hybrid-token utilities="fees,governance,staking,nft_purchase" />
     </htsx>
     """
-    
+
     # Sidebar for HTSX editing
     with st.sidebar:
         st.header("📝 HTSX Runtime Engine")
         st.markdown("Edit blockchain components using HTSX:")
-        
+
         htsx_content = st.text_area(
             "HTSX Code",
             value=sample_htsx,
             height=400,
             help="Define your blockchain components using HTSX syntax"
         )
-        
+
         if st.button("🔄 Parse & Execute HTSX", type="primary"):
             st.session_state.htsx_content = htsx_content
             st.rerun()
-    
+
     # Parse and render components
     htsx_to_render = getattr(st.session_state, 'htsx_content', sample_htsx)
     components = runtime.parse_htsx_components(htsx_to_render)
-    
+
     # Render each component type
     for component_type, component_list in components.items():
         if component_list:
@@ -633,15 +635,15 @@ def main():
                     render_node_operator_dashboard(component_data)
                 elif component_type == "hybrid_tokens":
                     render_hybrid_token_interface(component_data)
-                
+
                 st.divider()
-    
+
     # Advanced Web3 Integrations
     st.divider()
     st.subheader("🚀 Advanced Web3 Integrations")
-    
+
     col1, col2, col3 = st.columns(3)
-    
+
     with col1:
         st.markdown("### 🔗 Polygon AggLayer")
         with st.container():
@@ -652,12 +654,12 @@ def main():
             - 50M HYBRID total liquidity
             - 8.5% yield across chains
             """)
-            
+
             if st.button("🌊 Access AggLayer"):
                 with st.spinner("Connecting to AggLayer..."):
                     liquidity_data = asyncio.run(agglayer.get_unified_liquidity())
                     st.success(f"Connected! Total liquidity: {liquidity_data['total_liquidity']}")
-    
+
     with col2:
         st.markdown("### 🤖 Coinbase AgentKit")
         with st.container():
@@ -668,7 +670,7 @@ def main():
             - Gasless transactions (Paymaster)
             - Fiat onramp integration
             """)
-            
+
             if st.button("🧠 Launch AI Agent"):
                 with st.spinner("Initializing AI agent..."):
                     agent_action = asyncio.run(hybrid_agent.execute_agent_action(
@@ -676,7 +678,7 @@ def main():
                         {"type": "storage", "auto_delegate": True}
                     ))
                     st.success(f"AI Agent: {agent_action['agent_reasoning']}")
-    
+
     with col3:
         st.markdown("### 💳 OnRamp Integration")
         with st.container():
@@ -687,18 +689,18 @@ def main():
             - Instant settlement
             - $10 per HYBRID
             """)
-            
+
             amount = st.number_input("Amount (USD)", min_value=10, value=100, step=10)
             if st.button("💰 Buy HYBRID"):
                 with st.spinner("Creating onramp session..."):
                     onramp_session = asyncio.run(onramper.create_onramp_session(amount))
                     st.success(f"Session created! Get {onramp_session['amount_hybrid']}")
                     st.markdown(f"[Complete Purchase]({onramp_session['payment_url']})")
-    
+
     # Integration benefits footer
     with st.expander("🎯 Why HYBRID Blockchain + HTSX?"):
         col1, col2 = st.columns(2)
-        
+
         with col1:
             st.markdown("""
             **🔗 HYBRID Blockchain Benefits:**
@@ -709,7 +711,7 @@ def main():
             - Node-as-a-Service (NaaS) for passive income
             - Real blockchain, not a simulation
             """)
-        
+
         with col2:
             st.markdown("""
             **⚡ HTSX Runtime Engine Benefits:**
@@ -720,6 +722,17 @@ def main():
             - Real-time blockchain integration
             - Production-ready runtime
             """)
+
+    # Initialize stress testing
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("🔥 Run Stress Test"):
+            create_stress_test_ui()
+
+    with col2:
+        # NVIDIA Cloud Integration
+        if st.button("🚀 NVIDIA Cloud Demo"):
+            create_nvidia_cloud_demo(runtime)
 
 if __name__ == "__main__":
     main()
