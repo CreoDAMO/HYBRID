@@ -17,3 +17,5 @@ cryptography>=3.4.8
 eth-account>=0.8.0
 solana>=0.30.0
 py-ecc>=6.0.0
+psutil
+streamlit

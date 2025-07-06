@@ -1,11 +1,12 @@
-run = "streamlit run main.py"
+run = "uvicorn main:app --host 0.0.0.0 --port 3000"
 modules = ["python-3.12"]
 
 [nix]
 channel = "stable-24_05"
+packages = ["c-ares", "cargo", "glibcLocales", "grpc", "libiconv", "libxcrypt", "openssl", "pkg-config", "rustc", "zlib"]
 
 [deployment]
-run = ["sh", "-c", "streamlit run main.py"]
+run = ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port 3000"]
 
 [workflows]
 runButton = "Run HYBRID + HTSX App"
