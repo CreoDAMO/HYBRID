@@ -26,6 +26,12 @@ from blockchain.coinbase_integration import hybrid_agent, paymaster, onramper, o
 # Import NVIDIA Cloud integration
 from blockchain.nvidia_cloud_integration import NVIDIACloudManager, HTSXNVIDIAComponents
 
+# Import Circle USDC integration
+from blockchain.circle_usdc_integration import (
+    circle_usdc_manager, hybrid_usdc_bridge, usdc_liquidity_pool, 
+    hybrid_usdc_staking, demo_wallets
+)
+
 # HYBRID Blockchain Integration
 class ChainType(Enum):
     HYBRID = "hybrid"
@@ -132,6 +138,15 @@ class HybridHTSXRuntime:
                 "price_usd": 10.0,
                 "utilities": ["fees", "governance", "staking", "nft_purchase"]
             })
+        
+        # Parse Circle USDC integration
+        if "usdc-integration" in htsx_content:
+            components["usdc_integration"] = [{
+                "programmable_wallets": demo_wallets,
+                "bridge_enabled": True,
+                "staking_pools": list(hybrid_usdc_staking.staking_pools.keys()),
+                "liquidity_pools": list(usdc_liquidity_pool.pools.keys())
+            }]
 
         return components
 
@@ -473,6 +488,254 @@ def render_cloud_mining_dashboard(runtime):
     if st.button("Create LP"):
         st.success("Liquidity pool created with HYBRID and mined coins!")
 
+def render_circle_usdc_interface():
+    """Render comprehensive Circle USDC integration interface"""
+    st.subheader("💰 Circle USDC Integration")
+    st.markdown("*Programmable Wallets, Cross-Chain CCTP, and Stable Liquidity*")
+    
+    # USDC metrics overview
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric("Total USDC Liquidity", "$75M", "+$2.5M")
+    with col2:
+        st.metric("Active Wallets", "1,247", "+23")
+    with col3:
+        st.metric("Daily Volume", "$12.8M", "+8.7%")
+    with col4:
+        st.metric("Avg APY", "8.5%", "+0.2%")
+    
+    # Tabs for different USDC features
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "🏦 Programmable Wallets", "🌉 Cross-Chain Bridge", 
+        "💧 Liquidity Pools", "🏛️ USDC Staking", "📊 Analytics"
+    ])
+    
+    with tab1:
+        st.markdown("### 🏦 Circle Programmable Wallets")
+        
+        # Wallet overview
+        st.markdown("**Your USDC Wallets:**")
+        for wallet in demo_wallets:
+            with st.expander(f"💼 {wallet.blockchain} Wallet - {wallet.wallet_id[:12]}..."):
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.write(f"**Address:** `{wallet.address}`")
+                    st.write(f"**Blockchain:** {wallet.blockchain}")
+                    st.write(f"**State:** {wallet.state}")
+                with col2:
+                    st.write(f"**Type:** {wallet.account_type}")
+                    st.write(f"**Custody:** {wallet.custody_type}")
+                    st.write(f"**Created:** {wallet.create_date}")
+                
+                # Wallet actions
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    if st.button(f"💸 Send USDC", key=f"send_{wallet.wallet_id}"):
+                        st.success("Send USDC interface would open")
+                with col2:
+                    if st.button(f"📥 Receive", key=f"receive_{wallet.wallet_id}"):
+                        st.info(f"Receive USDC at: {wallet.address}")
+                with col3:
+                    if st.button(f"📊 Balance", key=f"balance_{wallet.wallet_id}"):
+                        balance = asyncio.run(circle_usdc_manager.get_usdc_balance(wallet.wallet_id))
+                        st.success(f"Balance: {balance[0].amount} USDC")
+        
+        # Create new wallet
+        st.markdown("### ➕ Create New Wallet")
+        col1, col2 = st.columns(2)
+        with col1:
+            new_chain = st.selectbox("Blockchain", ["MATIC", "ETH", "AVAX", "SOL"])
+        with col2:
+            wallet_name = st.text_input("Wallet Name", "My USDC Wallet")
+        
+        if st.button("🆕 Create Programmable Wallet"):
+            with st.spinner("Creating wallet..."):
+                wallet_set = asyncio.run(circle_usdc_manager.create_wallet_set(wallet_name))
+                new_wallet = asyncio.run(circle_usdc_manager.create_programmable_wallet(
+                    wallet_set["wallet_set_id"], new_chain
+                ))
+                st.success(f"✅ Created {new_chain} wallet: {new_wallet.address}")
+    
+    with tab2:
+        st.markdown("### 🌉 Cross-Chain USDC Bridge (CCTP)")
+        
+        # Bridge interface
+        with st.form("usdc_bridge"):
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                from_chain = st.selectbox("From Chain", ["MATIC", "ETH", "AVAX", "HYBRID"])
+                amount = st.number_input("Amount (USDC)", min_value=1.0, value=100.0, step=1.0)
+            
+            with col2:
+                to_chain = st.selectbox("To Chain", ["HYBRID", "MATIC", "ETH", "AVAX"])
+                destination_address = st.text_input("Destination Address", "hybrid1...")
+            
+            if st.form_submit_button("🌉 Bridge USDC"):
+                if from_chain != to_chain:
+                    with st.spinner("Initiating bridge transaction..."):
+                        bridge_result = asyncio.run(hybrid_usdc_bridge.bridge_usdc_to_hybrid(
+                            str(amount), from_chain, destination_address
+                        ))
+                        
+                        if "error" not in bridge_result:
+                            st.success("✅ Bridge transaction initiated!")
+                            
+                            col1, col2, col3 = st.columns(3)
+                            with col1:
+                                st.metric("Amount", f"{amount} USDC")
+                            with col2:
+                                st.metric("Fee", f"{bridge_result['fee']} USDC")
+                            with col3:
+                                st.metric("Est. Time", bridge_result['estimated_time'])
+                            
+                            st.info(f"**Bridge ID:** {bridge_result['bridge_id']}")
+                        else:
+                            st.error(bridge_result["error"])
+                else:
+                    st.error("Source and destination chains must be different")
+        
+        # Bridge statistics
+        st.markdown("### 📊 Bridge Statistics")
+        bridge_stats = {
+            "Route": ["MATIC → HYBRID", "ETH → HYBRID", "HYBRID → MATIC", "HYBRID → ETH"],
+            "Volume (24h)": ["$2.5M", "$1.8M", "$2.1M", "$1.6M"],
+            "Avg Fee": ["0.05 USDC", "0.10 USDC", "0.05 USDC", "0.10 USDC"],
+            "Avg Time": ["3 min", "7 min", "3 min", "7 min"]
+        }
+        st.dataframe(bridge_stats)
+    
+    with tab3:
+        st.markdown("### 💧 USDC Liquidity Pools")
+        
+        # Pool overview
+        for pool_name, pool_data in usdc_liquidity_pool.pools.items():
+            with st.expander(f"🏊 {pool_name} Pool"):
+                col1, col2, col3, col4 = st.columns(4)
+                
+                with col1:
+                    st.metric("TVL", f"${pool_data['total_liquidity']:,}")
+                with col2:
+                    st.metric("APY", f"{pool_data['apy']}%")
+                with col3:
+                    st.metric("24h Volume", f"${pool_data['volume_24h']:,}")
+                with col4:
+                    if pool_name == "USDC_HYBRID":
+                        st.metric("HYBRID", f"{pool_data['hybrid_liquidity']:,}")
+                    else:
+                        st.metric("ETH", f"{pool_data['eth_liquidity']:,}")
+                
+                # Add liquidity form
+                with st.form(f"add_liquidity_{pool_name}"):
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        usdc_amount = st.number_input("USDC Amount", min_value=1.0, value=1000.0, key=f"usdc_{pool_name}")
+                    with col2:
+                        if pool_name == "USDC_HYBRID":
+                            token_amount = st.number_input("HYBRID Amount", min_value=1.0, value=100.0, key=f"token_{pool_name}")
+                        else:
+                            token_amount = st.number_input("ETH Amount", min_value=0.1, value=0.4, step=0.1, key=f"token_{pool_name}")
+                    
+                    if st.form_submit_button(f"💧 Add Liquidity to {pool_name}"):
+                        result = asyncio.run(usdc_liquidity_pool.add_liquidity(pool_name, usdc_amount, token_amount))
+                        st.success(f"✅ Added liquidity! LP tokens: {result['lp_tokens_received']:.2f}")
+                        st.info(f"Pool share: {result['share_of_pool']}")
+    
+    with tab4:
+        st.markdown("### 🏛️ USDC Staking Pools")
+        
+        # Staking pools overview
+        for pool_name, pool_data in hybrid_usdc_staking.staking_pools.items():
+            with st.expander(f"🎯 {pool_name.replace('_', ' ')} Pool"):
+                col1, col2, col3, col4 = st.columns(4)
+                
+                with col1:
+                    st.metric("APY", f"{pool_data['apy']}%")
+                with col2:
+                    st.metric("Min Stake", f"{pool_data['min_stake']} USDC")
+                with col3:
+                    st.metric("Lock Period", pool_data['lock_period'])
+                with col4:
+                    st.metric("Total Staked", f"${pool_data['total_staked']:,}")
+                
+                # Staking form
+                with st.form(f"stake_{pool_name}"):
+                    stake_amount = st.number_input(
+                        "Stake Amount (USDC)", 
+                        min_value=float(pool_data['min_stake']), 
+                        value=float(pool_data['min_stake']),
+                        key=f"stake_amount_{pool_name}"
+                    )
+                    
+                    if st.form_submit_button(f"🏛️ Stake in {pool_name}"):
+                        result = asyncio.run(hybrid_usdc_staking.stake_usdc(pool_name, stake_amount))
+                        
+                        if "error" not in result:
+                            st.success(f"✅ Staked {stake_amount} USDC!")
+                            st.info(f"Daily rewards: {result['daily_rewards']}")
+                        else:
+                            st.error(result["error"])
+        
+        # Staking rewards calculator
+        st.markdown("### 🧮 Rewards Calculator")
+        col1, col2 = st.columns(2)
+        with col1:
+            calc_amount = st.number_input("USDC Amount", min_value=100.0, value=10000.0)
+        with col2:
+            calc_pool = st.selectbox("Pool", list(hybrid_usdc_staking.staking_pools.keys()))
+        
+        if st.button("💰 Calculate Rewards"):
+            pool_apy = hybrid_usdc_staking.staking_pools[calc_pool]["apy"]
+            daily_reward = (calc_amount * pool_apy / 100) / 365
+            monthly_reward = daily_reward * 30
+            yearly_reward = calc_amount * pool_apy / 100
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Daily", f"{daily_reward:.2f} USDC")
+            with col2:
+                st.metric("Monthly", f"{monthly_reward:.2f} USDC")
+            with col3:
+                st.metric("Yearly", f"{yearly_reward:.2f} USDC")
+    
+    with tab5:
+        st.markdown("### 📊 USDC Analytics")
+        
+        # Create sample analytics data
+        import pandas as pd
+        import numpy as np
+        
+        # USDC price stability chart
+        dates = pd.date_range(start="2024-01-01", periods=30, freq="D")
+        usdc_data = pd.DataFrame({
+            "Date": dates,
+            "USDC_Price": np.random.normal(1.0, 0.002, 30),  # Very stable around $1
+            "Volume": np.random.normal(10_000_000, 2_000_000, 30),
+            "Bridge_Transactions": np.random.poisson(50, 30)
+        })
+        
+        st.markdown("**USDC Price Stability (30 days)**")
+        st.line_chart(usdc_data.set_index("Date")["USDC_Price"])
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("**Daily Volume**")
+            st.bar_chart(usdc_data.set_index("Date")["Volume"])
+        
+        with col2:
+            st.markdown("**Bridge Activity**")
+            st.area_chart(usdc_data.set_index("Date")["Bridge_Transactions"])
+        
+        # Summary statistics
+        st.markdown("### 📈 Summary Statistics")
+        summary_stats = {
+            "Metric": ["USDC Price Stability", "Average Daily Volume", "Total Bridges", "Active Staking Pools"],
+            "Value": ["$1.0000 ± 0.002", "$10.2M", "1,340", "2"],
+            "Change (7d)": ["+0.0001%", "+12.5%", "+8.7%", "0%"]
+        }
+        st.dataframe(summary_stats)
+
 def main():
     st.set_page_config(
         page_title="HYBRID Blockchain + HTSX Integration",
@@ -540,6 +803,10 @@ def main():
     # Add cloud mining dashboard
     st.divider()
     render_cloud_mining_dashboard(runtime)
+    
+    # Add Circle USDC Integration
+    st.divider()
+    render_circle_usdc_interface()
     
     # Add HybridScan blockchain explorer
     st.divider()
@@ -668,6 +935,7 @@ def main():
       <cross-chain-bridge protocol="axelar" chains="hybrid,base,polygon" />
       <node-operator type="storage" naas="true" rewards="auto" />
       <hybrid-token utilities="fees,governance,staking,nft_purchase" />
+      <usdc-integration programmable-wallets="true" cctp-bridge="true" staking="true" />
     </htsx>
     """
 
@@ -705,6 +973,9 @@ def main():
                     render_node_operator_dashboard(component_data)
                 elif component_type == "hybrid_tokens":
                     render_hybrid_token_interface(component_data)
+                elif component_type == "usdc_integration":
+                    st.markdown("### 💰 Circle USDC Integration Active")
+                    st.success("✅ Programmable wallets, cross-chain CCTP bridge, and USDC staking pools are enabled!")
 
                 st.divider()
 
