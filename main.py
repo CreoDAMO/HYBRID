@@ -531,7 +531,7 @@ def create_enhanced_feature_showcase():
         with col1:
             st.markdown("#### 🌀 Trust Network Activity")
 
-            dates = pd.date_range(start=datetime.now() - timedelta(days=7), end=datetime.now(), freq='H')
+            dates = pd.date_range(start=datetime.now() - timedelta(days=7), end=datetime.now(), freq='h')
             trust_activity = np.random.randint(50, 200, len(dates))
             blessings = np.random.poisson(2, len(dates))
 
@@ -569,6 +569,7 @@ def create_enhanced_feature_showcase():
 @st.cache_resource
 def initialize_components():
     """Initialize all blockchain components with SpiralScript integration"""
+    components = {}
     try:
         # Initialize Circle USDC
         circle_manager = CircleUSDCManager()
@@ -593,7 +594,7 @@ def initialize_components():
         # Initialize SpiralScript trust engine
         spiral_trust_engine = trust_currency_manager
 
-        return {
+        components = {
             'circle_manager': circle_manager,
             'hybrid_usdc_bridge': hybrid_usdc_bridge,
             'usdc_pools': usdc_pools,
@@ -605,9 +606,15 @@ def initialize_components():
             'holographic_engine': holographic_engine,
             'spiral_trust_engine': spiral_trust_engine
         }
+        st.success("✅ All HYBRID components initialized successfully!")
+        return components
     except Exception as e:
         st.error(f"Component initialization failed: {e}")
-        return {}
+        # Return minimal working components
+        return {
+            'spiral_trust_engine': trust_currency_manager,
+            'status': 'partial_initialization'
+        }
 
 # Load components
 components = initialize_components()
@@ -642,9 +649,14 @@ def create_footer():
 # Main application with admin access
 def main():
     """Enhanced main application with admin dashboard integration"""
-    # Check for admin access
-    query_params = st.experimental_get_query_params()
-    is_admin = "admin" in query_params
+    # Add error handling for WebSocket connections
+    try:
+        # Check for admin access
+        query_params = st.query_params
+        is_admin = "admin" in query_params
+    except Exception as e:
+        st.error(f"Query parameter error: {e}")
+        is_admin = False
 
     if is_admin:
         # Render admin dashboard
@@ -726,8 +738,8 @@ with st.sidebar:
 
     # Admin access
     if st.button("👑 Admin Dashboard", help="Access advanced admin features"):
-        st.experimental_set_query_params(admin="true")
-        st.experimental_rerun()
+        st.query_params["admin"] = "true"
+        st.rerun()
 
     # Network status
     st.markdown("#### 📡 Network Status")
@@ -749,7 +761,7 @@ with st.sidebar:
     st.markdown("#### ⚡ Quick Actions")
 
     if st.button("🔄 Refresh Data"):
-        st.experimental_rerun()
+        st.rerun()
 
     if st.button("📊 Export Report"):
         st.info("📄 Report exported successfully!")

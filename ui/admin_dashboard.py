@@ -19,7 +19,7 @@ import hashlib
 import time
 
 # Import our enhanced systems
-from blockchain.spiral_trust_engine import trust_currency_manager, TrustMetric, CurrencyType
+from blockchain.spiral_trust_engine import enhanced_trust_currency_manager as trust_currency_manager, TrustMetric, CurrencyType
 from components.hybrid_htsx import HTSXParser, HTSXRenderer, HTSXCompiler
 from blockchain.multi_ai_orchestrator import MultiAIOrchestrator
 from blockchain.holographic_blockchain_engine import HolographicBlockchainEngine
