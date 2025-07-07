@@ -33,7 +33,7 @@ class TaskSpecialization(Enum):
     SECURITY_ANALYSIS = "security_analysis"
     SYSTEM_ARCHITECTURE = "system_architecture"
     ETHICAL_REASONING = "ethical_reasoning"
-    MATHEMATICAL_REASONING = "mathematical_reasoning"
+    MATHEMATICAL_REASONING = "mathematICAL_REASONING"
     REAL_TIME_DATA = "real_time_data"
     ALGORITHM_OPTIMIZATION = "algorithm_optimization"
     CONVERSATIONAL_AI = "conversational_ai"
