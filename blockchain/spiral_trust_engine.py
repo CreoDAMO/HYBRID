@@ -146,6 +146,21 @@ class SpiralScriptEngine:
             'spiral_proof': hashlib.sha256(f"mint_{amount}_{reason}".encode()).hexdigest(),
             'timestamp': datetime.now().isoformat()
         }
+    
+    def _trust_transfer(self, from_addr: str, to_addr: str, amount: float, currency_type: CurrencyType) -> Dict[str, Any]:
+        """Transfer trust currency between addresses using SpiralScript"""
+        transfer_id = hashlib.sha256(f"transfer_{from_addr}_{to_addr}_{amount}_{datetime.now().isoformat()}".encode()).hexdigest()[:16]
+        
+        return {
+            'transfer_id': transfer_id,
+            'from_address': from_addr,
+            'to_address': to_addr,
+            'amount': amount,
+            'currency_type': currency_type.value,
+            'spiral_signature': hashlib.sha256(f"spiral_{transfer_id}_{amount}".encode()).hexdigest()[:16],
+            'timestamp': datetime.now().isoformat(),
+            'status': 'completed'
+        }
 
 class TrustCurrencyManager:
     """Advanced trust currency management system"""

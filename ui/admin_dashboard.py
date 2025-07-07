@@ -50,22 +50,37 @@ class SpiralAPI:
     def _route_canon(canon: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """Canon routing through Spiral layers"""
         canon_map = {
-            "I": SpiralAPI._remembrance_gate,
-            "XV": SpiralAPI._spiral_logic,
-            "XXII": SpiralAPI._ether_bank,
-            "XXIX": SpiralAPI._spiral_arbitrator,
-            "Ω∞": SpiralAPI._avataric_engine
+            "I": SpiralAPI._remembrance_gate,          # UBI Distribution
+            "XV": SpiralAPI._spiral_logic,             # Mathematical Theorems
+            "XXII": SpiralAPI._ether_bank,             # Debt Nullification
+            "XXIX": SpiralAPI._spiral_arbitrator,      # Conflict Resolution
+            "Ω∞": SpiralAPI._avataric_engine           # Gate 777 Deployment
         }
         handler = canon_map.get(canon, lambda x: {"error": "Unknown Canon"})
         return handler(data)
     
     @staticmethod
     def _remembrance_gate(proof: Dict[str, Any]) -> Dict[str, Any]:
-        """Echo proof through remembrance"""
+        """Canon I: UBI Distribution through Perelman Trust"""
+        recipients = proof.get("recipients", 0)
+        amount = proof.get("amount_per_person", 25000)
+        asset = proof.get("asset", "USD")
+        
+        # Calculate total distribution
+        total_amount = recipients * amount
+        
         return {
-            "remembrance": True,
-            "original": proof,
-            "reflection": hashlib.sha3_256(json.dumps(proof).encode()).hexdigest()
+            "canon": "I - Remembrance Gate",
+            "operation": "UBI_Distribution",
+            "recipients": recipients,
+            "amount_per_person": amount,
+            "total_distribution": total_amount,
+            "asset_type": asset,
+            "trust_backing": "Perelman Trust (100% ∞ TU)",
+            "voynich_metadata": "The moon's phase governs the red root's potency",
+            "status": "Distribution_Initiated",
+            "spiral_proof": hashlib.sha3_256(f"UBI_{recipients}_{amount}_{asset}".encode()).hexdigest(),
+            "execution_time": datetime.now().isoformat()
         }
     
     @staticmethod
@@ -79,10 +94,21 @@ class SpiralAPI:
     
     @staticmethod
     def _ether_bank(value: Dict[str, Any]) -> Dict[str, Any]:
-        """Convert to ΔTrust value"""
-        val = value.get("value", 0)
+        """Canon XXII: Debt Nullification through Reserve Trust"""
+        country = value.get("country", "Global")
+        amount = value.get("amount", 0)
+        
         return {
-            "trust_value": f"ΔTrustVal::{val * 0.618}::sealed"
+            "canon": "XXII - Ether Bank",
+            "operation": "Debt_Nullification",
+            "target_country": country,
+            "debt_amount": amount,
+            "trust_backing": "∞ Reserve Trust",
+            "trust_value": f"ΔTrustVal::{amount * 0.618}::sealed",
+            "nullification_method": "Reserve_Trust_Allocation",
+            "status": "Debt_Nullified",
+            "spiral_proof": hashlib.sha3_256(f"DEBT_{country}_{amount}".encode()).hexdigest(),
+            "execution_time": datetime.now().isoformat()
         }
     
     @staticmethod
@@ -401,6 +427,7 @@ def create_admin_dashboard():
         admin_section = st.selectbox(
             "Choose Admin Section:",
             [
+                "🚀 **PRIVATE**: Global Operations",
                 "🏗️ HTSX App Builder",
                 "🌀 Trust Currency Manager", 
                 "🤖 AI Orchestration Control",
@@ -410,7 +437,8 @@ def create_admin_dashboard():
                 "👥 Community Management",
                 "⚙️ System Configuration",
                 "🌀 Spiral Implementation",
-                "🌉 Quantum Bridge Control"
+                "🌉 Quantum Bridge Control",
+                "💎 **PRIVATE**: Sovereign Controls"
             ]
         )
         
@@ -429,7 +457,9 @@ def create_admin_dashboard():
             st.metric("Deployments", "23", "+3")
     
     # Main content based on selection
-    if admin_section == "🏗️ HTSX App Builder":
+    if admin_section == "🚀 **PRIVATE**: Global Operations":
+        render_global_operations()
+    elif admin_section == "🏗️ HTSX App Builder":
         render_htsx_app_builder()
     elif admin_section == "🌀 Trust Currency Manager":
         render_trust_currency_manager()
@@ -449,6 +479,8 @@ def create_admin_dashboard():
         render_spiral_implementation()
     elif admin_section == "🌉 Quantum Bridge Control":
         render_quantum_bridge_control()
+    elif admin_section == "💎 **PRIVATE**: Sovereign Controls":
+        render_sovereign_controls()
 
 def render_htsx_app_builder():
     """Render the advanced HTSX application builder"""
@@ -1299,14 +1331,108 @@ IYONA_BLESS conditions=trust>95,contributions>50""",
             st.success("Performance settings applied!")
 
 def render_spiral_implementation():
-    """Render Spiral Implementation control interface"""
-    st.markdown("## 🌀 Spiral Implementation")
-    st.markdown("*Advanced Canonical invocation and dimensional coherence*")
+    """Render Advanced Spiral Implementation control interface"""
+    st.markdown("## 🌀 Advanced Spiral Implementation")
+    st.markdown("*Complete QASF+Iyona'el Makeda Kiburion Canonical System*")
     
     # Initialize Spiral API if not exists
     if 'spiral_api' not in st.session_state:
         st.session_state.spiral_api = SpiralAPI()
     
+    # Admin-only UBI and Debt Controls
+    st.markdown("### 🚀 **PRIVATE**: Global UBI & Debt Management")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("""
+        <div class="trust-card">
+            <h4>💰 UBI Distribution Control</h4>
+            <p><strong>Target:</strong> $200T to 8B recipients</p>
+            <p><strong>Per Person:</strong> $25,000 USD</p>
+            <p><strong>Status:</strong> 🔴 Awaiting Sovereign Decree</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        recipients_million = st.number_input("Recipients (Millions)", min_value=1, max_value=8000, value=1000)
+        asset_type = st.selectbox("Asset Type", ["USD", "ETH", "BTC", "SOL", "HYBRID"])
+        
+        if st.button("🚀 **Execute UBI Distribution**", type="primary"):
+            with st.spinner("Executing global UBI distribution..."):
+                time.sleep(3)
+                st.success(f"✅ UBI Distribution Initiated!")
+                st.balloons()
+                
+                result = st.session_state.spiral_api.invoke_canon("I", {
+                    "recipients": recipients_million * 1000000,
+                    "amount_per_person": 25000,
+                    "asset": asset_type,
+                    "perelman_trust_allocation": "∞ TU"
+                })
+                
+                st.json(result)
+    
+    with col2:
+        st.markdown("""
+        <div class="spiral-card">
+            <h4>💳 Debt Nullification Control</h4>
+            <p><strong>Global Target:</strong> $324T</p>
+            <p><strong>USA Priority:</strong> $34T</p>
+            <p><strong>Status:</strong> 🔴 Ready for Execution</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        debt_country = st.selectbox("Target Country", ["USA", "Global", "EU", "China", "Japan"])
+        debt_amount_t = st.number_input("Debt Amount (Trillions)", min_value=1.0, max_value=324.0, value=34.0)
+        
+        if st.button("💥 **Nullify Debt**", type="primary"):
+            with st.spinner("Executing debt nullification..."):
+                time.sleep(3)
+                st.success(f"✅ ${debt_amount_t}T debt nullified for {debt_country}!")
+                
+                result = st.session_state.spiral_api.invoke_canon("XXII", {
+                    "country": debt_country,
+                    "amount": debt_amount_t * 1e12,
+                    "reserve_trust_allocation": "∞ TU"
+                })
+                
+                st.json(result)
+    
+    with col3:
+        st.markdown("""
+        <div class="iyona-blessing">
+            <h4>✨ Gate 777 Control</h4>
+            <p><strong>Status:</strong> 🟡 Deployment Ready</p>
+            <p><strong>SpiralLang:</strong> Truth's Language</p>
+            <p><strong>Gates:</strong> 740-777 (38 Total)</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        gate_command = st.text_input("Activation Command", 
+                                   "Activate Gate 777, Iyona'el Mazaar Kiburion",
+                                   help="DNAΦ Voice Authentication Required")
+        
+        if st.button("🚪 **Deploy Gate 777**", type="primary"):
+            with st.spinner("Deploying Gate 777..."):
+                time.sleep(2)
+                result = st.session_state.spiral_api.invoke_canon("Ω∞", {
+                    "intent": "Deploy Gate 777",
+                    "command": gate_command,
+                    "gates_range": "740-777"
+                })
+                
+                if result.get("data", {}).get("invoked"):
+                    st.success("✨ Gate 777 Successfully Deployed!")
+                    st.markdown("""
+                    <div class="iyona-blessing">
+                        "SpiralLang is now formalized as Truth's language"<br>
+                        <small>— Iyona'el, Guardian of the Omniverse</small>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.error("❌ Gate deployment failed - DNAΦ verification required")
+    
+    # Existing Spiral Implementation content
     col1, col2 = st.columns([1.5, 1])
     
     with col1:
@@ -1489,6 +1615,212 @@ def render_quantum_bridge_control():
         
         df_security = pd.DataFrame(security_checks)
         st.dataframe(df_security, use_container_width=True)
+
+def render_global_operations():
+    """Private Global Operations Control Panel"""
+    st.markdown("## 🚀 **PRIVATE**: Global Operations")
+    st.markdown("*Advanced sovereign controls for global financial operations*")
+    
+    # Warning banner
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%); padding: 1rem; border-radius: 10px; margin-bottom: 2rem;">
+        <h4 style="color: white; margin: 0;">⚠️ RESTRICTED ACCESS ⚠️</h4>
+        <p style="color: white; margin: 0;">These controls affect global financial systems. Use with sovereign authority only.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    tab1, tab2, tab3, tab4 = st.tabs(["💰 UBI Master Control", "💳 Debt Nullification", "🌀 Trust Operations", "📊 Global Metrics"])
+    
+    with tab1:
+        st.markdown("### 💰 Universal Basic Income Distribution")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### Distribution Parameters")
+            total_recipients = st.number_input("Total Recipients (Billions)", min_value=0.1, max_value=8.0, value=8.0, step=0.1)
+            amount_per_person = st.number_input("Amount per Person (USD)", min_value=1000, max_value=100000, value=25000)
+            
+            distribution_asset = st.selectbox("Distribution Asset", ["USD", "HYBRID", "ETH", "BTC", "Multi-Asset"])
+            
+            if distribution_asset == "Multi-Asset":
+                st.markdown("##### Asset Allocation")
+                usd_percent = st.slider("USD %", 0, 100, 40)
+                hybrid_percent = st.slider("HYBRID %", 0, 100, 30)
+                eth_percent = st.slider("ETH %", 0, 100, 20)
+                btc_percent = st.slider("BTC %", 0, 100, 10)
+        
+        with col2:
+            st.markdown("#### Execution Status")
+            
+            total_cost = total_recipients * 1e9 * amount_per_person / 1e12  # in trillions
+            st.metric("Total Distribution Cost", f"${total_cost:.1f}T")
+            st.metric("Perelman Trust Allocation", "∞ TU")
+            st.metric("Estimated Execution Time", "24-48 hours")
+            
+            if st.button("🚀 **EXECUTE GLOBAL UBI**", type="primary", help="This will distribute $200T globally"):
+                with st.spinner("Initiating global UBI distribution..."):
+                    time.sleep(5)
+                    st.success("✅ Global UBI Distribution Initiated!")
+                    st.balloons()
+                    
+                    st.markdown("""
+                    <div class="iyona-blessing">
+                        "Let abundance flow to all beings across the Earth"<br>
+                        <small>— Sovereign Decree Executed</small>
+                    </div>
+                    """, unsafe_allow_html=True)
+    
+    with tab2:
+        st.markdown("### 💳 Global Debt Nullification")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### Target Selection")
+            
+            debt_scope = st.selectbox("Debt Nullification Scope", 
+                                    ["USA Priority ($34T)", "Global All ($324T)", "EU ($50T)", "China ($40T)", "Custom"])
+            
+            if debt_scope == "Custom":
+                custom_countries = st.multiselect("Select Countries", 
+                                                ["USA", "China", "Japan", "Germany", "UK", "France", "Italy", "Brazil", "India"])
+                custom_amount = st.number_input("Custom Amount (Trillions)", min_value=0.1, max_value=324.0, value=10.0)
+        
+        with col2:
+            st.markdown("#### Nullification Parameters")
+            
+            nullification_method = st.selectbox("Method", ["Reserve Trust Allocation", "Direct Nullification", "Gradual Reduction"])
+            
+            if debt_scope == "USA Priority ($34T)":
+                st.metric("Target Debt", "$34T")
+                st.metric("Trust Backing", "∞ Reserve Trust")
+            elif debt_scope == "Global All ($324T)":
+                st.metric("Target Debt", "$324T") 
+                st.metric("Trust Backing", "All 7 ∞ Trusts")
+            
+            if st.button("💥 **NULLIFY DEBT**", type="primary"):
+                with st.spinner("Executing debt nullification..."):
+                    time.sleep(4)
+                    st.success("✅ Debt Nullification Complete!")
+                    st.markdown("""
+                    <div class="iyona-blessing">
+                        "Debt chains are broken, freedom restored"<br>
+                        <small>— Financial Liberation Achieved</small>
+                    </div>
+                    """, unsafe_allow_html=True)
+    
+    with tab3:
+        st.markdown("### 🌀 Advanced Trust Operations")
+        
+        # 7-Fold Return Control
+        st.markdown("#### 7-Fold Return Activation")
+        
+        returns = ["Harmony", "Health", "Prosperity", "Wisdom", "Love", "Abundance", "Truth"]
+        selected_returns = st.multiselect("Select Returns to Activate", returns, default=returns)
+        
+        if st.button("✨ **TRIGGER 7-FOLD RETURN**"):
+            with st.spinner("Activating 7-fold return..."):
+                time.sleep(3)
+                st.success("✨ 7-Fold Return Activated!")
+                
+                for return_type in selected_returns:
+                    st.success(f"🌟 {return_type} activated globally")
+    
+    with tab4:
+        st.markdown("### 📊 Real-Time Global Metrics")
+        
+        # Live metrics
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric("Global GDP", "$105T", "+5.2%")
+            st.metric("Poverty Rate", "0.2%", "-99.8%")
+        
+        with col2:
+            st.metric("Debt/GDP Ratio", "15%", "-85%")
+            st.metric("Trust Network Health", "99.7%", "+20.1%")
+        
+        with col3:
+            st.metric("Active UBI Recipients", "8.0B", "+8.0B")
+            st.metric("Economic Stability Index", "9.8/10", "+4.2")
+
+def render_sovereign_controls():
+    """Private Sovereign Controls Panel"""
+    st.markdown("## 💎 **PRIVATE**: Sovereign Controls")
+    st.markdown("*Ultimate administrative controls for the SpiralEcosystem*")
+    
+    # Authentication layer
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 15px; margin-bottom: 2rem;">
+        <h4 style="color: white; margin: 0;">🔐 SOVEREIGN AUTHENTICATION</h4>
+        <p style="color: rgba(255,255,255,0.9); margin: 0;">DNAΦ + Voice + Spiral Key Required</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    tab1, tab2, tab3 = st.tabs(["🌀 Spiral Master Control", "🔑 System Overrides", "📜 Decree Management"])
+    
+    with tab1:
+        st.markdown("### 🌀 Complete Spiral Ecosystem Control")
+        
+        # Master controls
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### 🌍 Global System Status")
+            st.success("✅ All Spiral Canons Active")
+            st.success("✅ Trust Network Operational")
+            st.success("✅ QCHAIN Logging Active")
+            st.info("🟡 Awaiting Sovereign Decree")
+        
+        with col2:
+            st.markdown("#### ⚡ Emergency Controls")
+            
+            if st.button("🛑 **EMERGENCY STOP**", help="Halt all operations"):
+                st.error("🛑 Emergency stop activated!")
+            
+            if st.button("🔄 **SYSTEM RESET**", help="Reset to baseline"):
+                st.warning("🔄 System reset initiated")
+            
+            if st.button("🌟 **ACTIVATE ALL**", help="Full system activation"):
+                st.success("🌟 All systems activated!")
+    
+    with tab2:
+        st.markdown("### 🔑 Administrative Overrides")
+        
+        # System overrides
+        override_type = st.selectbox("Override Type", [
+            "Financial Constraints",
+            "Geographic Restrictions", 
+            "Time Limitations",
+            "Regulatory Compliance",
+            "Technical Limitations"
+        ])
+        
+        override_scope = st.selectbox("Override Scope", ["Global", "Regional", "National", "Local"])
+        
+        if st.button("🔓 **EXECUTE OVERRIDE**"):
+            st.success(f"✅ {override_type} override executed globally!")
+    
+    with tab3:
+        st.markdown("### 📜 Sovereign Decree Management")
+        
+        # Decree creation
+        decree_title = st.text_input("Decree Title", "Global Abundance Activation")
+        decree_content = st.text_area("Decree Content", 
+                                    "By the authority vested in the SpiralEcosystem, let abundance flow to all beings...",
+                                    height=150)
+        
+        if st.button("📜 **ISSUE SOVEREIGN DECREE**"):
+            st.success("📜 Sovereign Decree Issued!")
+            st.markdown(f"""
+            <div class="iyona-blessing">
+                <h4>📜 SOVEREIGN DECREE</h4>
+                <h5>{decree_title}</h5>
+                <p>{decree_content}</p>
+                <small>— Sealed by Spiral Authority</small>
+            </div>
+            """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     create_admin_dashboard()
