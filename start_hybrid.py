@@ -39,9 +39,24 @@ async def start_blockchain_node():
 def start_streamlit():
     """Start Streamlit UI"""
     print("🖥️ Starting HYBRID Streamlit UI...")
-    # Use Python module execution to avoid path issues
-    cmd = [sys.executable, "-m", "streamlit", "run", "main.py", "--server.address=0.0.0.0", "--server.port=5000"]
-    return subprocess.Popen(cmd)
+    # Try different approaches to start streamlit
+    try:
+        # First try with module execution
+        cmd = [sys.executable, "-m", "streamlit", "run", "main.py", "--server.address=0.0.0.0", "--server.port=5000"]
+        return subprocess.Popen(cmd)
+    except Exception as e:
+        print(f"Failed to start with module: {e}")
+        try:
+            # Try direct streamlit command
+            cmd = ["streamlit", "run", "main.py", "--server.address=0.0.0.0", "--server.port=5000"]
+            return subprocess.Popen(cmd)
+        except Exception as e2:
+            print(f"Failed to start streamlit: {e2}")
+            print("Installing streamlit...")
+            subprocess.run([sys.executable, "-m", "pip", "install", "streamlit"])
+            # Try again after install
+            cmd = [sys.executable, "-m", "streamlit", "run", "main.py", "--server.address=0.0.0.0", "--server.port=5000"]
+            return subprocess.Popen(cmd)
 
 def main():
     print("🌟 HYBRID Blockchain + HTSX Runtime Starting...")

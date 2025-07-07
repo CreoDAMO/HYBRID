@@ -24,3 +24,15 @@ asyncio
 typing-extensions>=4.0.0
 dataclasses-json>=0.5.0
 python-dotenv>=0.19.0
+streamlit==1.31.0
+asyncio
+plotly
+pandas
+numpy
+aiohttp
+anthropic
+qrcode[pil]
+mnemonic
+bip-utils
+cryptography
+pycryptodome

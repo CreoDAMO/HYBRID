@@ -108,20 +108,18 @@ def create_hybrid_node(node_type: str, license: Optional[NFTLicense] = None) -> 
     """Create a HYBRID blockchain node"""
     node_type_enum = NodeType.STORAGE if node_type.lower() == "storage" else NodeType.VALIDATOR
 
-    # Create default license for demo
+    # Create production license
     if not license:
         license = NFTLicense(
-            token_id="DEMO-001",
-            owner_address="hybrid1demo",
+            token_id="HYBRID-001",
+            owner_address="hybrid1production",
             node_type=node_type_enum,
             start_date="2024-01-01",
             end_date=None
         )
 
     return HybridBlockchainNode(node_type_enum, license)
-```
 
-```python
 if __name__ == "__main__":
     async def main():
         # Create and start a storage node
@@ -129,4 +127,3 @@ if __name__ == "__main__":
         await node.start()
 
     asyncio.run(main())
-```
