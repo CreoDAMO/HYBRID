@@ -32,6 +32,12 @@ from blockchain.circle_usdc_integration import (
     hybrid_usdc_staking, demo_wallets
 )
 
+# Import Multi-AI Orchestrator
+from blockchain.multi_ai_orchestrator import (
+    multi_ai_orchestrator, AIProvider, TaskSpecialization, MultiAIRequest,
+    analyze_hybrid_security, optimize_hybrid_algorithm, analyze_market_trends, generate_hybrid_code
+)
+
 # HYBRID Blockchain Integration
 class ChainType(Enum):
     HYBRID = "hybrid"
@@ -821,6 +827,16 @@ def main():
         if st.button("🧠 Launch Anthropic AI Interface", type="primary"):
             st.session_state.show_anthropic_ai = True
     
+    # Add Multi-AI Interface launcher
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("🤖 Launch Multi-AI Orchestration System", type="primary"):
+            st.session_state.show_multi_ai = True
+    
+    with col2:
+        if st.button("⚡ Quick Multi-AI Demo", type="secondary"):
+            st.session_state.run_multi_ai_demo = True
+    
     if st.session_state.get('show_hybridscan', False):
         from ui.hybridscan_ui import create_hybridscan_interface
         st.markdown("---")
@@ -830,6 +846,50 @@ def main():
         from ui.anthropic_ai_interface import create_anthropic_ai_interface
         st.markdown("---")
         create_anthropic_ai_interface()
+    
+    if st.session_state.get('show_multi_ai', False):
+        from ui.multi_ai_interface import create_multi_ai_interface
+        st.markdown("---")
+        create_multi_ai_interface()
+    
+    if st.session_state.get('run_multi_ai_demo', False):
+        st.markdown("---")
+        st.subheader("⚡ Multi-AI System Demo")
+        
+        demo_col1, demo_col2, demo_col3 = st.columns(3)
+        
+        with demo_col1:
+            if st.button("🔐 Security Consensus", key="demo_security"):
+                with st.spinner("Getting multi-AI security consensus..."):
+                    demo_contract = "contract Demo { mapping(address => uint) balances; }"
+                    result = asyncio.run(analyze_hybrid_security(demo_contract))
+                    
+                    if hasattr(result, 'agreement_level'):
+                        st.success(f"✅ Multi-AI Consensus: {result.agreement_level:.1%} agreement")
+                        st.info(f"Participating AIs: {', '.join([ai.value for ai in result.participating_ais])}")
+                    else:
+                        st.success(f"✅ Analysis by {result.provider.value}")
+                        st.metric("Confidence", f"{result.confidence:.1%}")
+        
+        with demo_col2:
+            if st.button("📊 Market Analysis", key="demo_market"):
+                with st.spinner("Grok3 analyzing real-time market..."):
+                    market_data = {"price": 10.50, "volume": 128000000}
+                    result = asyncio.run(analyze_market_trends(market_data))
+                    st.success(f"✅ Market Analysis Complete")
+                    st.metric("AI Provider", result.provider.value)
+                    st.metric("Confidence", f"{result.confidence:.1%}")
+        
+        with demo_col3:
+            if st.button("⚙️ Code Generation", key="demo_code"):
+                with st.spinner("DeepSeek generating code..."):
+                    requirements = "HYBRID blockchain wallet connector component"
+                    result = asyncio.run(generate_hybrid_code(requirements))
+                    st.success(f"✅ Code Generated")
+                    st.metric("Provider", result.provider.value)
+                    st.code(result.content[:200] + "...", language="python")
+        
+        st.session_state.run_multi_ai_demo = False
 
     # Run stress test if requested
     if st.session_state.get('run_stress_test', False):
@@ -979,9 +1039,256 @@ def main():
 
                 st.divider()
 
-    # Anthropic AI Integration
+    # Multi-AI Orchestration System
     st.divider()
-    st.subheader("🧠 Anthropic AI Integration")
+    st.subheader("🤖 Revolutionary Multi-AI Orchestration System")
+    st.markdown("*OpenAI GPT-4 • Grok3 • DeepSeek R3 • Anthropic Claude - Each Specialized for Optimal Performance*")
+    
+    # AI Provider Status
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.markdown("### 🔥 OpenAI GPT-4")
+        st.info("""
+        **Specializations:**
+        - General Reasoning
+        - Conversational AI
+        - Natural Language
+        """)
+        
+        if st.button("🧠 Query GPT-4", key="query_gpt4"):
+            query = st.text_area("Ask GPT-4", placeholder="General reasoning about HYBRID...", key="gpt4_query")
+            if query:
+                with st.spinner("GPT-4 thinking..."):
+                    request = MultiAIRequest(
+                        query=query,
+                        task_type=TaskSpecialization.GENERAL_REASONING,
+                        context={"blockchain": "HYBRID"}
+                    )
+                    result = asyncio.run(multi_ai_orchestrator.route_request(request))
+                    st.success(f"✅ GPT-4 Response (Confidence: {result.confidence:.1%})")
+                    st.markdown(result.content)
+    
+    with col2:
+        st.markdown("### ⚡ Grok3")
+        st.warning("""
+        **Specializations:**
+        - Real-time Data
+        - Market Analysis
+        - Social Sentiment
+        - Trend Prediction
+        """)
+        
+        if st.button("📊 Query Grok3", key="query_grok3"):
+            if st.button("🔴 Live Market Analysis", key="grok3_market"):
+                with st.spinner("Grok3 analyzing real-time data..."):
+                    market_data = {"price": 10.50, "volume": 12800000, "sentiment": "bullish"}
+                    result = asyncio.run(analyze_market_trends(market_data))
+                    st.success(f"✅ Grok3 Market Analysis (Confidence: {result.confidence:.1%})")
+                    st.markdown(result.content)
+                    st.metric("Real-time HYBRID Price", "$10.50", "+$0.25")
+    
+    with col3:
+        st.markdown("### 🎯 DeepSeek R3")
+        st.success("""
+        **Specializations:**
+        - Code Generation
+        - Algorithm Optimization
+        - Mathematical Reasoning
+        - System Architecture
+        """)
+        
+        if st.button("⚙️ Query DeepSeek", key="query_deepseek"):
+            code_type = st.selectbox("Code Type", ["Smart Contract", "Algorithm", "System Architecture"], key="deepseek_type")
+            requirements = st.text_area("Requirements", placeholder="Generate optimized code for...", key="deepseek_req")
+            
+            if st.button("🚀 Generate Code", key="deepseek_generate") and requirements:
+                with st.spinner("DeepSeek generating optimized code..."):
+                    result = asyncio.run(generate_hybrid_code(requirements))
+                    st.success(f"✅ DeepSeek Code Generation (Confidence: {result.confidence:.1%})")
+                    st.code(result.content, language="python")
+    
+    with col4:
+        st.markdown("### 🛡️ Claude (Anthropic)")
+        st.error("""
+        **Specializations:**
+        - Security Analysis
+        - Ethical Reasoning
+        - Content Moderation
+        - Research Synthesis
+        """)
+        
+        if st.button("🔐 Security Analysis", key="claude_security"):
+            contract_code = st.text_area("Smart Contract Code", 
+                placeholder="contract HybridExample { ... }", 
+                key="claude_contract")
+            
+            if st.button("🔍 Analyze Security", key="claude_analyze") and contract_code:
+                with st.spinner("Claude performing security analysis..."):
+                    result = asyncio.run(analyze_hybrid_security(contract_code))
+                    
+                    if hasattr(result, 'agreement_level'):  # ConsensusResult
+                        st.success(f"✅ Multi-AI Security Consensus (Agreement: {result.agreement_level:.1%})")
+                        st.markdown(result.final_response)
+                        
+                        # Show participating AIs
+                        ai_chips = " • ".join([ai.value for ai in result.participating_ais])
+                        st.info(f"**Consensus from:** {ai_chips}")
+                    else:  # Single AIResponse
+                        st.success(f"✅ Claude Security Analysis (Confidence: {result.confidence:.1%})")
+                        st.markdown(result.content)
+    
+    # Multi-AI Consensus Interface
+    st.subheader("🔄 Multi-AI Consensus Engine")
+    st.markdown("*Get consensus responses from multiple AI experts*")
+    
+    consensus_query = st.text_area(
+        "🎯 Complex Query for Multi-AI Analysis",
+        placeholder="Analyze the long-term viability of HYBRID blockchain's tokenomics model...",
+        height=100
+    )
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        consensus_type = st.selectbox("Analysis Type", [
+            "Security Analysis", "Market Analysis", "Code Review", 
+            "Architecture Design", "Risk Assessment"
+        ])
+    
+    with col2:
+        min_ais = st.slider("Minimum AIs", 2, 4, 3)
+    
+    with col3:
+        require_consensus = st.checkbox("Require Consensus", value=True)
+    
+    if st.button("🚀 Get Multi-AI Consensus", type="primary") and consensus_query:
+        with st.spinner("Coordinating multiple AI experts..."):
+            # Map consensus type to task specialization
+            task_mapping = {
+                "Security Analysis": TaskSpecialization.SECURITY_ANALYSIS,
+                "Market Analysis": TaskSpecialization.MARKET_ANALYSIS,
+                "Code Review": TaskSpecialization.CODE_GENERATION,
+                "Architecture Design": TaskSpecialization.SYSTEM_ARCHITECTURE,
+                "Risk Assessment": TaskSpecialization.ETHICAL_REASONING
+            }
+            
+            request = MultiAIRequest(
+                query=consensus_query,
+                task_type=task_mapping[consensus_type],
+                context={"blockchain": "HYBRID", "analysis_depth": "comprehensive"},
+                require_consensus=require_consensus
+            )
+            
+            result = asyncio.run(multi_ai_orchestrator.route_request(request))
+            
+            if hasattr(result, 'agreement_level'):  # ConsensusResult
+                st.success(f"🎯 Multi-AI Consensus Complete!")
+                
+                # Consensus metrics
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("Agreement Level", f"{result.agreement_level:.1%}")
+                with col2:
+                    st.metric("Participating AIs", len(result.participating_ais))
+                with col3:
+                    st.metric("Synthesis Method", result.synthesis_method.replace("_", " ").title())
+                
+                # Show final consensus
+                st.markdown("### 📋 Consensus Analysis")
+                st.markdown(result.final_response)
+                
+                # Show individual AI confidence scores
+                st.markdown("### 🎯 Individual AI Confidence Scores")
+                for ai, confidence in result.confidence_scores.items():
+                    st.metric(f"{ai.value}", f"{confidence:.1%}")
+                
+            else:  # Single AI response
+                st.success(f"✅ Analysis Complete by {result.provider.value}")
+                st.markdown(result.content)
+                st.metric("Confidence", f"{result.confidence:.1%}")
+    
+    # Multi-AI Statistics Dashboard
+    st.subheader("📊 Multi-AI Performance Dashboard")
+    
+    try:
+        stats = multi_ai_orchestrator.get_orchestrator_stats()
+        
+        # Overview metrics
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("Total AI Requests", stats["total_requests"])
+        with col2:
+            st.metric("Consensus Requests", stats["consensus_requests"])
+        with col3:
+            st.metric("Total Cost", f"${stats['total_cost']:.4f}")
+        with col4:
+            specialization_count = len([v for v in stats["specialization_coverage"].values() if v > 0])
+            st.metric("Active Specializations", f"{specialization_count}/12")
+        
+        # Per-AI provider stats
+        if stats["total_requests"] > 0:
+            st.markdown("### 🤖 AI Provider Performance")
+            
+            for provider, provider_stats in stats["provider_stats"].items():
+                if provider_stats["total_requests"] > 0:
+                    with st.expander(f"📊 {provider.replace('_', ' ').title()} Stats"):
+                        col1, col2, col3, col4 = st.columns(4)
+                        with col1:
+                            st.metric("Requests", provider_stats["total_requests"])
+                        with col2:
+                            st.metric("Avg Confidence", f"{provider_stats['avg_confidence']:.1%}")
+                        with col3:
+                            st.metric("Avg Response Time", f"{provider_stats['avg_response_time']:.2f}s")
+                        with col4:
+                            st.metric("Cost", f"${provider_stats['total_cost']:.4f}")
+        
+        else:
+            st.info("No AI requests yet. Try querying one of the AI providers above!")
+    
+    except Exception as e:
+        st.error(f"Error loading Multi-AI stats: {e}")
+    
+    # Quick AI Actions
+    st.subheader("⚡ Quick Multi-AI Actions")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if st.button("🔍 Security Audit HYBRID Core", key="quick_security"):
+            with st.spinner("Multi-AI security audit..."):
+                core_code = "HYBRID blockchain core consensus and validation logic"
+                result = asyncio.run(analyze_hybrid_security(core_code))
+                st.success("Security audit complete!")
+                if hasattr(result, 'final_response'):
+                    st.markdown(result.final_response[:500] + "...")
+                else:
+                    st.markdown(result.content[:500] + "...")
+    
+    with col2:
+        if st.button("📈 Market Prediction Analysis", key="quick_market"):
+            with st.spinner("Grok3 analyzing real-time market data..."):
+                current_market = {
+                    "hybrid_price": 10.50,
+                    "market_cap": 10500000000,
+                    "volume_24h": 128000000,
+                    "social_sentiment": "bullish"
+                }
+                result = asyncio.run(analyze_market_trends(current_market))
+                st.success("Market analysis complete!")
+                st.markdown(result.content[:500] + "...")
+    
+    with col3:
+        if st.button("⚙️ Optimize Node Algorithm", key="quick_optimize"):
+            with st.spinner("DeepSeek optimizing algorithms..."):
+                algorithm_desc = "HYBRID node selection and delegation algorithm for maximum efficiency"
+                result = asyncio.run(optimize_hybrid_algorithm(algorithm_desc))
+                st.success("Algorithm optimization complete!")
+                st.markdown(result.content[:500] + "...")
+    
+    # Original Anthropic AI Integration (keeping for compatibility)
+    st.divider()
+    st.subheader("🧠 Legacy Anthropic AI Integration")
     
     col1, col2 = st.columns(2)
     
