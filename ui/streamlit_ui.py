@@ -667,7 +667,66 @@ def create_comprehensive_documentation():
         if st.button("🚀 Deploy to Replit"):
             st.success("Deployment configuration ready! Click the Deploy button in Replit.")
 
+def render_hybrid_coin_interface():
+    """Render HYBRID coin interface with comprehensive features"""
+    st.subheader("💰 HYBRID Coin Management")
+
+    # Coin overview
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        st.metric("Total Supply", "100B HYBRID", "Fixed")
+    with col2:
+        st.metric("Current Price", "$10.00", "+5.2%")
+    with col3:
+        st.metric("Market Cap", "$750B", "+$38B")
+    with col4:
+        st.metric("24h Volume", "$2.3M", "+15.8%")
+
+    # Coin utilities
+    st.markdown("### 🎯 HYBRID Coin Utilities")
+
+    utilities = [
+        {"name": "Transaction Fees", "description": "Pay network fees", "status": "✅ Active"},
+        {"name": "Governance Voting", "description": "Vote on proposals", "status": "✅ Active"},
+        {"name": "Staking Rewards", "description": "Earn staking rewards", "status": "✅ Active"},
+        {"name": "NFT License Purchase", "description": "Buy node licenses", "status": "✅ Active"},
+        {"name": "Cross-Chain Bridging", "description": "Bridge to other chains", "status": "✅ Active"},
+        {"name": "DeFi Protocols", "description": "Use in DeFi apps", "status": "✅ Active"}
+    ]
+
+    for utility in utilities:
+        with st.expander(f"{utility['status']} {utility['name']}"):
+            st.write(utility['description'])
+
+    # Quick actions
+    st.markdown("### ⚡ Quick Actions")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        if st.button("🚀 Buy HYBRID"):
+            st.success("Redirecting to exchange...")
+
+    with col2:
+        if st.button("💎 Stake HYBRID"):
+            st.success("Opening staking interface...")
+
+    with col3:
+        if st.button("🌉 Bridge HYBRID"):
+            st.success("Opening bridge interface...")
+
 def main():
+    """Enhanced main application with admin dashboard integration"""
+    # Add error handling for WebSocket connections
+    try:
+        # Check for admin access
+        query_params = st.query_params
+        is_admin = "admin" in query_params
+    except Exception as e:
+        st.error(f"Query parameter error: {e}")
+        is_admin = False
+
     st.set_page_config(
         page_title="HYBRID + HTSX Platform",
         page_icon="🚀",
@@ -683,7 +742,7 @@ def main():
 
         page = st.selectbox(
             "📑 Navigate to:",
-            ["🏠 Dashboard", "🛠️ HTSX Playground", "📚 Documentation"],
+            ["🏠 Dashboard", "🛠️ HTSX Playground", "📚 Documentation", "💰 HYBRID Coin"],
             help="Choose the section you want to explore"
         )
 
@@ -710,6 +769,8 @@ def main():
         create_advanced_htsx_playground()
     elif page == "📚 Documentation":
         create_comprehensive_documentation()
+    elif page == "💰 HYBRID Coin":
+        render_hybrid_coin_interface()
 
 if __name__ == "__main__":
     main()

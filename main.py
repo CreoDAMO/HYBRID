@@ -20,7 +20,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'ui'))
 # Import all blockchain modules
 try:
     from blockchain.hybrid_node import create_hybrid_node, NodeType, HybridBlockchainNode, NFTLicense
-    from blockchain.hybrid_wallet import hybrid_wallet_manager, get_founder_wallet, create_hybrid_wallet
+    from blockchain.wallet_manager import wallet_manager, get_founder_wallet, create_hybrid_wallet
+    from blockchain.transaction_pool import transaction_pool, create_transaction, TransactionType
+    from blockchain.block_producer import blockchain_state, start_block_production
+    from blockchain.validator_set import validator_set
     from blockchain.circle_usdc_integration import CircleUSDCManager, HybridUSDCBridge, USDCLiquidityPool, demo_wallets
     from blockchain.coinbase_integration import HybridAgentKit, HybridPaymaster, CoinbaseConfig, HybridOnRamper
     from blockchain.agglayer_integration import AggLayerIntegration, agglayer
@@ -103,6 +106,14 @@ class HybridHTSXRuntime:
         """Initialize the HYBRID blockchain node"""
         if not self.blockchain_node:
             self.blockchain_node = create_hybrid_node(node_type)
+            
+            # Initialize core blockchain components
+            await self.blockchain_node.start()
+            
+            # Start block production if validator
+            if node_type == "validator":
+                founder_wallet = get_founder_wallet()
+                asyncio.create_task(start_block_production(founder_wallet.address))
 
     def parse_htsx_components(self, htsx_content: str) -> Dict[str, List[Dict[str, Any]]]:
         """Enhanced HTSX parser for blockchain components with SpiralScript support"""
