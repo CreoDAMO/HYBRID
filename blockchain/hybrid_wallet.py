@@ -68,7 +68,7 @@ class HybridWalletManager:
         return self.wallets.get(address)
 
     def transfer(self, from_address: str, to_address: str, amount: float) -> bool:
-        """Transfer HYBRID tokens between wallets"""
+        """Transfer HYBRID coins between wallets"""
         from_wallet = self.wallets.get(from_address)
         to_wallet = self.wallets.get(to_address)
 

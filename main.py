@@ -1,39 +1,35 @@
-#!/usr/bin/env python3
 import streamlit as st
 import asyncio
-import json
-from typing import Dict, Any, List, Optional
-from dataclasses import dataclass
-from enum import Enum
-import sys
-import os
 import time
 import random
-import traceback
+import plotly.express as px
+import plotly.graph_objects as go
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+from typing import Dict, Any, List
+import sys
+import os
 
 # Add blockchain module to path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'blockchain'))
 sys.path.append(os.path.join(os.path.dirname(__file__), 'ui'))
 
+# Import all blockchain modules
 try:
-    from blockchain.hybrid_node import (
-        HybridBlockchainNode, 
-        create_hybrid_node, 
-        NodeType,
-        NFTLicense
-    )
+    from blockchain.hybrid_node import create_hybrid_node, NodeType, HybridBlockchainNode, NFTLicense
     from blockchain.hybrid_wallet import hybrid_wallet_manager, get_founder_wallet, create_hybrid_wallet
-    from blockchain.agglayer_integration import agglayer
-    from blockchain.coinbase_integration import hybrid_agent, paymaster, onramper, onchain_kit
+    from blockchain.circle_usdc_integration import CircleUSDCManager, HybridUSDCBridge, USDCLiquidityPool, demo_wallets
+    from blockchain.coinbase_integration import HybridAgentKit, HybridPaymaster, CoinbaseConfig, HybridOnRamper
+    from blockchain.agglayer_integration import AggLayerIntegration, agglayer
+    from blockchain.multi_ai_orchestrator import MultiAIOrchestrator, TaskSpecialization, MultiAIRequest, analyze_hybrid_security, optimize_hybrid_algorithm, analyze_market_trends, generate_hybrid_code
+    from blockchain.holographic_blockchain_engine import HolographicBlockchainEngine
     from blockchain.nvidia_cloud_integration import NVIDIACloudManager, HTSXNVIDIAComponents
-    from blockchain.circle_usdc_integration import (
-        circle_usdc_manager, hybrid_usdc_bridge, usdc_liquidity_pool, 
-        hybrid_usdc_staking, demo_wallets
-    )
-    from blockchain.multi_ai_orchestrator import (
-        multi_ai_orchestrator, AIProvider, TaskSpecialization, MultiAIRequest,
-        analyze_hybrid_security, optimize_hybrid_algorithm, analyze_market_trends, generate_hybrid_code
-    )
+    from ui.streamlit_ui import render_hybrid_coin_interface
+    from components.hybrid_htsx_holographic import HybridHTSXHolographic
+    from blockchain.x_moe import anthropic_moe
+    from enum import Enum
+    from dataclasses import dataclass
 except ImportError as e:
     print(f"Warning: Some blockchain modules not available: {e}")
     # Create fallback classes
@@ -161,8 +157,8 @@ class HybridHTSXRuntime:
             components["usdc_integration"] = [{
                 "programmable_wallets": demo_wallets,
                 "bridge_enabled": True,
-                "staking_pools": list(hybrid_usdc_staking.staking_pools.keys()),
-                "liquidity_pools": list(usdc_liquidity_pool.pools.keys())
+                "staking_pools": list(CircleUSDCManager.staking_pools.keys()),
+                "liquidity_pools": list(USDCLiquidityPool.pools.keys())
             }]
 
         return components
@@ -174,8 +170,6 @@ class HybridHTSXRuntime:
             if chain.value in htsx_content:
                 chains.append(chain.value)
         return chains if chains else ["hybrid", "base", "polygon", "solana"]
-
-
 
 def render_blockchain_status():
     """Render blockchain node status"""
@@ -204,7 +198,7 @@ def render_blockchain_status():
             st.write("• Total Transactions: 12,345,678")
 
         with col2:
-            st.write("**Token Economics:**")
+            st.write("**Coin Economics:**")
             st.write("• Total Supply: 1,000,000,000 HYBRID")
             st.write("• Circulating Supply: 750,000,000 HYBRID")
             st.write("• Market Cap: $7.5B (at $10/HYBRID)")
@@ -341,7 +335,7 @@ def render_node_operator_dashboard(node_data: Dict[str, Any]):
         st.dataframe(pd.DataFrame(reward_data))
 
         if st.button("💰 Claim Pending Rewards"):
-            st.success("Claimed 50 HYBRID tokens!")
+            st.success("Claimed 50 HYBRID coins!")
 
     with tab3:
         naas_enabled = st.checkbox("Enable Node-as-a-Service (NaaS)", value=True)
@@ -353,8 +347,8 @@ def render_node_operator_dashboard(node_data: Dict[str, Any]):
             st.success(f"Node delegated to {delegation_address}")
 
 def render_hybrid_token_interface(token_data: Dict[str, Any]):
-    """Render HYBRID token interface"""
-    st.subheader("💰 $HYBRID Token")
+    """Render HYBRID coin interface"""
+    st.subheader("💰 $HYBRID Coin")
 
     balance = token_data.get("balance", 0)
     price_usd = token_data.get("price_usd", 10.0)
@@ -372,7 +366,7 @@ def render_hybrid_token_interface(token_data: Dict[str, Any]):
         st.metric("Staked", f"{staked_amount} HYBRID", "5% APY")
 
     # Token utilities
-    with st.expander("🔧 Token Utilities"):
+    with st.expander("🔧 Coin Utilities"):
         for utility in utilities:
             st.write(f"• {utility.replace('_', ' ').title()}")
 
@@ -381,10 +375,10 @@ def render_hybrid_token_interface(token_data: Dict[str, Any]):
 
     with col1:
         if st.button("💸 Send HYBRID"):
-            st.info("Send token interface would open here")
+            st.info("Send coin interface would open here")
 
     with col2:
-        if st.button("🏦 Stake Tokens"):
+        if st.button("🏦 Stake Coins"):
             st.info("Staking interface would open here")
 
     with col3:
@@ -453,7 +447,7 @@ def render_circle_usdc_interface():
 
     # Tabs for different USDC features
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "🏦 Programmable Wallets", "🌉 Cross-Chain Bridge", 
+        "🏦 Programmable Wallets", "🌉 Cross-Chain Bridge",
         "💧 Liquidity Pools", "🏛️ USDC Staking", "📊 Analytics"
     ])
 
@@ -484,7 +478,7 @@ def render_circle_usdc_interface():
                         st.info(f"Receive USDC at: {wallet.address}")
                 with col3:
                     if st.button(f"📊 Balance", key=f"balance_{wallet.wallet_id}"):
-                        balance = asyncio.run(circle_usdc_manager.get_usdc_balance(wallet.wallet_id))
+                        balance = asyncio.run(CircleUSDCManager.get_usdc_balance(wallet.wallet_id))
                         st.success(f"Balance: {balance[0].amount} USDC")
 
         # Create new wallet
@@ -497,8 +491,8 @@ def render_circle_usdc_interface():
 
         if st.button("🆕 Create Programmable Wallet"):
             with st.spinner("Creating wallet..."):
-                wallet_set = asyncio.run(circle_usdc_manager.create_wallet_set(wallet_name))
-                new_wallet = asyncio.run(circle_usdc_manager.create_programmable_wallet(
+                wallet_set = asyncio.run(CircleUSDCManager.create_wallet_set(wallet_name))
+                new_wallet = asyncio.run(CircleUSDCManager.create_programmable_wallet(
                     wallet_set["wallet_set_id"], new_chain
                 ))
                 st.success(f"✅ Created {new_chain} wallet: {new_wallet.address}")
@@ -521,7 +515,7 @@ def render_circle_usdc_interface():
             if st.form_submit_button("🌉 Bridge USDC"):
                 if from_chain != to_chain:
                     with st.spinner("Initiating bridge transaction..."):
-                        bridge_result = asyncio.run(hybrid_usdc_bridge.bridge_usdc_to_hybrid(
+                        bridge_result = asyncio.run(HybridUSDCBridge.bridge_usdc_to_hybrid(
                             str(amount), from_chain, destination_address
                         ))
 
@@ -556,7 +550,7 @@ def render_circle_usdc_interface():
         st.markdown("### 💧 USDC Liquidity Pools")
 
         # Pool overview
-        for pool_name, pool_data in usdc_liquidity_pool.pools.items():
+        for pool_name, pool_data in USDCLiquidityPool.pools.items():
             with st.expander(f"🏊 {pool_name} Pool"):
                 col1, col2, col3, col4 = st.columns(4)
 
@@ -584,7 +578,7 @@ def render_circle_usdc_interface():
                             token_amount = st.number_input("ETH Amount", min_value=0.1, value=0.4, step=0.1, key=f"token_{pool_name}")
 
                     if st.form_submit_button(f"💧 Add Liquidity to {pool_name}"):
-                        result = asyncio.run(usdc_liquidity_pool.add_liquidity(pool_name, usdc_amount, token_amount))
+                        result = asyncio.run(USDCLiquidityPool.add_liquidity(pool_name, usdc_amount, token_amount))
                         st.success(f"✅ Added liquidity! LP tokens: {result['lp_tokens_received']:.2f}")
                         st.info(f"Pool share: {result['share_of_pool']}")
 
@@ -592,7 +586,7 @@ def render_circle_usdc_interface():
         st.markdown("### 🏛️ USDC Staking Pools")
 
         # Staking pools overview
-        for pool_name, pool_data in hybrid_usdc_staking.staking_pools.items():
+        for pool_name, pool_data in CircleUSDCManager.staking_pools.items():
             with st.expander(f"🎯 {pool_name.replace('_', ' ')} Pool"):
                 col1, col2, col3, col4 = st.columns(4)
 
@@ -608,14 +602,14 @@ def render_circle_usdc_interface():
                 # Staking form
                 with st.form(f"stake_{pool_name}"):
                     stake_amount = st.number_input(
-                        "Stake Amount (USDC)", 
-                        min_value=float(pool_data['min_stake']), 
+                        "Stake Amount (USDC)",
+                        min_value=float(pool_data['min_stake']),
                         value=float(pool_data['min_stake']),
                         key=f"stake_amount_{pool_name}"
                     )
 
                     if st.form_submit_button(f"🏛️ Stake in {pool_name}"):
-                        result = asyncio.run(hybrid_usdc_staking.stake_usdc(pool_name, stake_amount))
+                        result = asyncio.run(CircleUSDCManager.stake_usdc(pool_name, stake_amount))
 
                         if "error" not in result:
                             st.success(f"✅ Staked {stake_amount} USDC!")
@@ -629,10 +623,10 @@ def render_circle_usdc_interface():
         with col1:
             calc_amount = st.number_input("USDC Amount", min_value=100.0, value=10000.0)
         with col2:
-            calc_pool = st.selectbox("Pool", list(hybrid_usdc_staking.staking_pools.keys()))
+            calc_pool = st.selectbox("Pool", list(CircleUSDCManager.staking_pools.keys()))
 
         if st.button("💰 Calculate Rewards"):
-            pool_apy = hybrid_usdc_staking.staking_pools[calc_pool]["apy"]
+            pool_apy = CircleUSDCManager.staking_pools[calc_pool]["apy"]
             daily_reward = (calc_amount * pool_apy / 100) / 365
             monthly_reward = daily_reward * 30
             yearly_reward = calc_amount * pool_apy / 100
@@ -682,813 +676,490 @@ def render_circle_usdc_interface():
         }
         st.dataframe(summary_stats)
 
-def main():
-    st.set_page_config(
-        page_title="HYBRID Blockchain + HTSX Integration",
-        page_icon="🚀",
-        layout="wide",
-        initial_sidebar_state="expanded"
-    )
+# Initialize global components
+@st.cache_resource
+def initialize_components():
+    """Initialize all blockchain components"""
+    try:
+        # Initialize Circle USDC
+        circle_manager = CircleUSDCManager()
+        hybrid_usdc_bridge = HybridUSDCBridge(circle_manager)
+        usdc_pools = USDCLiquidityPool()
 
-    # Modern CSS styling
+        # Initialize Coinbase integrations
+        coinbase_config = CoinbaseConfig()
+        hybrid_agent = HybridAgentKit()
+        paymaster = HybridPaymaster(coinbase_config)
+        onramper = HybridOnRamper(coinbase_config)
+
+        # Initialize AggLayer
+        agglayer = AggLayerIntegration()
+
+        # Initialize AI orchestrator
+        ai_orchestrator = MultiAIOrchestrator()
+
+        # Initialize holographic engine
+        holographic_engine = HolographicBlockchainEngine()
+
+        return {
+            'circle_manager': circle_manager,
+            'hybrid_usdc_bridge': hybrid_usdc_bridge,
+            'usdc_pools': usdc_pools,
+            'hybrid_agent': hybrid_agent,
+            'paymaster': paymaster,
+            'onramper': onramper,
+            'agglayer': agglayer,
+            'ai_orchestrator': ai_orchestrator,
+            'holographic_engine': holographic_engine
+        }
+    except Exception as e:
+        st.error(f"Component initialization failed: {e}")
+        return {}
+
+# Load components
+components = initialize_components()
+
+def create_hero_section():
+    """Create impressive hero section"""
     st.markdown("""
-    <style>
-    .main > div {
-        padding-top: 2rem;
-    }
-    .stMetric {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 1rem;
-        border-radius: 10px;
-        color: white;
-    }
-    .stButton > button {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        border: none;
-        border-radius: 20px;
-        color: white;
-        font-weight: bold;
-    }
-    .hybrid-card {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        padding: 1.5rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    </style>
+    <div class="hero-container floating">
+        <h1 class="hero-title">🌟 HYBRID Blockchain</h1>
+        <p class="hero-subtitle">The Future of Interoperable DeFi with HTSX Runtime</p>
+        <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 2rem; position: relative; z-index: 2;">
+            <div style="text-align: center; color: white;">
+                <div style="font-size: 2rem; font-weight: 700;">100B</div>
+                <div style="opacity: 0.9;">Total Supply</div>
+            </div>
+            <div style="text-align: center; color: white;">
+                <div style="font-size: 2rem; font-weight: 700;">$10</div>
+                <div style="opacity: 0.9;">HYBRID Price</div>
+            </div>
+            <div style="text-align: center; color: white;">
+                <div style="font-size: 2rem; font-weight: 700;">Layer 1</div>
+                <div style="opacity: 0.9;">Cosmos SDK</div>
+            </div>
+        </div>
+    </div>
     """, unsafe_allow_html=True)
 
-    st.title("🚀 HYBRID Blockchain + HTSX Integration")
-    st.markdown("*Fully Operational Cosmos SDK Blockchain with HTSX Runtime Engine*")
-
-    # Initialize runtime
-    runtime = HybridHTSXRuntime()
-
-    # Initialize blockchain node
-    if 'blockchain_initialized' not in st.session_state:
-        asyncio.run(runtime.initialize_blockchain_node())
-        st.session_state.blockchain_initialized = True
-
-    # Main action buttons
+def create_real_time_metrics():
+    """Create real-time blockchain metrics"""
     col1, col2, col3, col4 = st.columns(4)
+
+    # Generate real-time data
+    current_time = datetime.now()
+
     with col1:
-        if st.button("🔐 HYBRID Wallet Generator", type="primary"):
-            st.session_state.show_wallet_generator = True
+        st.markdown("""
+        <div class="metric-card">
+            <h3 style="margin: 0; color: var(--text-primary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Block Height</h3>
+            <p style="margin: 0.5rem 0 0 0; font-size: 2rem; font-weight: 700; color: var(--primary-color);">2,847,291</p>
+            <p style="margin: 0; color: var(--text-secondary); font-size: 0.8rem;">+1 every 5s</p>
+        </div>
+        """, unsafe_allow_html=True)
+
     with col2:
-        if st.button("📊 Real-time Monitor"):
-            st.session_state.show_monitor = True
+        st.markdown("""
+        <div class="metric-card">
+            <h3 style="margin: 0; color: var(--text-primary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">TPS</h3>
+            <p style="margin: 0.5rem 0 0 0; font-size: 2rem; font-weight: 700; color: var(--success-color);">1,247</p>
+            <p style="margin: 0; color: var(--text-secondary); font-size: 0.8rem;">Transactions/sec</p>
+        </div>
+        """, unsafe_allow_html=True)
+
     with col3:
-        if st.button("⚡ Performance Test"):
-            st.session_state.run_perf_test = True
+        validators = random.randint(150, 200)
+        st.markdown(f"""
+        <div class="metric-card">
+            <h3 style="margin: 0; color: var(--text-primary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Validators</h3>
+            <p style="margin: 0.5rem 0 0 0; font-size: 2rem; font-weight: 700; color: var(--accent-color);">{validators}</p>
+            <p style="margin: 0; color: var(--text-secondary); font-size: 0.8rem;">Active nodes</p>
+        </div>
+        """, unsafe_allow_html=True)
+
     with col4:
-        if st.button("🚀 NVIDIA Cloud Integration", key="nvidia_cloud_demo_main"):
-            create_nvidia_cloud_demo(runtime)
+        st.markdown("""
+        <div class="metric-card">
+            <h3 style="margin: 0; color: var(--text-primary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">TVL</h3>
+            <p style="margin: 0.5rem 0 0 0; font-size: 2rem; font-weight: 700; color: var(--warning-color);">$2.8B</p>
+            <p style="margin: 0; color: var(--text-secondary); font-size: 0.8rem;">Total Value Locked</p>
+        </div>
+        """, unsafe_allow_html=True)
 
-    # Add cloud mining dashboard
-    st.divider()
-    render_cloud_mining_dashboard(runtime)
-
-    # Add Circle USDC Integration
-    st.divider()
-    render_circle_usdc_interface()
-
-    # Add HybridScan blockchain explorer
-    st.divider()
-    st.subheader("🔍 HybridScan Blockchain Explorer")
+def create_interactive_charts():
+    """Create interactive price and volume charts"""
+    # Generate sample data
+    dates = pd.date_range(start=datetime.now() - timedelta(days=30), end=datetime.now(), freq='D')
+    prices = np.random.normal(10, 0.5, len(dates)).cumsum() + 10
+    volumes = np.random.normal(1000000, 200000, len(dates))
 
     col1, col2 = st.columns(2)
+
     with col1:
-        if st.button("🚀 Launch HybridScan Explorer", type="primary"):
-            st.session_state.show_hybridscan = True
+        fig_price = go.Figure()
+        fig_price.add_trace(go.Scatter(
+            x=dates,
+            y=prices,
+            mode='lines',
+            name='HYBRID Price',
+            line=dict(color='#6366f1', width=3),
+            fill='tonexty',
+            fillcolor='rgba(99, 102, 241, 0.1)'
+        ))
+        fig_price.update_layout(
+            title=dict(
+                text="HYBRID Price (30 Days)",
+                font=dict(size=20, family="Inter")
+            ),
+            xaxis_title="Date",
+            yaxis_title="Price (USD)",
+            template="plotly_white",
+            height=300,
+            margin=dict(l=0, r=0, t=40, b=0)
+        )
+        st.plotly_chart(fig_price, use_container_width=True)
 
     with col2:
-        if st.button("🧠 Launch Anthropic AI Interface", type="primary"):
-            st.session_state.show_anthropic_ai = True
+        fig_volume = go.Figure()
+        fig_volume.add_trace(go.Bar(
+            x=dates,
+            y=volumes,
+            name='Volume',
+            marker_color='rgba(139, 92, 246, 0.8)'
+        ))
+        fig_volume.update_layout(
+            title=dict(
+                text="Trading Volume (30 Days)",
+                font=dict(size=20, family="Inter")
+            ),
+            xaxis_title="Date",
+            yaxis_title="Volume (USD)",
+            template="plotly_white",
+            height=300,
+            margin=dict(l=0, r=0, t=40, b=0)
+        )
+        st.plotly_chart(fig_volume, use_container_width=True)
 
-    # Add Multi-AI Interface launcher
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("🤖 Launch Multi-AI Orchestration System", type="primary"):
-            st.session_state.show_multi_ai = True
+def create_feature_showcase():
+    """Create feature showcase section"""
+    st.markdown("## ✨ Core Features")
 
-    with col2:
-        if st.button("⚡ Quick Multi-AI Demo", type="secondary"):
-            st.session_state.run_multi_ai_demo = True
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "🪙 HYBRID Coin",
+        "🔗 Cross-Chain",
+        "🤖 AI Integration",
+        "🌈 Holographic UI",
+        "📊 Analytics"
+    ])
 
-    if st.session_state.get('show_hybridscan', False):
-        from ui.hybridscan_ui import create_hybridscan_interface
-        st.markdown("---")
-        create_hybridscan_interface()
+    with tab1:
+        col1, col2 = st.columns([2, 1])
 
-    if st.session_state.get('show_anthropic_ai', False):
-        from ui.anthropic_ai_interface import create_anthropic_ai_interface
-        st.markdown("---")
-        create_anthropic_ai_interface()
+        with col1:
+            st.markdown("""
+            <div class="glow-card">
+                <h3>💰 HYBRID Native Coin</h3>
+                <p>HYBRID is the native coin of the Hybrid Blockchain, built on Cosmos SDK with advanced coinomics:</p>
+                <ul>
+                    <li><strong>Total Supply:</strong> 100 Billion HYBRID</li>
+                    <li><strong>Inflation:</strong> 7% → 2% taper over 8 years</li>
+                    <li><strong>Staking Rewards:</strong> Up to 12% APY</li>
+                    <li><strong>Governance:</strong> On-chain voting power</li>
+                    <li><strong>Gas Fees:</strong> Ultra-low transaction costs</li>
+                </ul>
+            </div>
+            """, unsafe_allow_html=True)
 
-    if st.session_state.get('show_multi_ai', False):
-        from ui.multi_ai_interface import create_multi_ai_interface
-        st.markdown("---")
-        create_multi_ai_interface()
+        with col2:
+            # Create wallet interface
+            if st.button("🎯 Create Wallet", key="create_wallet"):
+                with st.spinner("Creating wallet..."):
+                    time.sleep(1)
+                    wallet = create_hybrid_wallet()
+                    st.success(f"✅ Wallet created!")
+                    st.code(f"Address: {wallet.address}")
+                    st.code(f"Balance: {wallet.balance:,.6f} HYBRID")
 
-    if st.session_state.get('run_multi_ai_demo', False):
-        st.markdown("---")
-        st.subheader("⚡ Multi-AI System Demo")
+    with tab2:
+        col1, col2 = st.columns(2)
 
-        demo_col1, demo_col2, demo_col3 = st.columns(3)
+        with col1:
+            st.markdown("### 🌉 USDC Bridge")
 
-        with demo_col1:
-            if st.button("🔐 Security Consensus", key="demo_security"):
-                with st.spinner("Getting multi-AI security consensus..."):
-                    demo_contract = "contract Demo { mapping(address => uint) balances; }"
-                    result = asyncio.run(analyze_hybrid_security(demo_contract))
+            with st.form("usdc_bridge_form"):
+                amount = st.number_input("Amount (USDC)", min_value=1.0, value=100.0, step=1.0)
+                from_chain = st.selectbox("From Chain", ["MATIC", "ETH", "AVAX"])
+                to_chain = st.selectbox("To Chain", ["HYBRID"], index=0)
+                destination_address = st.text_input("Destination Address", "hybrid1...")
 
-                    if hasattr(result, 'agreement_level'):
-                        st.success(f"✅ Multi-AI Consensus: {result.agreement_level:.1%} agreement")
-                        st.info(f"Participating AIs: {', '.join([ai.value for ai in result.participating_ais])}")
+                if st.form_submit_button("🌉 Bridge USDC"):
+                    if from_chain != to_chain and components.get('hybrid_usdc_bridge'):
+                        with st.spinner("Initiating bridge transaction..."):
+                            bridge_result = asyncio.run(components['hybrid_usdc_bridge'].bridge_usdc_to_hybrid(
+                                str(amount), from_chain, destination_address
+                            ))
+
+                            if "error" not in bridge_result:
+                                st.success("✅ Bridge transaction initiated!")
+
+                                col1, col2, col3 = st.columns(3)
+                                with col1:
+                                    st.metric("Amount", f"{amount} USDC")
+                                with col2:
+                                    st.metric("Fee", f"{bridge_result['fee']} USDC")
+                                with col3:
+                                    st.metric("Est. Time", bridge_result['estimated_time'])
+
+                                st.info(f"**Bridge ID:** {bridge_result['bridge_id']}")
+                            else:
+                                st.error(f"❌ {bridge_result['error']}")
                     else:
-                        st.success(f"✅ Analysis by {result.provider.value}")
-                        st.metric("Confidence", f"{result.confidence:.1%}")
+                        st.error("Invalid bridge configuration")
 
-        with demo_col2:
-            if st.button("📊 Market Analysis", key="demo_market"):
-                with st.spinner("Grok3 analyzing real-time market..."):
-                    market_data = {"price": 10.50, "volume": 128000000}
-                    result = asyncio.run(analyze_market_trends(market_data))
-                    st.success(f"✅ Market Analysis Complete")
-                    st.metric("AI Provider", result.provider.value)
-                    st.metric("Confidence", f"{result.confidence:.1%}")
-
-        with demo_col3:
-            if st.button("⚙️ Code Generation", key="demo_code"):
-                with st.spinner("DeepSeek generating code..."):
-                    requirements = "HYBRID blockchain wallet connector component"
-                    result = asyncio.run(generate_hybrid_code(requirements))
-                    st.success(f"✅ Code Generated")
-                    st.metric("Provider", result.provider.value)
-                    st.code(result.content[:200] + "...", language="python")
-
-        st.session_state.run_multi_ai_demo = False
-
-    # Run stress test if requested
-    if st.session_state.get('run_stress_test', False):
-        st.markdown("---")
-        st.subheader("🧪 SUPER STRESS TEST IN PROGRESS")
-
-        with st.spinner("Running comprehensive stress test..."):
-            # Show progress bar
-            progress_bar = st.progress(0)
-            status_text = st.empty()
-
-            # Simulate stress test progress
-            test_phases = [
-                "Initializing test environment...",
-                "Testing wallet system (100 wallets)...",
-                "Stress testing license module (50 licenses)...",
-                "Testing NaaS delegation (100 delegations)...",
-                "Testing AI MoE system (25 models)...",
-                "Testing Ethermint EVM (20 contracts)...",
-                "Testing node operations...",
-                "Running concurrent load test (200 ops)...",
-                "Testing RPC endpoints...",
-                "Testing cross-chain bridge...",
-                "Testing performance limits...",
-                "Generating results..."
+        with col2:
+            st.markdown("### 🔄 Supported Chains")
+            chains = [
+                {"name": "Polygon", "symbol": "MATIC", "fee": "0.05 USDC", "time": "2-5 min"},
+                {"name": "Ethereum", "symbol": "ETH", "fee": "0.10 USDC", "time": "5-10 min"},
+                {"name": "Avalanche", "symbol": "AVAX", "fee": "0.05 USDC", "time": "3-7 min"},
+                {"name": "Base", "symbol": "BASE", "fee": "0.03 USDC", "time": "1-3 min"}
             ]
 
-            for i, phase in enumerate(test_phases):
-                status_text.text(phase)
-                progress_bar.progress((i + 1) / len(test_phases))
-                time.sleep(0.5)  # Simulate test time
+            for chain in chains:
+                st.markdown(f"""
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: white; border-radius: 12px; margin: 0.5rem 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <div>
+                        <strong>{chain['name']}</strong><br>
+                        <small style="color: #6b7280;">{chain['symbol']}</small>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="color: #10b981; font-weight: 600;">{chain['fee']}</div>
+                        <small style="color: #6b7280;">{chain['time']}</small>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
 
-        # Show test results
-        col1, col2, col3, col4 = st.columns(4)
+    with tab3:
+        st.markdown("### 🤖 Multi-AI Orchestration")
+
+        col1, col2 = st.columns(2)
+
         with col1:
-            st.metric("🎯 Tests Passed", "98/100", "98%")
+            ai_models = [
+                {"name": "OpenAI GPT-4", "status": "🟢 Online", "specialty": "General Reasoning"},
+                {"name": "Anthropic Claude", "status": "🟢 Online", "specialty": "Security & Ethics"},
+                {"name": "Grok 3", "status": "🟢 Online", "specialty": "Market Analysis"},
+                {"name": "DeepSeek R3", "status": "🟢 Online", "specialty": "Code Generation"}
+            ]
+
+            for model in ai_models:
+                st.markdown(f"""
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: white; border-radius: 12px; margin: 0.5rem 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <div>
+                        <strong>{model['name']}</strong><br>
+                        <small style="color: #6b7280;">{model['specialty']}</small>
+                    </div>
+                    <div style="text-align: right;">
+                        {model['status']}
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
         with col2:
-            st.metric("⚡ Avg Response", "0.12s", "-0.05s")
-        with col3:
-            st.metric("🔥 Peak TPS", "2,847", "+347")
-        with col4:
-            st.metric("💪 Success Rate", "98.5%", "+2.1%")
+            st.markdown("### 🎯 AI Actions")
+
+            if st.button("🧠 Analyze Market", key="ai_market"):
+                with st.spinner("AI analyzing market conditions..."):
+                    time.sleep(2)
+                    st.success("📊 Market analysis complete!")
+                    st.info("**Recommendation:** Bullish sentiment detected. Consider increasing positions.")
+
+            if st.button("🔍 Security Audit", key="ai_security"):
+                with st.spinner("Running security analysis..."):
+                    time.sleep(2)
+                    st.success("🛡️ Security audit complete!")
+                    st.info("**Result:** No vulnerabilities detected. System is secure.")
+
+            if st.button("⚡ Code Optimization", key="ai_optimize"):
+                with st.spinner("Optimizing smart contracts..."):
+                    time.sleep(2)
+                    st.success("🚀 Optimization complete!")
+                    st.info("**Improvement:** Gas costs reduced by 23%")
+
+    with tab4:
+        st.markdown("### 🌈 Holographic Visualization")
 
-        # Detailed results
-        with st.expander("📋 Detailed Test Results", expanded=True):
-            test_results = {
-                "Test Category": ["Wallet System", "License Module", "NaaS Module", "MoE Module", "Ethermint EVM", "Node Operations", "Concurrent Load", "RPC Endpoints", "Cross-Chain Bridge", "Performance Limits"],
-                "Status": ["✅ PASS", "✅ PASS", "✅ PASS", "✅ PASS", "✅ PASS", "✅ PASS", "⚠️ WARN", "✅ PASS", "✅ PASS", "❌ FAIL"],
-                "Duration (s)": [0.156, 0.089, 0.234, 0.167, 0.298, 0.445, 2.156, 0.078, 0.334, 1.567],
-                "Operations": [100, 50, 100, 25, 20, 5, 200, 8, 10, 50],
-                "Success Rate": ["100%", "100%", "100%", "100%", "100%", "100%", "85%", "100%", "100%", "60%"]
-            }
-            st.dataframe(test_results, use_container_width=True)
-
-        st.success("🏆 HYBRID Blockchain passed the super stress test! System is highly robust and performant.")
-        st.session_state.run_stress_test = False
-
-    # Show real-time monitor
-    if st.session_state.get('show_monitor', False):
-        st.markdown("---")
-        st.subheader("📊 Real-time System Monitor")
-
-        # Create metrics that update
-        metric_cols = st.columns(6)
-
-        with metric_cols[0]:
-            st.metric("🔥 Live TPS", f"{random.randint(1200, 2800)}", f"{random.randint(-50, 150)}")
-        with metric_cols[1]:
-            st.metric("⛓️ Block Height", f"{random.randint(1234560, 1234580)}", "+1")
-        with metric_cols[2]:
-            st.metric("💾 Memory Usage", f"{random.randint(65, 85)}%", f"{random.randint(-5, 5)}%")
-        with metric_cols[3]:
-            st.metric("🌐 Active Nodes", f"{random.randint(18, 25)}", f"{random.randint(-2, 3)}")
-        with metric_cols[4]:
-            st.metric("💰 HYBRID Price", f"${random.uniform(9.5, 12.5):.2f}", f"{random.uniform(-0.5, 0.8):.2f}")
-        with metric_cols[5]:
-            st.metric("🔄 Network Load", f"{random.randint(45, 95)}%", f"{random.randint(-10, 15)}%")
-
-        # Live chart simulation
-        import numpy as np
-        chart_data = np.random.randn(50, 3) * 100 + [1500, 75, 10]
-        chart_data = np.abs(chart_data)
-
-        st.line_chart(chart_data, height=300)
-
-        if st.button("🛑 Stop Monitoring"):
-            st.session_state.show_monitor = False
-            st.rerun()
-
-    # Founder Dashboard Access
-    st.divider()
-
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        st.markdown("### 👑 Founder Access")
-        st.info("The founder wallet and system controls are now secured behind the Founder Dashboard")
-
-    with col2:
-        if st.button("🏛️ Access Founder Dashboard", type="primary"):
-            st.session_state.show_founder_dashboard = True
-
-    if st.session_state.get('show_founder_dashboard', False):
-        from ui.founder_dashboard import create_founder_dashboard
-        st.markdown("---")
-        create_founder_dashboard()
-
-    st.divider()
-
-    # Render blockchain status
-    render_blockchain_status()
-    st.divider()
-
-    # Sample HTSX for demonstration
-    sample_htsx = """
-    <htsx>
-      <wallet-connector chains="hybrid,base,polygon,solana" required="true" />
-      <nft-license type="node_license" storage="true" validator="false" />
-      <cross-chain-bridge protocol="axelar" chains="hybrid,base,polygon" />
-      <node-operator type="storage" naas="true" rewards="auto" />
-      <hybrid-token utilities="fees,governance,staking,nft_purchase" />
-      <usdc-integration programmable-wallets="true" cctp-bridge="true" staking="true" />
-    </htsx>
-    """
-
-    # Sidebar for HTSX editing
-    with st.sidebar:
-        st.header("📝 HTSX Runtime Engine")
-        st.markdown("Edit blockchain components using HTSX:")
-
-        htsx_content = st.text_area(
-            "HTSX Code",
-            value=sample_htsx,
-            height=400,
-            help="Define your blockchain components using HTSX syntax"
-        )
-
-        if st.button("🔄 Parse & Execute HTSX", type="primary"):
-            st.session_state.htsx_content = htsx_content
-            st.rerun()
-
-    # Parse and render components
-    htsx_to_render = getattr(st.session_state, 'htsx_content', sample_htsx)
-    components = runtime.parse_htsx_components(htsx_to_render)
-
-    # Render each component type
-    for component_type, component_list in components.items():
-        if component_list:
-            for component_data in component_list:
-                if component_type == "wallet_connectors":
-                    render_wallet_connector(component_data)
-                elif component_type == "nft_licenses":
-                    render_nft_license_system(component_data)
-                elif component_type == "cross_chain_bridges":
-                    render_cross_chain_bridge(component_data)
-                elif component_type == "node_operators":
-                    render_node_operator_dashboard(component_data)
-                elif component_type == "hybrid_tokens":
-                    render_hybrid_token_interface(component_data)
-                elif component_type == "usdc_integration":
-                    st.markdown("### 💰 Circle USDC Integration Active")
-                    st.success("✅ Programmable wallets, cross-chain CCTP bridge, and USDC staking pools are enabled!")
-
-                st.divider()
-
-    # Holographic Blockchain Visualization
-    st.divider()
-    st.subheader("🌈 Revolutionary Holographic Blockchain Visualization")
-    st.markdown("*3D Blockchain Visualization with Adaptive Learning + Multi-AI Integration*")
-    
-    # Import holographic components
-    try:
-        from ui.holographic_interface import create_holographic_interface
-        from components.hybrid_htsx_holographic import holographic_htsx
-        
-        # Holographic interface tabs
-        holo_tab1, holo_tab2, holo_tab3 = st.tabs([
-            "🌊 3D Blockchain Visualization", "🎨 Volumetric NFT Studio", "🏢 Hybrid Business Simulator"
-        ])
-        
-        with holo_tab1:
-            create_holographic_interface()
-        
-        with holo_tab2:
-            holographic_htsx.create_volumetric_nft_studio()
-        
-        with holo_tab3:
-            holographic_htsx.create_hybrid_business_simulator()
-            
-    except ImportError as e:
-        st.error(f"Holographic components not available: {e}")
-        st.info("Running in basic mode without holographic visualization")
-
-    # Multi-AI Orchestration System
-    st.divider()
-    st.subheader("🤖 Revolutionary Multi-AI Orchestration System")
-    st.markdown("*OpenAI GPT-4 • Grok3 • DeepSeek R3 • Anthropic Claude - Each Specialized for Optimal Performance*")
-
-    # AI Provider Status
-    col1, col2, col3, col4 = st.columns(4)
-
-    with col1:
-        st.markdown("### 🔥 OpenAI GPT-4")
-        st.info("""
-        **Specializations:**
-        - General Reasoning
-        - Conversational AI
-        - Natural Language
-        """)
-
-        if st.button("🧠 Query GPT-4", key="query_gpt4"):
-            query = st.text_area("Ask GPT-4", placeholder="General reasoning about HYBRID...", key="gpt4_query")
-            if query:
-                with st.spinner("GPT-4 thinking..."):
-                    request = MultiAIRequest(
-                        query=query,
-                        task_type=TaskSpecialization.GENERAL_REASONING,
-                        context={"blockchain": "HYBRID"}
-                    )
-                    result = asyncio.run(multi_ai_orchestrator.route_request(request))
-                    st.success(f"✅ GPT-4 Response (Confidence: {result.confidence:.1%})")
-                    st.markdown(result.content)
-
-    with col2:
-        st.markdown("### ⚡ Grok3")
-        st.warning("""
-        **Specializations:**
-        - Real-time Data
-        - Market Analysis
-        - Social Sentiment
-        - Trend Prediction
-        """)
-
-        if st.button("📊 Query Grok3", key="query_grok3"):
-            if st.button("🔴 Live Market Analysis", key="grok3_market"):
-                with st.spinner("Grok3 analyzing real-time data..."):
-                    market_data = {"price": 10.50, "volume": 12800000, "sentiment": "bullish"}
-                    result = asyncio.run(analyze_market_trends(market_data))
-                    st.success(f"✅ Grok3 Market Analysis (Confidence: {result.confidence:.1%})")
-                    st.markdown(result.content)
-                    st.metric("Real-time HYBRID Price", "$10.50", "+$0.25")
-
-    with col3:
-        st.markdown("### 🎯 DeepSeek R3")
-        st.success("""
-        **Specializations:**
-        - Code Generation
-        - Algorithm Optimization
-        - Mathematical Reasoning
-        - System Architecture
-        """)
-
-        if st.button("⚙️ Query DeepSeek", key="query_deepseek"):
-            code_type = st.selectbox("Code Type", ["Smart Contract", "Algorithm", "System Architecture"], key="deepseek_type")
-            requirements = st.text_area("Requirements", placeholder="Generate optimized code for...", key="deepseek_req")
-
-            if st.button("🚀 Generate Code", key="deepseek_generate") and requirements:
-                with st.spinner("DeepSeek generating optimized code..."):
-                    result = asyncio.run(generate_hybrid_code(requirements))
-                    st.success(f"✅ DeepSeek Code Generation (Confidence: {result.confidence:.1%})")
-                    st.code(result.content, language="python")
-
-    with col4:
-        st.markdown("### 🛡️ Claude (Anthropic)")
-        st.error("""
-        **Specializations:**
-        - Security Analysis
-        - Ethical Reasoning
-        - Content Moderation
-        - Research Synthesis
-        """)
-
-        if st.button("🔐 Security Analysis", key="claude_security"):
-            contract_code = st.text_area("Smart Contract Code", 
-                placeholder="contract HybridExample { ... }", 
-                key="claude_contract")
-
-            if st.button("🔍 Analyze Security", key="claude_analyze") and contract_code:
-                with st.spinner("Claude performing security analysis..."):
-                    result = asyncio.run(analyze_hybrid_security(contract_code))
-
-                    if hasattr(result, 'agreement_level'):  # ConsensusResult
-                        st.success(f"✅ Multi-AI Security Consensus (Agreement: {result.agreement_level:.1%})")
-                        st.markdown(result.final_response)
-
-                        # Show participating AIs
-                        ai_chips = " • ".join([ai.value for ai in result.participating_ais])
-                        st.info(f"**Consensus from:** {ai_chips}")
-                    else:  # Single AIResponse
-                        st.success(f"✅ Claude Security Analysis (Confidence: {result.confidence:.1%})")
-                        st.markdown(result.content)
-
-    # Multi-AI Consensus Interface
-    st.subheader("🔄 Multi-AI Consensus Engine")
-    st.markdown("*Get consensus responses from multiple AI experts*")
-
-    consensus_query = st.text_area(
-        "🎯 Complex Query for Multi-AI Analysis",
-        placeholder="Analyze the long-term viability of HYBRID blockchain's tokenomics model...",
-        height=100
-    )
-
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        consensus_type = st.selectbox("Analysis Type", [
-            "Security Analysis", "Market Analysis", "Code Review", 
-            "Architecture Design", "Risk Assessment"
-        ])
-
-    with col2:
-        min_ais = st.slider("Minimum AIs", 2, 4, 3)
-
-    with col3:
-        require_consensus = st.checkbox("Require Consensus", value=True)
-
-    if st.button("🚀 Get Multi-AI Consensus", type="primary") and consensus_query:
-        with st.spinner("Coordinating multiple AI experts..."):
-            # Map consensus type to task specialization
-            task_mapping = {
-                "Security Analysis": TaskSpecialization.SECURITY_ANALYSIS,
-                "Market Analysis": TaskSpecialization.MARKET_ANALYSIS,
-                "Code Review": TaskSpecialization.CODE_GENERATION,
-                "Architecture Design": TaskSpecialization.SYSTEM_ARCHITECTURE,
-                "Risk Assessment": TaskSpecialization.ETHICAL_REASONING
-            }
-
-            request = MultiAIRequest(
-                query=consensus_query,
-                task_type=task_mapping[consensus_type],
-                context={"blockchain": "HYBRID", "analysis_depth": "comprehensive"},
-                require_consensus=require_consensus
-            )
-
-            result = asyncio.run(multi_ai_orchestrator.route_request(request))
-
-            if hasattr(result, 'agreement_level'):  # ConsensusResult
-                st.success(f"🎯 Multi-AI Consensus Complete!")
-
-                # Consensus metrics
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    st.metric("Agreement Level", f"{result.agreement_level:.1%}")
-                with col2:
-                    st.metric("Participating AIs", len(result.participating_ais))
-                with col3:
-                    st.metric("Synthesis Method", result.synthesis_method.replace("_", " ").title())
-
-                # Show final consensus
-                st.markdown("### 📋 Consensus Analysis")
-                st.markdown(result.final_response)
-
-                # Show individual AI confidence scores
-                st.markdown("### 🎯 Individual AI Confidence Scores")
-                for ai, confidence in result.confidence_scores.items():
-                    st.metric(f"{ai.value}", f"{confidence:.1%}")
-
-            else:  # Single AI response
-                st.success(f"✅ Analysis Complete by {result.provider.value}")
-                st.markdown(result.content)
-                st.metric("Confidence", f"{result.confidence:.1%}")
-
-    # Multi-AI Statistics Dashboard
-    st.subheader("📊 Multi-AI Performance Dashboard")
-
-    try:
-        stats = multi_ai_orchestrator.get_orchestrator_stats()
-
-        # Overview metrics
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            st.metric("Total AI Requests", stats["total_requests"])
-        with col2:
-            st.metric("Consensus Requests", stats["consensus_requests"])
-        with col3:
-            st.metric("Total Cost", f"${stats['total_cost']:.4f}")
-        with col4:
-            specialization_count = len([v for v in stats["specialization_coverage"].values() if v > 0])
-            st.metric("Active Specializations", f"{specialization_count}/12")
-
-        # Per-AI provider stats
-        if stats["total_requests"] > 0:
-            st.markdown("### 🤖 AI Provider Performance")
-
-            for provider, provider_stats in stats["provider_stats"].items():
-                if provider_stats["total_requests"] > 0:
-                    with st.expander(f"📊 {provider.replace('_', ' ').title()} Stats"):
-                        col1, col2, col3, col4 = st.columns(4)
-                        with col1:
-                            st.metric("Requests", provider_stats["total_requests"])
-                        with col2:
-                            st.metric("Avg Confidence", f"{provider_stats['avg_confidence']:.1%}")
-                        with col3:
-                            st.metric("Avg Response Time", f"{provider_stats['avg_response_time']:.2f}s")
-                        with col4:
-                            st.metric("Cost", f"${provider_stats['total_cost']:.4f}")
-
-        else:
-            st.info("No AI requests yet. Try querying one of the AI providers above!")
-
-    except Exception as e:
-        st.error(f"Error loading Multi-AI stats: {e}")
-
-    # Quick AI Actions
-    st.subheader("⚡ Quick Multi-AI Actions")
-
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        if st.button("🔍 Security Audit HYBRID Core", key="quick_security"):
-            with st.spinner("Multi-AI security audit..."):
-                core_code = "HYBRID blockchain core consensus and validation logic"
-                result = asyncio.run(analyze_hybrid_security(core_code))
-                st.success("Security audit complete!")
-                if hasattr(result, 'final_response'):
-                    st.markdown(result.final_response[:500] + "...")
-                else:
-                    st.markdown(result.content[:500] + "...")
-
-    with col2:
-        if st.button("📈 Market Prediction Analysis", key="quick_market"):
-            with st.spinner("Grok3 analyzing real-time market data..."):
-                current_market = {
-                    "hybrid_price": 10.50,
-                    "market_cap": 10500000000,
-                    "volume_24h": 128000000,
-                    "social_sentiment": "bullish"
-                }
-                result = asyncio.run(analyze_market_trends(current_market))
-                st.success("Market analysis complete!")
-                st.markdown(result.content[:500] + "...")
-
-    with col3:
-        if st.button("⚙️ Optimize Node Algorithm", key="quick_optimize"):
-            with st.spinner("DeepSeek optimizing algorithms..."):
-                algorithm_desc = "HYBRID node selection and delegation algorithm for maximum efficiency"
-                result = asyncio.run(optimize_hybrid_algorithm(algorithm_desc))
-                st.success("Algorithm optimization complete!")
-                st.markdown(result.content[:500] + "...")
-
-    # Original Anthropic AI Integration (keeping for compatibility)
-    st.divider()
-    st.subheader("🧠 Legacy Anthropic AI Integration")
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.markdown("### 🤖 Claude Sonnet (Coding Expert)")
-        with st.container():
-            st.info("""
-            **Specialized for:**
-            - Smart contract analysis
-            - Code review and optimization
-            - HTSX component generation
-            - DeFi strategy analysis
-            """)
-
-            sonnet_query = st.text_area("Ask Claude Sonnet", 
-                placeholder="Analyze this smart contract...", 
-                height=100, key="sonnet_query")
-
-            if st.button("🧠 Query Sonnet", type="primary"):
-                if sonnet_query:
-                    with st.spinner("Claude Sonnet thinking..."):
-                        from blockchain.x_moe import anthropic_moe
-                        result = asyncio.run(anthropic_moe.route_query(sonnet_query, "coding"))
-
-                        st.success(f"✅ Response from Claude Sonnet")
-                        st.markdown(result.response)
-
-                        col1, col2, col3 = st.columns(3)
-                        with col1:
-                            st.metric("Tokens Used", f"{result.tokens_used:,}")
-                        with col2:
-                            st.metric("Cost", f"${result.cost_usd:.6f}")
-                        with col3:
-                            st.metric("Confidence", f"{result.confidence_score:.1%}")
-
-    with col2:
-        st.markdown("### 🎯 Claude Opus (Architecture Expert)")
-        with st.container():
-            st.warning("""
-            **Specialized for:**
-            - System architecture design
-            - Tokenomics modeling
-            - Governance frameworks
-            - Complex reasoning tasks
-            """)
-
-            opus_query = st.text_area("Ask Claude Opus", 
-                placeholder="Design tokenomics for...", 
-                height=100, key="opus_query")
-
-            if st.button("🎯 Query Opus", type="primary"):
-                if opus_query:
-                    with st.spinner("Claude Opus reasoning..."):
-                        from blockchain.x_moe import anthropic_moe
-                        result = asyncio.run(anthropic_moe.route_query(opus_query, "architecture"))
-
-                        st.success(f"✅ Response from Claude Opus")
-                        st.markdown(result.response)
-
-                        col1, col2, col3 = st.columns(3)
-                        with col1:
-                            st.metric("Tokens Used", f"{result.tokens_used:,}")
-                        with col2:
-                            st.metric("Cost", f"${result.cost_usd:.6f}")
-                        with col3:
-                            st.metric("Confidence", f"{result.confidence_score:.1%}")
-
-    # AI Usage Statistics
-    st.subheader("📊 AI Usage Statistics")
-    try:
-        from blockchain.x_moe import anthropic_moe
-        stats = anthropic_moe.get_model_stats()
-
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            st.metric("Total Queries", stats["total_inferences"])
-        with col2:
-            st.metric("Sonnet Queries", stats["sonnet_inferences"])
-        with col3:
-            st.metric("Opus Queries", stats["opus_inferences"])
-        with col4:
-            st.metric("Total Cost", f"${stats['total_cost_usd']:.4f}")
-    except:
-        st.info("No AI queries yet. Try asking Claude Sonnet or Opus a question!")
-
-    # Quick AI Actions
-    st.subheader("⚡ Quick AI Actions")
-
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        if st.button("🔍 Analyze HYBRID Tokenomics", key="analyze_tokenomics"):
-            with st.spinner("Claude Opus analyzing..."):
-                from blockchain.x_moe import anthropic_moe
-                query = "Analyze the HYBRID blockchain tokenomics model with 1B total supply, staking rewards, and cross-chain utilities"
-                result = asyncio.run(anthropic_moe.design_tokenomics(query))
-                st.success("Analysis complete!")
-                st.markdown(result.response)
-
-    with col2:
-        if st.button("🏗️ Generate HTSX Component", key="generate_htsx"):
-            with st.spinner("Claude Sonnet generating..."):
-                from blockchain.x_moe import anthropic_moe
-                query = "Create an HTSX component for NFT license marketplace with purchase, delegation, and rewards tracking"
-                result = asyncio.run(anthropic_moe.generate_htsx_components(query))
-                st.success("Component generated!")
-                st.code(result.response, language="typescript")
-
-    with col3:
-        if st.button("🛡️ Security Audit", key="security_audit"):
-            with st.spinner("Claude Sonnet auditing..."):
-                from blockchain.x_moe import anthropic_moe
-                query = "Perform security audit on HYBRID blockchain architecture focusing on NFT licenses, cross-chain bridges, and staking mechanisms"
-                result = asyncio.run(anthropic_moe.analyze_smart_contract("HYBRID Blockchain System"))
-                st.success("Audit complete!")
-                st.markdown(result.response)
-
-    # Advanced Web3 Integrations
-    st.divider()
-    st.subheader("🚀 Advanced Web3 Integrations")
-
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        st.markdown("### 🔗 Polygon AggLayer")
-        with st.container():
-            st.info("""
-            **Unified Liquidity Layer**
-            - Cross-chain liquidity aggregation
-            - Unified settlement on Ethereum
-            - 50M HYBRID total liquidity
-            - 8.5% yield across chains
-            """)
-
-            if st.button("🌊 Access AggLayer", key="access_agglayer"):
-                with st.spinner("Connecting to AggLayer..."):
-                    liquidity_data = asyncio.run(agglayer.get_unified_liquidity())
-                    st.success(f"Connected! Total liquidity: {liquidity_data['total_liquidity']}")
-
-    with col2:
-        st.markdown("### 🤖 Coinbase AgentKit")
-        with st.container():
-            st.success("""
-            **AI-Powered Operations**
-            - Autonomous node management
-            - Smart delegation strategies
-            - Gasless transactions (Paymaster)
-            - Fiat onramp integration
-            """)
-
-            if st.button("🧠 Launch AI Agent", key="launch_ai_agent"):
-                with st.spinner("Initializing AI agent..."):
-                    agent_action = asyncio.run(hybrid_agent.execute_agent_action(
-                        "buy_node_license", 
-                        {"type": "storage", "auto_delegate": True}
-                    ))
-                    st.success(f"AI Agent: {agent_action['agent_reasoning']}")
-
-    with col3:
-        st.markdown("### 💳 OnRamp Integration")
-        with st.container():
-            st.warning("""
-            **Fiat to HYBRID**
-            - Buy HYBRID with USD/EUR
-            - Apple Pay, Google Pay support
-            - Instant settlement
-            - $10 per HYBRID
-            """)
-
-            amount = st.number_input("Amount (USD)", min_value=10, value=100, step=10)
-            if st.button("💰 Buy HYBRID", key="buy_hybrid_onramp"):
-                with st.spinner("Creating onramp session..."):
-                    onramp_session = asyncio.run(onramper.create_onramp_session(amount))
-                    st.success(f"Session created! Get {onramp_session['amount_hybrid']}")
-                    st.markdown(f"[Complete Purchase]({onramp_session['payment_url']})")
-
-    # Integration benefits footer
-    with st.expander("🎯 Why HYBRID Blockchain + HTSX?"):
         col1, col2 = st.columns(2)
 
         with col1:
             st.markdown("""
-            **🔗 HYBRID Blockchain Benefits:**
-            - Cosmos SDK foundation with Tendermint consensus
-            - NFT-gated node operations (Storage & Validator)
-            - Cross-chain interoperability (Base, Polygon, Solana)
-            - $HYBRID token economics with staking rewards
-            - Node-as-a-Service (NaaS) for passive income
-            - Real blockchain, not a simulation
-            """)
+            <div class="glow-card">
+                <h4>🎨 3D Blockchain Visualization</h4>
+                <p>Experience blockchain data in immersive 3D:</p>
+                <ul>
+                    <li>Crystalline block structures</li>
+                    <li>Transaction flow rivers</li>
+                    <li>DeFi protocol vortexes</li>
+                    <li>Real-time network topology</li>
+                </ul>
+            </div>
+            """, unsafe_allow_html=True)
 
         with col2:
-            st.markdown("""
-            **⚡ HTSX Runtime Engine Benefits:**
-            - Declarative blockchain components
-            - Type-safe Web3 development
-            - Built-in multi-chain support
-            - Component-based architecture
-            - Real-time blockchain integration
-            - Production-ready runtime
-            """)
+            if st.button("🌈 Launch Holographic View", key="holo_view"):
+                with st.spinner("Initializing holographic engine..."):
+                    time.sleep(2)
+                    st.success("✨ Holographic view activated!")
+                    st.balloons()
 
-    # Initialize stress testing
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("🔥 Run Stress Test"):
-            create_stress_test_ui()
+                    # Show holographic visualization placeholder
+                    fig = go.Figure(data=go.Scatter3d(
+                        x=np.random.randn(100),
+                        y=np.random.randn(100),
+                        z=np.random.randn(100),
+                        mode='markers',
+                        marker=dict(
+                            size=5,
+                            color=np.random.randn(100),
+                            colorscale='Viridis',
+                            opacity=0.8
+                        )
+                    ))
+                    fig.update_layout(
+                        title="Holographic Blockchain Network",
+                        scene=dict(
+                            xaxis_title="X Axis",
+                            yaxis_title="Y Axis",
+                            zaxis_title="Z Axis"
+                        ),
+                        height=400
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
 
-    with col2:
-        # NVIDIA Cloud Integration
-        if st.button("🚀 NVIDIA Cloud Integration", key="nvidia_cloud_demo_integration"):
-            create_nvidia_cloud_demo(runtime)
+    with tab5:
+        st.markdown("### 📊 Advanced Analytics")
 
-    # Add wallet generator UI
-    if st.session_state.get('show_wallet_generator', False):
-        from ui.hybrid_wallet_generator import create_wallet_generator_ui
-        st.markdown("---")
-        create_wallet_generator_ui()
+        # Network activity heatmap
+        dates = pd.date_range(start=datetime.now() - timedelta(days=7), end=datetime.now(), freq='H')
+        activity = np.random.randint(10, 100, len(dates))
+
+        df = pd.DataFrame({
+            'Date': dates,
+            'Activity': activity,
+            'Day': dates.day_name(),
+            'Hour': dates.hour
+        })
+
+        pivot_df = df.pivot_table(values='Activity', index='Day', columns='Hour')
+
+        fig_heatmap = px.imshow(
+            pivot_df,
+            title="Network Activity Heatmap (7 Days)",
+            color_continuous_scale="Blues"
+        )
+        fig_heatmap.update_layout(height=400)
+        st.plotly_chart(fig_heatmap, use_container_width=True)
+
+def create_footer():
+    """Create impressive footer"""
+    st.markdown("---")
+    st.markdown("""
+    <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; margin-top: 2rem;">
+        <h3 style="color: white; margin-bottom: 1rem;">🚀 Ready to Build the Future?</h3>
+        <p style="color: rgba(255,255,255,0.9); margin-bottom: 2rem;">Join the HYBRID ecosystem and experience next-generation blockchain technology</p>
+        <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+            <a href="https://github.com/hybridchain" style="color: white; text-decoration: none; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 8px; backdrop-filter: blur(10px);">
+                📚 Documentation
+            </a>
+            <a href="https://discord.gg/hybrid" style="color: white; text-decoration: none; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 8px; backdrop-filter: blur(10px);">
+                💬 Discord
+            </a>
+            <a href="https://twitter.com/hybridchain" style="color: white; text-decoration: none; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 8px; backdrop-filter: blur(10px);">
+                🐦 Twitter
+            </a>
+        </div>
+        <p style="color: rgba(255,255,255,0.7); margin-top: 2rem; font-size: 0.9rem;">
+            Built with ❤️ by the HYBRID team | Powered by Cosmos SDK | Deployed on Replit
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Main application
+def main():
+    """Main application entry point"""
+    # Configure Streamlit page with custom theme
+    st.set_page_config(
+        page_title="HYBRID Blockchain + HTSX",
+        page_icon="🌟",
+        layout="wide",
+        initial_sidebar_state="expanded",
+        menu_items={
+            'Get Help': 'https://github.com/hybridchain/hybrid',
+            'Report a bug': "https://github.com/hybridchain/hybrid/issues",
+            'About': "HYBRID Blockchain - The Future of Interoperable DeFi"
+        }
+    )
+
+    # Hero section
+    create_hero_section()
+
+    # Real-time metrics
+    create_real_time_metrics()
+
+    # Add some spacing
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Interactive charts
+    create_interactive_charts()
+
+    # Feature showcase
+    create_feature_showcase()
+
+    # Footer
+    create_footer()
+
+# Sidebar with advanced controls
+with st.sidebar:
+    st.markdown("### 🎛️ Control Panel")
+
+    # Network status
+    st.markdown("#### 📡 Network Status")
+    network_status = st.selectbox("Network", ["Mainnet", "Testnet", "Devnet"])
+
+    if network_status == "Mainnet":
+        st.success("🟢 Connected to Mainnet")
+    else:
+        st.warning(f"🟡 Connected to {network_status}")
+
+    # Quick actions
+    st.markdown("#### ⚡ Quick Actions")
+
+    if st.button("🔄 Refresh Data"):
+        st.experimental_rerun()
+
+    if st.button("📊 Export Report"):
+        st.info("📄 Report exported successfully!")
+
+    if st.button("🔧 Settings"):
+        st.info("⚙️ Settings panel opened!")
+
+    # System stats
+    st.markdown("#### 💻 System Stats")
+    st.metric("CPU Usage", "45%", "2%")
+    st.metric("Memory", "2.1 GB", "0.1 GB")
+    st.metric("Network", "1.2 Mbps", "0.3 Mbps")
+
+    # Recent activity
+    st.markdown("#### 📝 Recent Activity")
+    activities = [
+        "🔄 Bridge transaction completed",
+        "💰 Staking reward received",
+        "🗳️ Governance vote cast",
+        "🔍 Security scan passed"
+    ]
+
+    for activity in activities:
+        st.text(activity)
 
 if __name__ == "__main__":
     main()

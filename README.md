@@ -13,9 +13,9 @@ The HYBRID Blockchain is a Layer 1 blockchain built with the Cosmos SDK v0.47, f
 - **Chain ID**: `hybrid-1` (mainnet) / `hybrid-test-1` (testnet)
 - **Consensus**: Tendermint BFT (5s block time, 2/3+1 voting power)
 - **Address Prefix**: `hybrid` (Bech32 format)
-- **Token**: `uhybrid` (1 HYBRID = 1,000,000 uhybrid)
+- **Native Coin**: `uhybrid` (1 HYBRID = 1,000,000 uhybrid) - **Note: HYBRID is the native coin, not a token**
 
-### 💰 Token Economics
+### 💰 Coin Economics
 - **Total Supply**: 100,000,000,000 HYBRID (100 Billion)
 - **Genesis Allocation**: 10B HYBRID to founder wallet (10% of total supply)
 - **Inflation**: 7% → 2% taper over 8 years
@@ -67,7 +67,7 @@ AI Mixture-of-Experts integration:
 
 ### Ethermint EVM Subsystem
 - **EVM Compatibility**: Dual-state (SDK + EVM) from block 1
-- **Gas Token**: uhybrid (1 gwei ≈ 0.001 uhybrid)
+- **Gas Coin**: uhybrid (1 gwei ≈ 0.001 uhybrid)
 - **Precompiles**: NFT license verification at 0x000...HNL
 - Solidity contract verification via Sourcify
 
@@ -78,7 +78,7 @@ AI Mixture-of-Experts integration:
 - **24-Word Recovery**: BIP-39 mnemonic phrases
 - **Cross-Chain Bridge**: Integrated Axelar/Wormhole support
 
-The blockchain uses $HYBRID tokens for all operations, with NFT licenses required for node participation.
+The blockchain uses $HYBRID native coins for all operations, with NFT licenses required for node participation.
 
 ---
 

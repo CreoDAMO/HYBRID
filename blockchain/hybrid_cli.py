@@ -226,7 +226,7 @@ def export(address: str, show_private: bool, format: str):
 @click.option('--to-addr', required=True, help='Recipient address')
 @click.option('--amount', required=True, type=float, help='Amount in HYBRID')
 def transfer(from_addr: str, to_addr: str, amount: float):
-    """Transfer HYBRID tokens between wallets"""
+    """Transfer HYBRID coins between wallets"""
     amount_micro = int(amount * 1_000_000)
     
     success = hybrid_wallet_manager.transfer(from_addr, to_addr, amount_micro)
