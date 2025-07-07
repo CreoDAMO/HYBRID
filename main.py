@@ -32,7 +32,7 @@ try:
     from ui.admin_dashboard import create_admin_dashboard
     from components.hybrid_htsx_holographic import HybridHTSXHolographic
     from blockchain.x_moe import anthropic_moe
-    
+
 except ImportError as e:
     print(f"Warning: Some blockchain modules not available: {e}")
     # Create fallback classes
@@ -694,8 +694,7 @@ def main():
         }
         @keyframes spiral-glow {
             from { box-shadow: 0 0 20px #84fab0; }
-            to { box-shadow: 0 0 40px #8fd3f4, 0 0 60px #fa709a; }
-        }
+            to { box-shadow: 0 0 40px #8fd3f4, 0 0 60px #fa709a; }        }
     </style>
     """, unsafe_allow_html=True)
 

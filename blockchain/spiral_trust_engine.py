@@ -12,6 +12,7 @@ import json
 import hashlib
 from datetime import datetime, timedelta
 import math
+import time
 
 class TrustMetric(Enum):
     RELIABILITY = "reliability"
@@ -22,6 +23,7 @@ class TrustMetric(Enum):
     CONSISTENCY = "consistency"
     PHI_COHERENCE = "phi_coherence"
     SPIRAL_ALIGNMENT = "spiral_alignment"
+    IYONA_BLESSING = "iyona_blessing"
 
 class CurrencyType(Enum):
     TRUST_TOKENS = "trust_tokens"
@@ -31,12 +33,7 @@ class CurrencyType(Enum):
     HYBRID_TRUST = "hybrid_trust"
     TRUTH_TOKENS = "truth_tokens"
     TRUST_UNITS = "trust_units"
-
-class SpiralGate(Enum):
-    GATE_740 = 740
-    GATE_745 = 745
-    GATE_777 = 777
-    GATE_INFINITY = float('inf')
+    IYONA_BLESSED_TOKENS = "iyona_blessed_tokens"
 
 @dataclass
 class TrustProfile:
@@ -71,6 +68,187 @@ class TrustTransaction:
     gate_frequency: float = 740.0
     phi_coherence: float = 1.618
     dimensional_signature: str = ""
+
+@dataclass
+class TrustScore:
+    address: str
+    reliability: float = 0.0
+    competence: float = 0.0
+    benevolence: float = 0.0
+    integrity: float = 0.0
+    iyona_blessing: float = 0.0
+    total_score: float = 0.0
+    last_updated: int = 0
+
+    def calculate_total(self) -> float:
+        """Calculate total trust score with golden ratio scaling"""
+        base_score = (
+            self.reliability * 0.25 +
+            self.competence * 0.20 +
+            self.benevolence * 0.20 +
+            self.integrity * 0.15 +
+            self.iyona_blessing * 0.20
+        )
+        # Apply golden ratio scaling for blessed members
+        if self.iyona_blessing >= 95.0:
+            base_score *= 1.618  # Golden ratio
+
+        self.total_score = min(base_score, 100.0)
+        self.last_updated = int(time.time())
+        return self.total_score
+
+@dataclass
+class CurrencyBalance:
+    currency_type: CurrencyType
+    balance: float
+    earned_total: float
+    last_mint: int
+    mint_history: List[Dict[str, Any]]
+
+class SpiralScriptEngine:
+    """Core SpiralScript execution engine with Iyona'el blessing system"""
+
+    def __init__(self):
+        self.trust_scores: Dict[str, TrustScore] = {}
+        self.currency_balances: Dict[str, Dict[CurrencyType, CurrencyBalance]] = {}
+        self.blessing_registry: Dict[str, Dict[str, Any]] = {}
+        self.validation_history: List[Dict[str, Any]] = []
+
+    def calculate_trust_score(self, address: str, metrics: Dict[TrustMetric, float]) -> TrustScore:
+        """Calculate comprehensive trust score with SpiralScript algorithms"""
+        if address not in self.trust_scores:
+            self.trust_scores[address] = TrustScore(address=address)
+
+        score = self.trust_scores[address]
+
+        # Update individual metrics
+        for metric, value in metrics.items():
+            if metric == TrustMetric.RELIABILITY:
+                score.reliability = value
+            elif metric == TrustMetric.COMPETENCE:
+                score.competence = value
+            elif metric == TrustMetric.BENEVOLENCE:
+                score.benevolence = value
+            elif metric == TrustMetric.INTEGRITY:
+                score.integrity = value
+            elif metric == TrustMetric.IYONA_BLESSING:
+                score.iyona_blessing = value
+
+        # Calculate total with golden ratio scaling
+        total = score.calculate_total()
+
+        # Record validation
+        self.validation_history.append({
+            "address": address,
+            "timestamp": int(time.time()),
+            "score": total,
+            "blessed": score.iyona_blessing >= 95.0
+        })
+
+        return score
+
+    def mint_trust_currency(self, address: str, currency_type: CurrencyType, amount: float, reason: str) -> bool:
+        """Mint trust currency based on contributions and blessings"""
+        if address not in self.currency_balances:
+            self.currency_balances[address] = {}
+
+        if currency_type not in self.currency_balances[address]:
+            self.currency_balances[address][currency_type] = CurrencyBalance(
+                currency_type=currency_type,
+                balance=0.0,
+                earned_total=0.0,
+                last_mint=0,
+                mint_history=[]
+            )
+
+        balance = self.currency_balances[address][currency_type]
+        balance.balance += amount
+        balance.earned_total += amount
+        balance.last_mint = int(time.time())
+        balance.mint_history.append({
+            "amount": amount,
+            "reason": reason,
+            "timestamp": int(time.time())
+        })
+
+        return True
+
+    def apply_iyona_blessing(self, address: str, blessing_type: str, blessing_message: str) -> bool:
+        """Apply Iyona'el blessing to trusted members"""
+        trust_score = self.trust_scores.get(address)
+        if not trust_score or trust_score.total_score < 95.0:
+            return False
+
+        self.blessing_registry[address] = {
+            "blessing_type": blessing_type,
+            "message": blessing_message,
+            "granted_at": int(time.time()),
+            "trust_score": trust_score.total_score
+        }
+
+        # Grant special blessed tokens
+        self.mint_trust_currency(
+            address, 
+            CurrencyType.IYONA_BLESSED_TOKENS, 
+            100.0, 
+            f"Iyona'el Blessing: {blessing_type}"
+        )
+
+        return True
+
+class TrustCurrencyManager:
+    """Main trust currency management system"""
+
+    def __init__(self):
+        self.spiral_engine = SpiralScriptEngine()
+        self.total_supply = {
+            CurrencyType.TRUST_TOKENS: 2_500_000,
+            CurrencyType.REPUTATION_COINS: 1_000_000,
+            CurrencyType.VALIDATION_CREDITS: 500_000,
+            CurrencyType.SPIRAL_CURRENCY: 250_000,
+            CurrencyType.IYONA_BLESSED_TOKENS: 42_000  # Limited supply for blessed members
+        }
+        self.circulating_supply = {currency: 0.0 for currency in CurrencyType}
+
+    def get_trust_score(self, address: str) -> Optional[TrustScore]:
+        """Get trust score for address"""
+        return self.spiral_engine.trust_scores.get(address)
+
+    def get_currency_balance(self, address: str, currency_type: CurrencyType) -> float:
+        """Get currency balance for address"""
+        if address not in self.spiral_engine.currency_balances:
+            return 0.0
+        return self.spiral_engine.currency_balances[address].get(currency_type, CurrencyBalance(currency_type, 0, 0, 0, [])).balance
+
+    def validate_trust_transaction(self, from_address: str, to_address: str, amount: float) -> bool:
+        """Validate trust-based transaction"""
+        from_score = self.get_trust_score(from_address)
+        to_score = self.get_trust_score(to_address)
+
+        if not from_score or from_score.total_score < 50.0:
+            return False
+
+        # Higher trust scores allow larger transactions
+        max_amount = from_score.total_score * 100  # Scale with trust
+        return amount <= max_amount
+
+    def get_leaderboard(self, limit: int = 10) -> List[Dict[str, Any]]:
+        """Get trust leaderboard with blessings"""
+        scores = list(self.spiral_engine.trust_scores.values())
+        scores.sort(key=lambda x: x.total_score, reverse=True)
+
+        leaderboard = []
+        for score in scores[:limit]:
+            blessing = self.spiral_engine.blessing_registry.get(score.address, {})
+            leaderboard.append({
+                "address": score.address,
+                "trust_score": score.total_score,
+                "level": "Iyona'el Blessed" if score.iyona_blessing >= 95.0 else "Trust Guardian" if score.total_score >= 80.0 else "Reliable Node",
+                "blessing": blessing.get("message", "Building Trust"),
+                "blessed": score.iyona_blessing >= 95.0
+            })
+
+        return leaderboard
 
 class AdvancedSpiralScriptEngine:
     """Enhanced SpiralScript language processor with QASF integration"""
@@ -636,4 +814,5 @@ class PublicFiatGate:
         }
 
 # Global enhanced trust currency manager
+trust_currency_manager = TrustCurrencyManager()
 enhanced_trust_currency_manager = EnhancedTrustCurrencyManager()
