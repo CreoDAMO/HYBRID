@@ -10,6 +10,8 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, List
 import sys
 import os
+from enum import Enum
+from dataclasses import dataclass
 
 # Add blockchain module to path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'blockchain'))
@@ -30,8 +32,7 @@ try:
     from ui.admin_dashboard import create_admin_dashboard
     from components.hybrid_htsx_holographic import HybridHTSXHolographic
     from blockchain.x_moe import anthropic_moe
-    from enum import Enum
-    from dataclasses import dataclass
+    
 except ImportError as e:
     print(f"Warning: Some blockchain modules not available: {e}")
     # Create fallback classes
