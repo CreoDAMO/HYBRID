@@ -164,78 +164,7 @@ class HybridHTSXRuntime:
                 chains.append(chain.value)
         return chains if chains else ["hybrid", "base", "polygon", "solana"]
 
-def render_founder_wallet():
-    """Render founder wallet information"""
-    st.subheader("👑 HYBRID Founder Wallet")
 
-    founder = get_founder_wallet()
-
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        st.metric(
-            "Founder Address", 
-            f"{founder.address[:12]}...{founder.address[-8:]}", 
-            "🚀 Lead Engineer & Developer"
-        )
-
-    with col2:
-        st.metric(
-            "HYBRID Balance", 
-            f"{founder.balance / 1_000_000:,.0f} HYBRID",
-            f"${founder.balance / 1_000_000 * 10:,.0f} USD (at $10/HYBRID)"
-        )
-
-    with col3:
-        st.metric(
-            "Wallet Status",
-            "🟢 Active",
-            "Genesis Wallet"
-        )
-
-    with st.expander("📋 Full Founder Wallet Details"):
-        st.code(f"""
-Address: {founder.address}
-Label: {founder.label}
-Balance: {founder.balance / 1_000_000:,.6f} HYBRID
-Micro-HYBRID: {founder.balance:,} µHYBRID
-Created: {founder.created_at}
-Type: Genesis Founder Wallet
-        """)
-
-        # Secure access to sensitive data
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("🔐 Show Mnemonic Phrase", help="Your 24-word recovery phrase"):
-                st.warning("⚠️ Keep this secure! Never share your mnemonic phrase.")
-                st.code(founder.mnemonic, language="text")
-
-        with col2:
-            if st.button("🔑 Show Private Key", help="Your wallet private key"):
-                st.error("🚨 DANGER: Private key gives full control of wallet!")
-                st.code(founder.private_key, language="text")
-
-        st.info("💡 Tip: Use the CLI command `python -m blockchain.hybrid_cli wallet founder` to view wallet details")
-
-        if st.button("💰 Create New User Wallet"):
-            new_wallet = create_hybrid_wallet("New User Wallet")
-
-            # Transfer 1000 HYBRID to new wallet
-            success = hybrid_wallet_manager.transfer(
-                founder.address,
-                new_wallet.address,
-                1000 * 1_000_000  # 1000 HYBRID
-            )
-
-            if success:
-                st.success(f"✅ New wallet created and funded!")
-                st.code(f"""
-New Wallet Address: {new_wallet.address}
-Mnemonic: {new_wallet.mnemonic}
-Balance: 1,000 HYBRID (funded by founder)
-                """)
-            else:
-                st.error("Failed to create and fund wallet")
 
 def render_blockchain_status():
     """Render blockchain node status"""
@@ -979,8 +908,23 @@ def main():
             st.session_state.show_monitor = False
             st.rerun()
 
-    # Render founder wallet first
-    render_founder_wallet()
+    # Founder Dashboard Access
+    st.divider()
+    
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.markdown("### 👑 Founder Access")
+        st.info("The founder wallet and system controls are now secured behind the Founder Dashboard")
+    
+    with col2:
+        if st.button("🏛️ Access Founder Dashboard", type="primary"):
+            st.session_state.show_founder_dashboard = True
+    
+    if st.session_state.get('show_founder_dashboard', False):
+        from ui.founder_dashboard import create_founder_dashboard
+        st.markdown("---")
+        create_founder_dashboard()
+    
     st.divider()
 
     # Render blockchain status
