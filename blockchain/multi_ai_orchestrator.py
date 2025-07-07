@@ -135,7 +135,7 @@ class MultiAIOrchestrator:
                     "avg_tokens": 0
                 } for provider in AIProvider
             },
-            "specialization_coverage": {spec: sum(1 for specs in self.provider_specializations.values() if spec in specs) for spec in TaskSpecialization}
+            "specialization_coverage": {spec.value: sum(1 for specs in self.provider_specializations.values() if spec in specs) for spec in TaskSpecialization}
         }
 
         print("🤖 Multi-AI Orchestrator initialized with REAL API integration!")
