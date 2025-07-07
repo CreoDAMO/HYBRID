@@ -31,7 +31,7 @@ try:
     from components.hybrid_htsx_holographic import HybridHTSXHolographic
     from blockchain.x_moe import anthropic_moe
     from enum import Enum
-    from dataclasses importdataclass
+    from dataclasses import dataclass
 except ImportError as e:
     print(f"Warning: Some blockchain modules not available: {e}")
     # Create fallback classes
