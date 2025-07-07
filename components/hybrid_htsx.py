@@ -333,16 +333,6 @@ for chain in chains:
         return f"""
 # NFT License Component
 st.subheader("🎫 NFT License System")
-license_type = "{component.license_type}"
-price = {component.price}
-st.info(f"License Type: {{license_type}} - Price: {{price}} HYBRID")
-if st.button("Purchase License"):
-    st.success("License purchase initiated!")
-""" str:
-        """Render NFT license component"""
-        return f"""
-# NFT License Component
-st.subheader("🎫 NFT License System")
 st.info(f"License Type: {component.license_type.title()}")
 st.info(f"Price: {component.price} {component.currency}")
 if st.button("Purchase License"):

@@ -106,10 +106,10 @@ class HybridHTSXRuntime:
         """Initialize the HYBRID blockchain node"""
         if not self.blockchain_node:
             self.blockchain_node = create_hybrid_node(node_type)
-            
+
             # Initialize core blockchain components
             await self.blockchain_node.start()
-            
+
             # Start block production if validator
             if node_type == "validator":
                 founder_wallet = get_founder_wallet()
