@@ -849,3 +849,230 @@ def main():
 
 if __name__ == "__main__":
     main()
+"""
+HybridScan Blockchain Explorer UI
+Real-time blockchain explorer for HYBRID network
+"""
+
+import streamlit as st
+import pandas as pd
+import random
+import time
+from datetime import datetime, timedelta
+
+def create_hybridscan_interface():
+    """Create the HybridScan blockchain explorer interface"""
+    
+    st.header("🔍 HybridScan - HYBRID Blockchain Explorer")
+    st.markdown("*Real-time blockchain data and analytics*")
+    
+    # Explorer tabs
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["🏠 Overview", "📦 Blocks", "💳 Transactions", "👑 Validators", "📊 Analytics"])
+    
+    with tab1:
+        # Network overview
+        st.subheader("🌐 Network Overview")
+        
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("Latest Block", "1,234,567", "+1")
+        with col2:
+            st.metric("Total Transactions", "12,345,678", "+156")
+        with col3:
+            st.metric("Active Validators", "21", "0")
+        with col4:
+            st.metric("Network Hash Rate", "2.5 TH/s", "+0.1")
+        
+        # Recent blocks
+        st.subheader("📦 Recent Blocks")
+        recent_blocks = []
+        for i in range(10):
+            recent_blocks.append({
+                "Height": 1234567 - i,
+                "Hash": f"0x{random.randint(10**15, 10**16-1):016x}",
+                "Validator": f"hybrid1val{random.randint(1,21):02d}",
+                "Txs": random.randint(0, 50),
+                "Time": f"{random.randint(1,60)}s ago"
+            })
+        
+        st.dataframe(recent_blocks, use_container_width=True)
+    
+    with tab2:
+        # Block explorer
+        st.subheader("📦 Block Explorer")
+        
+        # Search for specific block
+        search_col1, search_col2 = st.columns([3, 1])
+        with search_col1:
+            block_search = st.text_input("Search by block height or hash", placeholder="1234567 or 0x...")
+        with search_col2:
+            if st.button("🔍 Search Block"):
+                if block_search:
+                    st.success(f"Found block: {block_search}")
+        
+        # Block details
+        if block_search:
+            st.subheader(f"Block #{block_search}")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                st.write("**Block Information:**")
+                st.write(f"• Height: {block_search}")
+                st.write(f"• Hash: 0x{random.randint(10**15, 10**16-1):016x}")
+                st.write(f"• Parent Hash: 0x{random.randint(10**15, 10**16-1):016x}")
+                st.write(f"• Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            
+            with col2:
+                st.write("**Block Stats:**")
+                st.write(f"• Transactions: {random.randint(20, 100)}")
+                st.write(f"• Gas Used: {random.randint(500000, 2000000):,}")
+                st.write(f"• Gas Limit: 2,000,000")
+                st.write(f"• Block Reward: 50 HYBRID")
+        
+        # All blocks table
+        st.subheader("📊 All Blocks")
+        blocks_data = []
+        for i in range(50):
+            blocks_data.append({
+                "Height": 1234567 - i,
+                "Hash": f"0x{random.randint(10**15, 10**16-1):016x}",
+                "Validator": f"hybrid1val{random.randint(1,21):02d}",
+                "Transactions": random.randint(0, 100),
+                "Gas Used": f"{random.randint(500, 2000):,}K",
+                "Reward": "50 HYBRID",
+                "Age": f"{random.randint(1, 300)}s"
+            })
+        
+        st.dataframe(blocks_data, use_container_width=True, height=400)
+    
+    with tab3:
+        # Transaction explorer
+        st.subheader("💳 Transaction Explorer")
+        
+        # Search transactions
+        tx_search = st.text_input("Search by transaction hash", placeholder="0x...")
+        
+        if tx_search:
+            st.subheader(f"Transaction Details")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                st.write("**Transaction Info:**")
+                st.write(f"• Hash: {tx_search}")
+                st.write(f"• Block: {random.randint(1234500, 1234567)}")
+                st.write(f"• From: hybrid1{random.randint(10**20, 10**21-1):021x}")
+                st.write(f"• To: hybrid1{random.randint(10**20, 10**21-1):021x}")
+            
+            with col2:
+                st.write("**Transaction Data:**")
+                st.write(f"• Value: {random.uniform(1, 1000):.2f} HYBRID")
+                st.write(f"• Gas Used: {random.randint(21000, 100000):,}")
+                st.write(f"• Gas Price: 0.001 HYBRID")
+                st.write(f"• Status: ✅ Success")
+        
+        # Recent transactions
+        st.subheader("📋 Recent Transactions")
+        tx_data = []
+        for i in range(100):
+            tx_data.append({
+                "Hash": f"0x{random.randint(10**15, 10**16-1):016x}",
+                "From": f"hybrid1{random.randint(10**10, 10**11-1):011x}...",
+                "To": f"hybrid1{random.randint(10**10, 10**11-1):011x}...",
+                "Value": f"{random.uniform(0.1, 1000):.2f} HYBRID",
+                "Gas": f"{random.randint(21000, 100000):,}",
+                "Age": f"{random.randint(1, 300)}s"
+            })
+        
+        st.dataframe(tx_data, use_container_width=True, height=400)
+    
+    with tab4:
+        # Validators
+        st.subheader("👑 Validator Information")
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Total Validators", "21")
+        with col2:
+            st.metric("Online Validators", "21", "100%")
+        with col3:
+            st.metric("Total Staked", "65M HYBRID", "65%")
+        
+        # Validator list
+        validator_data = []
+        for i in range(21):
+            validator_data.append({
+                "Rank": i + 1,
+                "Validator": f"Validator {i+1:02d}",
+                "Address": f"hybrid1val{i+1:02d}{random.randint(10**10, 10**11-1):011x}",
+                "Voting Power": f"{random.uniform(2, 8):.1f}%",
+                "Staked": f"{random.uniform(1, 5):.1f}M HYBRID",
+                "Commission": f"{random.uniform(1, 10):.1f}%",
+                "Uptime": f"{random.uniform(95, 100):.1f}%",
+                "Status": "🟢 Active"
+            })
+        
+        st.dataframe(validator_data, use_container_width=True)
+    
+    with tab5:
+        # Analytics
+        st.subheader("📊 Network Analytics")
+        
+        # Charts
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.subheader("📈 Daily Transactions")
+            dates = pd.date_range(start=datetime.now() - timedelta(days=30), end=datetime.now(), freq='D')
+            tx_volume = [random.randint(10000, 50000) for _ in range(len(dates))]
+            chart_data = pd.DataFrame({"Date": dates, "Transactions": tx_volume})
+            st.line_chart(chart_data.set_index("Date"))
+        
+        with col2:
+            st.subheader("💰 HYBRID Token Distribution")
+            distribution = {
+                "Staking": 65,
+                "Liquidity": 15,
+                "Treasury": 10,
+                "Circulation": 10
+            }
+            st.bar_chart(distribution)
+        
+        # Network stats
+        st.subheader("🌐 Network Statistics")
+        
+        network_stats = {
+            "Metric": [
+                "Average Block Time",
+                "Total Addresses",
+                "Daily Active Users",
+                "Cross-Chain Volume",
+                "NFT Licenses Sold",
+                "Node Operators",
+                "Governance Proposals"
+            ],
+            "Value": [
+                "6 seconds",
+                "2,847,392",
+                "12,456",
+                "$2.3M",
+                "892",
+                "547",
+                "23"
+            ],
+            "24h Change": [
+                "+0.2s",
+                "+1,234",
+                "+8.7%",
+                "+12.3%",
+                "+47",
+                "+23",
+                "+2"
+            ]
+        }
+        
+        st.dataframe(network_stats, use_container_width=True)
+        
+        # Real-time updates
+        if st.button("🔄 Refresh Data"):
+            st.success("Data refreshed!")
+            st.rerun()

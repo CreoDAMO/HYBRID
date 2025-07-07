@@ -304,3 +304,262 @@ demo_wallets = [
         create_date="2024-01-15 11:45:00"
     )
 ]
+"""
+Circle USDC Integration for HYBRID Blockchain
+Programmable wallets, CCTP bridge, and USDC staking
+"""
+
+import asyncio
+from typing import Dict, Any, List, Optional
+from dataclasses import dataclass
+from datetime import datetime
+import random
+
+@dataclass
+class ProgrammableWallet:
+    """Circle Programmable Wallet"""
+    wallet_id: str
+    address: str
+    blockchain: str
+    state: str
+    account_type: str
+    custody_type: str
+    create_date: str
+
+@dataclass
+class USDCBalance:
+    """USDC balance information"""
+    amount: float
+    currency: str = "USDC"
+
+class CircleUSDCManager:
+    """Manages Circle USDC operations"""
+    
+    def __init__(self):
+        self.api_key = "test_api_key"
+        self.wallets: Dict[str, ProgrammableWallet] = {}
+    
+    async def create_wallet_set(self, name: str) -> Dict[str, str]:
+        """Create a new wallet set"""
+        wallet_set_id = f"ws_{abs(hash(name))%10**8:08x}"
+        await asyncio.sleep(0.5)  # Simulate API call
+        
+        return {
+            "wallet_set_id": wallet_set_id,
+            "name": name,
+            "status": "active"
+        }
+    
+    async def create_programmable_wallet(self, wallet_set_id: str, blockchain: str) -> ProgrammableWallet:
+        """Create a programmable wallet"""
+        wallet_id = f"pw_{abs(hash(f'{wallet_set_id}_{blockchain}'))%10**8:08x}"
+        
+        # Generate address based on blockchain
+        if blockchain == "MATIC":
+            address = f"0x{random.randint(10**39, 10**40-1):040x}"
+        elif blockchain == "ETH":
+            address = f"0x{random.randint(10**39, 10**40-1):040x}"
+        elif blockchain == "AVAX":
+            address = f"0x{random.randint(10**39, 10**40-1):040x}"
+        elif blockchain == "SOL":
+            address = f"{random.randint(10**43, 10**44-1):044x}"
+        else:  # HYBRID
+            address = f"hybrid1{random.randint(10**39, 10**40-1):040x}"
+        
+        wallet = ProgrammableWallet(
+            wallet_id=wallet_id,
+            address=address,
+            blockchain=blockchain,
+            state="LIVE",
+            account_type="SCA",
+            custody_type="DEVELOPER",
+            create_date=datetime.now().strftime("%Y-%m-%d")
+        )
+        
+        self.wallets[wallet_id] = wallet
+        await asyncio.sleep(1.0)  # Simulate creation time
+        
+        return wallet
+    
+    async def get_usdc_balance(self, wallet_id: str) -> List[USDCBalance]:
+        """Get USDC balance for wallet"""
+        await asyncio.sleep(0.2)  # Simulate API call
+        
+        # Return simulated balance
+        balance = random.uniform(100, 10000)
+        return [USDCBalance(amount=balance)]
+
+class HybridUSDCBridge:
+    """Cross-chain USDC bridge using CCTP"""
+    
+    def __init__(self):
+        self.supported_chains = ["MATIC", "ETH", "AVAX", "HYBRID"]
+        self.bridge_fee = 0.1  # 0.1 USDC flat fee
+    
+    async def bridge_usdc_to_hybrid(self, amount: str, from_chain: str, destination_address: str) -> Dict[str, Any]:
+        """Bridge USDC to HYBRID blockchain"""
+        amount_float = float(amount)
+        
+        if from_chain not in self.supported_chains:
+            return {"error": f"Unsupported chain: {from_chain}"}
+        
+        if amount_float < 1:
+            return {"error": "Minimum bridge amount is 1 USDC"}
+        
+        # Simulate bridge time
+        await asyncio.sleep(random.uniform(2, 5))
+        
+        bridge_id = f"bridge_{abs(hash(f'{amount}_{from_chain}_{destination_address}'))%10**8:08x}"
+        
+        return {
+            "bridge_id": bridge_id,
+            "from_chain": from_chain,
+            "to_chain": "HYBRID",
+            "amount": amount_float,
+            "destination": destination_address,
+            "fee": self.bridge_fee,
+            "estimated_time": "3-7 minutes",
+            "status": "initiated"
+        }
+
+class USDCLiquidityPool:
+    """USDC liquidity pools on HYBRID"""
+    
+    def __init__(self):
+        self.pools = {
+            "USDC_HYBRID": {
+                "total_liquidity": 25_000_000,  # $25M
+                "usdc_liquidity": 12_500_000,   # $12.5M USDC
+                "hybrid_liquidity": 1_250_000,  # 1.25M HYBRID ($12.5M at $10/HYBRID)
+                "apy": 12.5,
+                "volume_24h": 2_500_000,
+                "fee_tier": 0.3
+            },
+            "USDC_ETH": {
+                "total_liquidity": 15_000_000,  # $15M
+                "usdc_liquidity": 7_500_000,    # $7.5M USDC
+                "eth_liquidity": 3_000,         # 3000 ETH ($7.5M at $2500/ETH)
+                "apy": 8.5,
+                "volume_24h": 1_800_000,
+                "fee_tier": 0.3
+            }
+        }
+    
+    async def add_liquidity(self, pool_name: str, usdc_amount: float, token_amount: float) -> Dict[str, Any]:
+        """Add liquidity to a pool"""
+        if pool_name not in self.pools:
+            return {"error": "Pool not found"}
+        
+        pool = self.pools[pool_name]
+        
+        # Calculate LP tokens (simplified)
+        total_liquidity = pool["total_liquidity"]
+        lp_tokens_received = (usdc_amount * 2) / total_liquidity * 1000  # Simplified calculation
+        share_of_pool = f"{(usdc_amount * 2) / total_liquidity * 100:.3f}%"
+        
+        # Update pool (simulated)
+        pool["total_liquidity"] += usdc_amount * 2
+        pool["usdc_liquidity"] += usdc_amount
+        
+        await asyncio.sleep(1.0)  # Simulate transaction time
+        
+        return {
+            "pool": pool_name,
+            "usdc_deposited": usdc_amount,
+            "token_deposited": token_amount,
+            "lp_tokens_received": lp_tokens_received,
+            "share_of_pool": share_of_pool,
+            "transaction_hash": f"0x{random.randint(10**15, 10**16-1):016x}"
+        }
+
+class HybridUSDCStaking:
+    """USDC staking pools on HYBRID"""
+    
+    def __init__(self):
+        self.staking_pools = {
+            "stable_yield": {
+                "apy": 8.5,
+                "min_stake": 100,
+                "lock_period": "Flexible",
+                "total_staked": 50_000_000,
+                "max_capacity": 100_000_000
+            },
+            "high_yield": {
+                "apy": 15.2,
+                "min_stake": 1000,
+                "lock_period": "90 days",
+                "total_staked": 25_000_000,
+                "max_capacity": 50_000_000
+            }
+        }
+    
+    async def stake_usdc(self, pool_name: str, amount: float) -> Dict[str, Any]:
+        """Stake USDC in a pool"""
+        if pool_name not in self.staking_pools:
+            return {"error": "Pool not found"}
+        
+        pool = self.staking_pools[pool_name]
+        
+        if amount < pool["min_stake"]:
+            return {"error": f"Minimum stake is {pool['min_stake']} USDC"}
+        
+        if pool["total_staked"] + amount > pool["max_capacity"]:
+            return {"error": "Pool at maximum capacity"}
+        
+        # Calculate rewards
+        daily_rewards = (amount * pool["apy"] / 100) / 365
+        
+        # Update pool
+        pool["total_staked"] += amount
+        
+        await asyncio.sleep(1.0)  # Simulate staking transaction
+        
+        return {
+            "pool": pool_name,
+            "amount_staked": amount,
+            "apy": pool["apy"],
+            "daily_rewards": f"{daily_rewards:.2f} USDC",
+            "lock_period": pool["lock_period"],
+            "stake_id": f"stake_{abs(hash(f'{pool_name}_{amount}'))%10**8:08x}"
+        }
+
+# Create demo wallets
+demo_wallets = [
+    ProgrammableWallet(
+        wallet_id="pw_demo_001",
+        address="0x742d35Cc6632C0532925a3b8D186d21bbBfe3b6e",
+        blockchain="MATIC",
+        state="LIVE",
+        account_type="SCA",
+        custody_type="DEVELOPER",
+        create_date="2024-01-15"
+    ),
+    ProgrammableWallet(
+        wallet_id="pw_demo_002", 
+        address="0x123f681646d4a755815f9cb19e1acc8565a0c2ac",
+        blockchain="ETH",
+        state="LIVE",
+        account_type="SCA",
+        custody_type="DEVELOPER",
+        create_date="2024-01-16"
+    ),
+    ProgrammableWallet(
+        wallet_id="pw_demo_003",
+        address="hybrid1q2w3e4r5t6y7u8i9o0p1a2s3d4f5g6h7j8k9l0",
+        blockchain="HYBRID",
+        state="LIVE",
+        account_type="SCA", 
+        custody_type="DEVELOPER",
+        create_date="2024-01-17"
+    )
+]
+
+# Global instances
+circle_usdc_manager = CircleUSDCManager()
+hybrid_usdc_bridge = HybridUSDCBridge()
+usdc_liquidity_pool = USDCLiquidityPool()
+hybrid_usdc_staking = HybridUSDCStaking()
+
+# Add demo wallets to manager
+for wallet in demo_wallets:
+    circle_usdc_manager.wallets[wallet.wallet_id] = wallet

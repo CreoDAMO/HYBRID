@@ -2,41 +2,52 @@
 import streamlit as st
 import asyncio
 import json
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
 from enum import Enum
 import sys
 import os
 import time
 import random
+import traceback
 
 # Add blockchain module to path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'blockchain'))
+sys.path.append(os.path.join(os.path.dirname(__file__), 'ui'))
 
-from blockchain.hybrid_node import (
-    HybridBlockchainNode, 
-    create_hybrid_node, 
-    NodeType,
-    NFTLicense
-)
-from blockchain.hybrid_wallet import hybrid_wallet_manager, get_founder_wallet, create_hybrid_wallet
-from blockchain.agglayer_integration import agglayer
-from blockchain.coinbase_integration import hybrid_agent, paymaster, onramper, onchain_kit
-
-# Import NVIDIA Cloud integration
-from blockchain.nvidia_cloud_integration import NVIDIACloudManager, HTSXNVIDIAComponents
-
-# Import Circle USDC integration
-from blockchain.circle_usdc_integration import (
-    circle_usdc_manager, hybrid_usdc_bridge, usdc_liquidity_pool, 
-    hybrid_usdc_staking, demo_wallets
-)
-
-# Import Multi-AI Orchestrator
-from blockchain.multi_ai_orchestrator import (
-    multi_ai_orchestrator, AIProvider, TaskSpecialization, MultiAIRequest,
-    analyze_hybrid_security, optimize_hybrid_algorithm, analyze_market_trends, generate_hybrid_code
-)
+try:
+    from blockchain.hybrid_node import (
+        HybridBlockchainNode, 
+        create_hybrid_node, 
+        NodeType,
+        NFTLicense
+    )
+    from blockchain.hybrid_wallet import hybrid_wallet_manager, get_founder_wallet, create_hybrid_wallet
+    from blockchain.agglayer_integration import agglayer
+    from blockchain.coinbase_integration import hybrid_agent, paymaster, onramper, onchain_kit
+    from blockchain.nvidia_cloud_integration import NVIDIACloudManager, HTSXNVIDIAComponents
+    from blockchain.circle_usdc_integration import (
+        circle_usdc_manager, hybrid_usdc_bridge, usdc_liquidity_pool, 
+        hybrid_usdc_staking, demo_wallets
+    )
+    from blockchain.multi_ai_orchestrator import (
+        multi_ai_orchestrator, AIProvider, TaskSpecialization, MultiAIRequest,
+        analyze_hybrid_security, optimize_hybrid_algorithm, analyze_market_trends, generate_hybrid_code
+    )
+except ImportError as e:
+    print(f"Warning: Some blockchain modules not available: {e}")
+    # Create fallback classes
+    class NodeType:
+        STORAGE = "storage"
+        VALIDATOR = "validator"
+    
+    class NFTLicense:
+        def __init__(self, token_id, owner_address, node_type, start_date, end_date):
+            self.token_id = token_id
+            self.owner_address = owner_address
+            self.node_type = node_type
+            self.start_date = start_date
+            self.end_date = end_date
 
 # HYBRID Blockchain Integration
 class ChainType(Enum):
