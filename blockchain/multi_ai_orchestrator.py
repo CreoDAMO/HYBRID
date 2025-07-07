@@ -525,7 +525,7 @@ class HybridOptimizer:
 
     def __init__(self, blockchain_config):
         self.config = blockchain_config
-        self.optimization_cache = {}
+        self.optimization_cache = {{}}
 
     async def optimize_node_selection(self, validator_pool):
         '''Optimize validator selection using performance metrics'''
