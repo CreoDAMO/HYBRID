@@ -33,7 +33,7 @@ try:
     from ui.admin_dashboard import create_admin_dashboard
     from components.hybrid_htsx_holographic import HybridHTSXHolographic
     from blockchain.x_moe import anthropic_moe
-    
+
     # Import Circle and Coinbase integrations separately with fallbacks
     try:
         from blockchain.circle_usdc_integration import CircleUSDCManager, HybridUSDCBridge, USDCLiquidityPool, demo_wallets
@@ -41,7 +41,7 @@ try:
     except ImportError:
         CIRCLE_AVAILABLE = False
         print("Circle USDC integration not available")
-    
+
     try:
         from blockchain.coinbase_integration import HybridAgentKit, HybridPaymaster, CoinbaseConfig, HybridOnRamper
         COINBASE_AVAILABLE = True
@@ -53,7 +53,7 @@ except ImportError as e:
     print(f"Warning: Some blockchain modules not available: {e}")
     CIRCLE_AVAILABLE = False
     COINBASE_AVAILABLE = False
-    
+
     # Create fallback classes
     class NodeType:
         STORAGE = "storage"
@@ -222,7 +222,10 @@ def render_blockchain_status():
     with col1:
         st.metric("Node Status", "🟢 Online", "Active")
     with col2:
-        st.metric("Current Block", f"{blockchain_state.get('height', 1234567):,}", "+1")
+        try:
+            st.metric("Current Block", f"{blockchain_state.get('height', 1234567):,}", "+1")
+        except NameError:
+            st.metric("Current Block", "N/A", "N/A")
 
     with col3:
         st.metric("Active Validators", len(validator_set), "0")
@@ -647,19 +650,19 @@ def initialize_components():
             class FallbackCoinbaseConfig:
                 def __init__(self):
                     self.api_key = "fallback_key"
-                    
+
             class FallbackHybridAgent:
                 def __init__(self):
                     self.active = False
-                    
+
             class FallbackPaymaster:
                 def __init__(self, config):
                     self.config = config
-                    
+
             class FallbackOnRamper:
                 def __init__(self, config):
                     self.config = config
-                    
+
             coinbase_config = FallbackCoinbaseConfig()
             hybrid_agent = FallbackHybridAgent()
             paymaster = FallbackPaymaster(coinbase_config)
@@ -739,9 +742,8 @@ def initialize_components():
         class MinimalComponent:
             def __init__(self):
                 self.active = False
-                
-        return {
-            'circle_manager': MinimalComponent(),
+
+        return {            'circle_manager': MinimalComponent(),
             'hybrid_usdc_bridge': MinimalComponent(),
             'usdc_pools': MinimalComponent(),
             'hybrid_agent': MinimalComponent(),
