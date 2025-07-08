@@ -686,7 +686,7 @@ def main():
 
         page = st.selectbox(
             "📑 Navigate to:",
-            ["🏠 Dashboard", "🛠️ HTSX Playground", "📚 Documentation", "💰 HYBRID Coin"],
+            ["🏠 Dashboard", "🛠️ HTSX Playground", "📚 Documentation", "💰 HYBRID Coin", "📊 Market Dashboard", "📚 Docs Analyzer"],
             help="Choose the section you want to explore"
         )
 
@@ -715,6 +715,12 @@ def main():
         create_comprehensive_documentation()
     elif page == "💰 HYBRID Coin":
         render_hybrid_coin_interface()
+    elif page == "📊 Market Dashboard":
+        from ui.hybrid_market_dashboard import create_hybrid_market_dashboard
+        create_hybrid_market_dashboard()
+    elif page == "📚 Docs Analyzer":
+        from ui.docs_analyzer import create_docs_analyzer
+        create_docs_analyzer()
 
 if __name__ == "__main__":
     main()
