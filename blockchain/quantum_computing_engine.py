@@ -164,7 +164,7 @@ class QuantumComputingEngine:
     def _parse_quantum_state(self, state: str) -> Qubit:
         """Parse quantum state notation like 'α|0⟩ + β|1⟩'"""
         # Simplified parser - in production would use proper quantum state parsing
-        if "+") in state:
+        if "+" in state:
             parts = state.split("+")
             alpha_part = parts[0].strip()
             beta_part = parts[1].strip()
