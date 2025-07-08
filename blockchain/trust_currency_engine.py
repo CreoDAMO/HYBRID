@@ -357,12 +357,21 @@ class TrustCurrencyEngine:
         """Calculate trust score based on mathematical proofs"""
         base_trust = 95.0  # Sovereign baseline
         
+        # Validate metrics
+        if not metrics:
+            metrics = {}
+        
+        # Ensure all metric values are within valid range
+        validated_metrics = {}
+        for key, value in metrics.items():
+            validated_metrics[key] = max(0.0, min(100.0, float(value)))
+        
         # Weight by millennium problem completion
         problem_weight = sum(self.millennium_progress.values()) / len(self.millennium_progress)
         mathematical_bonus = problem_weight * 0.05
         
         # Input metrics weight
-        input_weight = sum(metrics.values()) / len(metrics) if metrics else 95.0
+        input_weight = sum(validated_metrics.values()) / len(validated_metrics) if validated_metrics else 95.0
         input_bonus = (input_weight - 90) * 0.01 if input_weight > 90 else 0
         
         return min(100.0, base_trust + mathematical_bonus + input_bonus)

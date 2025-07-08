@@ -211,7 +211,7 @@ class HybridMarketDashboard:
 
             # Quick trade simulator
             st.markdown("### 💸 Quick Trade")
-            trade_amount = st.number_input("USD Amount", min_value=1.0, value=1000.0, step=100.0)
+            trade_amount = st.number_input("USD Amount", min_value=1.0, max_value=1000000.0, value=1000.0, step=100.0)
             hybrid_amount = trade_amount / self.hybrid_price
 
             if st.button("🚀 Simulate Buy Order"):

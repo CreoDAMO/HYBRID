@@ -740,7 +740,6 @@ def initialize_components():
             onramper = FallbackOnRamper(coinbase_config)
 
         # Initialize other components
-```text
         try:
             agglayer_integration = AggLayerIntegration()
         except:
