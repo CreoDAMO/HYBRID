@@ -29,10 +29,20 @@ try:
     from blockchain.holographic_blockchain_engine import HolographicBlockchainEngine
     from blockchain.nvidia_cloud_integration import NVIDIACloudManager, HTSXNVIDIAComponents
     from blockchain.spiral_trust_engine import trust_currency_manager, TrustMetric, CurrencyType, SpiralScriptEngine
+    from blockchain.quantum_spiral_engine import QuantumSpiralEngine
+    from blockchain.quantum_computing_engine import QuantumComputingEngine
+    from blockchain.spiral_voynich_interface import SpiralVoynichInterface
     from ui.streamlit_ui import render_hybrid_coin_interface
     from ui.admin_dashboard import create_admin_dashboard
+    from ui.holographic_interface import HolographicInterface
     from components.hybrid_htsx_holographic import HybridHTSXHolographic
     from blockchain.x_moe import anthropic_moe
+    from blockchain.x_licence import LicenceModule
+    from blockchain.x_naas import NaaSModule
+    from blockchain.consensus import TendermintConsensus
+    from blockchain.ethermint import EthermintEngine
+    from blockchain.staking import StakingModule
+    from blockchain.governance import GovernanceModule
 
     # Import Circle and Coinbase integrations separately with fallbacks
     try:
