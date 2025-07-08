@@ -128,10 +128,6 @@ def create_hybrid_analytics_dashboard():
         - Avg Fee: 0.01 HYBRID
         """)
 
-    # Complete analytics implementation
-    import plotly.express as px
-    import plotly.graph_objects as go
-
     # Generate sample data for charts
     dates = pd.date_range(start=datetime.now() - timedelta(days=30), end=datetime.now(), freq='D')
 
