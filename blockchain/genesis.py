@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Genesis configuration for HYBRID blockchain
@@ -33,15 +32,15 @@ class GenesisConfig:
 
 class GenesisGenerator:
     """Generate genesis configuration for HYBRID blockchain"""
-    
+
     def __init__(self):
         self.chain_id = "hybrid-1"  # Main chain ID per spec
         self.genesis_time = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-        
+
     def create_genesis(self) -> GenesisConfig:
         """Create genesis configuration"""
         founder_wallet = get_founder_wallet()
-        
+
         # Create founder account with proper allocation from 100B total supply
         founder_initial_allocation = 10_000_000_000 * 1_000_000  # 10B HYBRID (10% of total supply)
         founder_account = GenesisAccount(
@@ -49,7 +48,7 @@ class GenesisGenerator:
             balance=founder_initial_allocation,
             sequence=0
         )
-        
+
         # Create initial validator (founder)
         founder_validator = GenesisValidator(
             address=founder_wallet.address,
@@ -57,7 +56,7 @@ class GenesisGenerator:
             power=1000000,  # 1M voting power
             name="HYBRID Foundation"
         )
-        
+
         # App state configuration
         app_state = {
             "bank": {
@@ -152,7 +151,7 @@ class GenesisGenerator:
                 "withdrawals": []
             }
         }
-        
+
         genesis_config = GenesisConfig(
             chain_id=self.chain_id,
             genesis_time=self.genesis_time,
@@ -161,57 +160,57 @@ class GenesisGenerator:
             accounts=[founder_account],
             app_state=app_state
         )
-        
+
         return genesis_config
-    
+
     def export_genesis(self, filename: str = "genesis.json") -> str:
         """Export genesis to JSON file"""
         genesis = self.create_genesis()
         genesis_dict = asdict(genesis)
-        
+
         with open(filename, 'w') as f:
             json.dump(genesis_dict, f, indent=2)
-        
+
         return filename
-    
+
     def validate_genesis(self, genesis_config: GenesisConfig) -> List[str]:
         """Validate genesis configuration"""
         errors = []
-        
+
         # Validate chain ID
         if not genesis_config.chain_id:
             errors.append("Chain ID is required")
-        
+
         # Validate validators
         if not genesis_config.validators:
             errors.append("At least one validator is required")
-        
+
         # Validate accounts
         total_supply = sum(account.balance for account in genesis_config.accounts)
         if total_supply <= 0:
             errors.append("Total supply must be greater than 0")
-        
+
         # Validate voting power
         total_power = sum(validator.power for validator in genesis_config.validators)
         if total_power <= 0:
             errors.append("Total voting power must be greater than 0")
-        
+
         return errors
 
 # CLI tool for genesis generation
 if __name__ == "__main__":
     import sys
-    
+
     generator = GenesisGenerator()
-    
+
     if len(sys.argv) > 1 and sys.argv[1] == "generate":
         genesis_file = generator.export_genesis()
         print(f"✅ Genesis file created: {genesis_file}")
-        
+
         # Validate
         genesis = generator.create_genesis()
         errors = generator.validate_genesis(genesis)
-        
+
         if errors:
             print("❌ Genesis validation errors:")
             for error in errors:
@@ -220,3 +219,6 @@ if __name__ == "__main__":
             print("✅ Genesis configuration is valid")
     else:
         print("Usage: python genesis.py generate")
+```
+
+This code defines a GenesisGenerator class to create and export the genesis configuration for the HYBRID blockchain, including validator and account setup.

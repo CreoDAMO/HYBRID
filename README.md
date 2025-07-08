@@ -22,7 +22,10 @@ The HYBRID Blockchain is a revolutionary Layer 1 blockchain built with the Cosmo
 
 ### 💰 Coin Economics
 - **Total Supply**: 100,000,000,000 HYBRID (100 Billion)
-- **Genesis Allocation**: 10B HYBRID to founder wallet (10% of total supply)
+- **Founder Allocation**: 10B HYBRID (10% - Genesis allocation)
+- **Lead Developer**: 15B HYBRID (15% - Project creator & solo developer)
+- **Future Developers**: 15B HYBRID (15% - Reserved for future team members)
+- **Public/Community**: 60B HYBRID (60% - Staking, governance, liquidity)
 - **Inflation**: 7% → 2% taper over 8 years
 - **Block Rewards**: 50% validators, 20% storage, 20% community, 10% dev fund
 
