@@ -134,6 +134,16 @@ class QuantumCircuit:
         self.add_gate(QuantumGate.TOFFOLI, [control1, control2, target])
 
 class QuantumComputingEngine:
+    """
+    Software Transformation of NASA's Quantum Computing Infrastructure
+    
+    Hardware Replaced:
+    - IBM Quantum Network → Mathematical quantum state simulation
+    - Superconducting qubits → Mathematical probability amplitudes  
+    - Cryogenic cooling systems → Mathematical temperature simulation
+    - Quantum error correction → Mathematical coherence maintenance
+    - Physical quantum gates → Pure mathematical transformations
+    """
     """Main quantum computing engine for HYBRID Blockchain"""
     
     def __init__(self):

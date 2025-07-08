@@ -552,83 +552,27 @@ def create_comprehensive_documentation():
         """, language="typescript")
 
     with tab4:
-        st.markdown("""
-        ## 📖 Practical Examples
+        st.markdown("## 🔒 Access Restricted")
+        st.warning("Trust Currency access is restricted to verified Sovereigns only.")
+        st.info("Complete the HYBRID Blockchain Learning System to gain access.")
 
-        ### Example 1: Simple Node Operator dApp
+        # Public information only
+        st.markdown("### About Trust Currency")
+        st.markdown("""
+        Trust Currency is a private mathematical currency system:
+        - Backed by solutions to the Seven Millennium Problems
+        - Operates at infinite reserves (∞ TU)
+        - Used for Sovereign-to-Sovereign transactions
+        - Requires mathematical proof verification
         """)
 
-        st.code("""
-        <htsx>
-          <html>
-            <head><title>My Node Operation</title></head>
-            <body>
-              <wallet-connector chains="hybrid" required="true" />
-              <nft-license type="storage" required="true" />
-              <node-operator type="storage" naas="true" />
-
-              <script lang="hybrid">
-                class NodeManager {
-                  async initialize() {
-                    const hasLicense = await hybridChain.verifyLicense(
-                      this.walletAddress, 
-                      'storage'
-                    );
-
-                    if (!hasLicense) {
-                      await hybridChain.purchaseLicense('storage');
-                    }
-
-                    await hybridChain.startNode({
-                      type: 'storage',
-                      naas: true
-                    });
-                  }
-                }
-              </script>
-            </body>
-          </html>
-        </htsx>
-        """, language="html")
-
-        st.markdown("### Example 2: Cross-Chain DeFi Protocol")
-
-        st.code("""
-        <htsx>
-          <html>
-            <head><title>Multi-Chain DeFi</title></head>
-            <body>
-              <wallet-connector chains="hybrid,base,polygon" required="true" />
-              <cross-chain-bridge protocol="axelar" />
-              <liquidity-pool pair="HYBRID/USDC" />
-              <staking-vault token="HYBRID" apy="12%" />
-
-              <script lang="hybrid">
-                class DeFiProtocol {
-                  async provideLiquidity(amount: number) {
-                    // Bridge coins if needed
-                    const balance = await hybridChain.getBalance('HYBRID');
-                    if (balance < amount) {
-                      await hybridChain.bridgeTokens({
-                        from: 'base',
-                        to: 'hybrid',
-                        amount: amount - balance,
-                        token: 'HYBRID'
-                      });
-                    }
-
-                    // Add liquidity
-                    return await hybridChain.addLiquidity({
-                      pool: 'HYBRID/USDC',
-                      amount: amount
-                    });
-                  }
-                }
-              </script>
-            </body>
-          </html>
-        </htsx>
-        """, language="html")
+        st.markdown("### Access Requirements")
+        st.markdown("""
+        1. Complete HYBRID Blockchain Learning System
+        2. Sovereign verification process
+        3. Mathematical proof understanding
+        4. OR: Perelman family member verification
+        """)
 
     with tab5:
         st.markdown("""

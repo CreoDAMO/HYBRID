@@ -338,6 +338,22 @@ class HTSXApplicationBuilder:
         cross_chain = htsx_code.count('chains=') * 25000
         return base_cost + components + trust_features + cross_chain
 
+def verify_sovereign_status(user_id: str) -> Dict[str, Any]:
+    """Verify if user has Sovereign status"""
+    # Simplified verification - in production this would check blockchain records
+    sovereign_database = {
+        "perelman_family": True,
+        "hybrid_graduates": [],  # Users who completed HYBRID learning system
+        "verified_sovereigns": []
+    }
+
+    return {
+        "is_sovereign": user_id in sovereign_database.get("verified_sovereigns", []),
+        "is_perelman_family": user_id == "perelman_family",
+        "completed_hybrid_learning": user_id in sovereign_database.get("hybrid_graduates", []),
+        "trust_currency_access": False  # Will be set based on verification
+    }
+
 def create_admin_dashboard():
     """Create the comprehensive admin dashboard"""
     st.set_page_config(
@@ -480,6 +496,44 @@ def create_admin_dashboard():
         render_quantum_bridge_control()
     elif admin_section == "💎 **PRIVATE**: Sovereign Controls":
         render_sovereign_controls()
+
+def render_trust_currency_panel():
+    """Private Trust Currency interface for Sovereigns only"""
+    st.markdown("### 🔐 Trust Currency - Sovereign Access Only")
+
+    # Perelman Trust verification
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("#### Perelman Trust Status")
+        st.metric("Trust Units", "∞ TU", "100%")
+        st.metric("Coherence Rate", "1.618", "Golden Ratio")
+
+    with col2:
+        st.markdown("#### Seven Infinity Trusts")
+        trusts = [
+            "Riemann Bank (∞ TU)",
+            "Complexity Bank (∞ TU)", 
+            "Fluid Bank (∞ TU)",
+            "Topology Bank (∞ TU)",
+            "Gauge Bank (∞ TU)",
+            "Elliptic Bank (∞ TU)",
+            "Prime Bank (∞ TU)"
+        ]
+        for trust in trusts:
+            st.success(trust)
+
+    # Sovereign transaction interface
+    st.markdown("#### Sovereign Transactions")
+    with st.expander("Initiate Trust Transfer"):
+        recipient = st.text_input("Recipient Sovereign ID")
+        amount = st.number_input("Trust Units", min_value=0.0)
+        proof_backing = st.selectbox("Mathematical Backing", 
+                                   ["Poincaré Conjecture", "Riemann Hypothesis", 
+                                    "P vs NP", "Navier-Stokes"])
+
+        if st.button("Execute Sovereign Transfer"):
+            st.success(f"Trust transfer of {amount} TU to {recipient} backed by {proof_backing}")
 
 def render_htsx_app_builder():
     """Render the advanced HTSX application builder"""
@@ -1820,6 +1874,26 @@ def render_sovereign_controls():
                 <small>— Sealed by Spiral Authority</small>
             </div>
             """, unsafe_allow_html=True)
+
+def render_admin_dashboard():
+    st.title("🔧 HYBRID Admin Dashboard - Sovereign Access")
+
+    # Sovereign authentication
+    st.sidebar.markdown("### Sovereign Authentication")
+    sovereign_id = st.sidebar.text_input("Sovereign ID")
+    sovereign_key = st.sidebar.text_input("Sovereign Key", type="password")
+
+    if not sovereign_id or not sovereign_key:
+        st.error("Sovereign credentials required")
+        return
+
+    # Verify Sovereign status
+    verification = verify_sovereign_status(sovereign_id)
+
+    if not verification["is_sovereign"] and not verification["is_perelman_family"]:
+        st.error("Access Denied - Sovereign status required")
+        st.info("Complete the HYBRID Blockchain Learning System to gain Sovereign status")
+        return
 
 if __name__ == "__main__":
     create_admin_dashboard()
