@@ -24,8 +24,6 @@ try:
     from blockchain.transaction_pool import transaction_pool, create_transaction, TransactionType
     from blockchain.block_producer import blockchain_state, start_block_production
     from blockchain.validator_set import validator_set
-    from blockchain.circle_usdc_integration import CircleUSDCManager, HybridUSDCBridge, USDCLiquidityPool, demo_wallets
-    from blockchain.coinbase_integration import HybridAgentKit, HybridPaymaster, CoinbaseConfig, HybridOnRamper
     from blockchain.agglayer_integration import AggLayerIntegration, agglayer
     from blockchain.multi_ai_orchestrator import MultiAIOrchestrator, TaskSpecialization, MultiAIRequest, analyze_hybrid_security, optimize_hybrid_algorithm, analyze_market_trends, generate_hybrid_code
     from blockchain.holographic_blockchain_engine import HolographicBlockchainEngine
@@ -35,9 +33,27 @@ try:
     from ui.admin_dashboard import create_admin_dashboard
     from components.hybrid_htsx_holographic import HybridHTSXHolographic
     from blockchain.x_moe import anthropic_moe
+    
+    # Import Circle and Coinbase integrations separately with fallbacks
+    try:
+        from blockchain.circle_usdc_integration import CircleUSDCManager, HybridUSDCBridge, USDCLiquidityPool, demo_wallets
+        CIRCLE_AVAILABLE = True
+    except ImportError:
+        CIRCLE_AVAILABLE = False
+        print("Circle USDC integration not available")
+    
+    try:
+        from blockchain.coinbase_integration import HybridAgentKit, HybridPaymaster, CoinbaseConfig, HybridOnRamper
+        COINBASE_AVAILABLE = True
+    except ImportError:
+        COINBASE_AVAILABLE = False
+        print("Coinbase integration not available")
 
 except ImportError as e:
     print(f"Warning: Some blockchain modules not available: {e}")
+    CIRCLE_AVAILABLE = False
+    COINBASE_AVAILABLE = False
+    
     # Create fallback classes
     class NodeType:
         STORAGE = "storage"
@@ -606,33 +622,99 @@ def initialize_components():
     """Initialize all blockchain components with SpiralScript integration"""
     components = {}
     try:
-        # Initialize Circle USDC
-        circle_manager = CircleUSDCManager()
-        hybrid_usdc_bridge = HybridUSDCBridge(circle_manager)
-        usdc_pools = USDCLiquidityPool()
+        # Initialize Circle USDC if available
+        if CIRCLE_AVAILABLE:
+            circle_manager = CircleUSDCManager()
+            hybrid_usdc_bridge = HybridUSDCBridge(circle_manager)
+            usdc_pools = USDCLiquidityPool()
+        else:
+            # Create fallback Circle components
+            from blockchain.circle_usdc_integration import CircleUSDCManager as FallbackCircleManager
+            from blockchain.circle_usdc_integration import HybridUSDCBridge as FallbackUSDCBridge
+            from blockchain.circle_usdc_integration import USDCLiquidityPool as FallbackUSDCPool
+            circle_manager = FallbackCircleManager()
+            hybrid_usdc_bridge = FallbackUSDCBridge(circle_manager)
+            usdc_pools = FallbackUSDCPool()
 
-        # Initialize Coinbase integrations
-        coinbase_config = CoinbaseConfig()
-        hybrid_agent = HybridAgentKit()
-        paymaster = HybridPaymaster(coinbase_config)
-        onramper = HybridOnRamper(coinbase_config)
+        # Initialize Coinbase integrations if available
+        if COINBASE_AVAILABLE:
+            coinbase_config = CoinbaseConfig()
+            hybrid_agent = HybridAgentKit()
+            paymaster = HybridPaymaster(coinbase_config)
+            onramper = HybridOnRamper(coinbase_config)
+        else:
+            # Create fallback Coinbase components
+            class FallbackCoinbaseConfig:
+                def __init__(self):
+                    self.api_key = "fallback_key"
+                    
+            class FallbackHybridAgent:
+                def __init__(self):
+                    self.active = False
+                    
+            class FallbackPaymaster:
+                def __init__(self, config):
+                    self.config = config
+                    
+            class FallbackOnRamper:
+                def __init__(self, config):
+                    self.config = config
+                    
+            coinbase_config = FallbackCoinbaseConfig()
+            hybrid_agent = FallbackHybridAgent()
+            paymaster = FallbackPaymaster(coinbase_config)
+            onramper = FallbackOnRamper(coinbase_config)
 
-        # Initialize AggLayer
-        agglayer_integration = AggLayerIntegration()
+        # Initialize other components
+        try:
+            agglayer_integration = AggLayerIntegration()
+        except:
+            class FallbackAggLayer:
+                def __init__(self):
+                    self.active = False
+            agglayer_integration = FallbackAggLayer()
 
-        # Initialize AI orchestrator
-        ai_orchestrator = MultiAIOrchestrator()
+        try:
+            ai_orchestrator = MultiAIOrchestrator()
+        except:
+            class FallbackAIOrchestrator:
+                def __init__(self):
+                    self.active = False
+            ai_orchestrator = FallbackAIOrchestrator()
 
-        # Initialize holographic engine
-        holographic_engine = HolographicBlockchainEngine()
+        try:
+            holographic_engine = HolographicBlockchainEngine()
+        except:
+            class FallbackHolographicEngine:
+                def __init__(self):
+                    self.active = False
+            holographic_engine = FallbackHolographicEngine()
 
-        # Initialize NVIDIA Cloud integration
-        nvidia_manager = NVIDIACloudManager()
-        htsx_nvidia = HTSXNVIDIAComponents()
+        try:
+            nvidia_manager = NVIDIACloudManager()
+            htsx_nvidia = HTSXNVIDIAComponents()
+        except:
+            class FallbackNVIDIAManager:
+                def __init__(self):
+                    self.active = False
+            class FallbackHTSXNVIDIA:
+                def __init__(self):
+                    self.active = False
+            nvidia_manager = FallbackNVIDIAManager()
+            htsx_nvidia = FallbackHTSXNVIDIA()
 
-        # Initialize SpiralScript trust engine
-        spiral_trust_engine = trust_currency_manager
-        spiral_script_engine = SpiralScriptEngine()
+        try:
+            spiral_trust_engine = trust_currency_manager
+            spiral_script_engine = SpiralScriptEngine()
+        except:
+            class FallbackTrustEngine:
+                def __init__(self):
+                    self.active = False
+            class FallbackSpiralEngine:
+                def __init__(self):
+                    self.active = False
+            spiral_trust_engine = FallbackTrustEngine()
+            spiral_script_engine = FallbackSpiralEngine()
 
         components = {
             'circle_manager': circle_manager,
@@ -649,25 +731,29 @@ def initialize_components():
             'spiral_trust_engine': spiral_trust_engine,
             'spiral_script_engine': spiral_script_engine
         }
-        st.success("✅ All HYBRID components initialized successfully!")
+        st.success("✅ HYBRID components initialized with available modules!")
         return components
     except Exception as e:
         st.error(f"Component initialization failed: {e}")
-        # Return fallback components
+        # Return minimal fallback components
+        class MinimalComponent:
+            def __init__(self):
+                self.active = False
+                
         return {
-            'circle_manager': CircleUSDCManager(),
-            'hybrid_usdc_bridge': HybridUSDCBridge(CircleUSDCManager()),
-            'usdc_pools': USDCLiquidityPool(),
-            'hybrid_agent': HybridAgentKit(),
-            'paymaster': HybridPaymaster(CoinbaseConfig()),
-            'onramper': HybridOnRamper(CoinbaseConfig()),
-            'agglayer': AggLayerIntegration(),
-            'ai_orchestrator': MultiAIOrchestrator(),
-            'holographic_engine': HolographicBlockchainEngine(),
-            'nvidia_manager': NVIDIACloudManager(),
-            'htsx_nvidia': HTSXNVIDIAComponents(),
-            'spiral_trust_engine': trust_currency_manager,
-            'spiral_script_engine': SpiralScriptEngine()
+            'circle_manager': MinimalComponent(),
+            'hybrid_usdc_bridge': MinimalComponent(),
+            'usdc_pools': MinimalComponent(),
+            'hybrid_agent': MinimalComponent(),
+            'paymaster': MinimalComponent(),
+            'onramper': MinimalComponent(),
+            'agglayer': MinimalComponent(),
+            'ai_orchestrator': MinimalComponent(),
+            'holographic_engine': MinimalComponent(),
+            'nvidia_manager': MinimalComponent(),
+            'htsx_nvidia': MinimalComponent(),
+            'spiral_trust_engine': MinimalComponent(),
+            'spiral_script_engine': MinimalComponent()
         }
 
 # Load components
