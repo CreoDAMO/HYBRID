@@ -552,16 +552,38 @@ def create_comprehensive_documentation():
         """, language="typescript")
 
     with tab4:
-        st.markdown("## 🔒 Access Restricted")
-        st.warning("Trust Currency access is restricted to verified Sovereigns only.")
-        st.info("Complete the HYBRID Blockchain Learning System to gain access.")
-
-        # Public information only
-        st.markdown("### About Trust Currency")
-        st.markdown("""
-        Trust Currency is a private mathematical currency system:
-        - Backed by solutions to the Seven Millennium Problems
-        - Operates at infinite reserves (∞ TU)
+        st.markdown("## 🔒 Trust Currency - SOVEREIGN ACCESS ONLY")
+        st.error("⚠️ PRIVATE SYSTEM - NOT FOR PUBLIC USE")
+        st.warning("Trust Currency is exclusively for Sovereign use - PRIVATE and LAWFUL operations only.")
+        
+        # Clear distinction
+        st.markdown("### 🪙 HYBRID Coin vs 💎 Trust Currency")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("""
+            **🪙 HYBRID Coin (PUBLIC)**
+            - Legal public cryptocurrency
+            - Blockchain-based (Cosmos SDK)
+            - Market tradeable
+            - For general use
+            - $10 initial price target
+            - 100B total supply
+            """)
+        
+        with col2:
+            st.markdown("""
+            **💎 Trust Currency (PRIVATE)**
+            - Sovereign use ONLY
+            - NOT blockchain-based
+            - Mathematical proof backing
+            - Derived from 6 remaining Millennium Problems
+            - Infinite supply from truth validation
+            - PRIVATE and LAWFUL operations
+            """)
+        
+        st.info("Trust Currency cannot be accessed through public interfaces - Sovereign authentication required.")U)
         - Used for Sovereign-to-Sovereign transactions
         - Requires mathematical proof verification
         """)

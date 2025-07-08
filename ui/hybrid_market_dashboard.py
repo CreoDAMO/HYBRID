@@ -30,16 +30,16 @@ class HybridMarketDashboard:
         """Get comprehensive HYBRID technology overview from docs"""
         return {
             "blockchain_type": "Cosmos SDK + Tendermint BFT",
-            "consensus": "Tendermint BFT with 21 validators",
-            "native_coin": "HYBRID",
+            "consensus": "Tendermint BFT with 21 validators", 
+            "native_coin": "HYBRID (Public Legal Currency)",
             "features": [
                 "NFT-gated Node Licensing System",
-                "Node-as-a-Service (NaaS) Platform", 
-                "HTSX Runtime (TypeScript for Blockchain)",
+                "Node-as-a-Service (NaaS) Platform",
+                "HTSX Runtime (TypeScript for Blockchain)", 
                 "SpiralScript Quantum Computing",
                 "Cross-chain Bridge (Base, Polygon, Solana)",
                 "AI-powered Multi-chain Operations",
-                "Trust Currency System",
+                "HYBRID Coin (Public) + Trust Currency (Private Sovereign)",
                 "Holographic Interface Technology"
             ],
             "innovation_layers": {
