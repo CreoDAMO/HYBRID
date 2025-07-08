@@ -83,6 +83,95 @@ def show_token_distribution():
     - 💎 **Trust Currency**: Your private mathematical currency (NOT for exchanges)
     """)
 
+def create_node_management_interface():
+    """Create the node management interface"""
+    st.header("🎫 HYBRID Node Management")
+    
+    # Node overview
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric("Total Nodes", "1,847", "+23")
+    with col2:
+        st.metric("Storage Nodes", "1,200", "+15")
+    with col3:
+        st.metric("Validator Nodes", "21", "0")
+    with col4:
+        st.metric("Bridge Nodes", "156", "+8")
+    
+    # Node operations
+    tab1, tab2, tab3 = st.tabs(["🆕 Purchase License", "📊 My Nodes", "💰 NaaS Platform"])
+    
+    with tab1:
+        st.subheader("🎫 NFT Node Licenses")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("""
+            **🗄️ Storage Node License**
+            - Price: 250 HYBRID
+            - Passive income: ~15% APY
+            - No technical knowledge required
+            - Automated through NaaS
+            """)
+            if st.button("💰 Purchase Storage License", type="primary"):
+                st.success("✅ Storage node license purchased!")
+                st.balloons()
+        
+        with col2:
+            st.markdown("""
+            **👑 Validator Node License**
+            - Price: 1,000 HYBRID
+            - Higher rewards: ~25% APY
+            - Governance voting rights
+            - Network validation duties
+            """)
+            if st.button("💎 Purchase Validator License", type="primary"):
+                st.success("✅ Validator node license purchased!")
+                st.balloons()
+    
+    with tab2:
+        st.subheader("📊 Your Node Portfolio")
+        
+        # Sample node data
+        node_data = [
+            {"Type": "Storage", "License ID": "SNL-001", "Status": "🟢 Active", "Monthly Rewards": "37.5 HYBRID", "Uptime": "99.8%"},
+            {"Type": "Storage", "License ID": "SNL-002", "Status": "🟢 Active", "Monthly Rewards": "37.5 HYBRID", "Uptime": "99.9%"},
+            {"Type": "Validator", "License ID": "VNL-001", "Status": "🟢 Active", "Monthly Rewards": "208.3 HYBRID", "Uptime": "100%"}
+        ]
+        
+        st.dataframe(node_data, use_container_width=True)
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Total Monthly Rewards", "283.3 HYBRID", "~$2,833")
+        with col2:
+            st.metric("Annual Yield", "18.5%", "Compound interest")
+        with col3:
+            st.metric("Total Investment Value", "$15,000", "+$2,500 profit")
+    
+    with tab3:
+        st.subheader("🤖 Node-as-a-Service Platform")
+        
+        st.info("💡 **NaaS Benefits**: Fully automated node operation, no technical maintenance required!")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("**🔧 Technical Management**")
+            st.write("• Automated setup and configuration")
+            st.write("• 24/7 monitoring and maintenance")
+            st.write("• Automatic updates and security patches")
+            st.write("• Hardware failure protection")
+        
+        with col2:
+            st.markdown("**💰 Passive Income Features**")
+            st.write("• Automatic reward claiming")
+            st.write("• Compound interest reinvestment")
+            st.write("• Performance optimization")
+            st.write("• Multi-node portfolio management")
+
 def main():
     """Main application entry point"""
 
@@ -109,6 +198,11 @@ def main():
     with st.sidebar:
         st.markdown("### 🌟 HYBRID BLOCKCHAIN")
         st.markdown("*Revolutionary Multi-Chain Platform*")
+        
+        # Network status indicator
+        st.success("🟢 Network Online")
+        st.metric("Block Height", "1,234,567")
+        st.metric("Active Nodes", "1,847")
 
         page = st.selectbox(
             "🌟 Choose Your Experience",
@@ -135,11 +229,17 @@ def main():
     elif page == "📊 Market Dashboard":
         from ui.hybrid_market_dashboard import create_hybrid_market_dashboard
         create_hybrid_market_dashboard()
+    elif page == "🔬 Blockchain Explorer":
+        from ui.hybridscan_ui import create_hybridscan_interface
+        create_hybridscan_interface()
+    elif page == "🎫 Node Management":
+        create_node_management_interface()
     elif page == "👑 Founder Dashboard":
         from ui.founder_dashboard import create_founder_dashboard
         create_founder_dashboard()
-    else:
-        st.write(f"Page {page} coming soon!")
+    elif page == "📚 Documentation":
+        from ui.docs_analyzer import create_docs_analyzer
+        create_docs_analyzer()
 
 if __name__ == "__main__":
     main()

@@ -567,7 +567,13 @@ def create_hybrid_market_dashboard():
 
     # Sidebar navigation
     with st.sidebar:
-        st.image("https://via.placeholder.com/200x80/667eea/ffffff?text=HYBRID+COIN", width=200)
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+             padding: 1rem; border-radius: 10px; text-align: center; color: white; margin-bottom: 1rem;">
+            <h3>💎 HYBRID COIN</h3>
+            <p>Market Dashboard</p>
+        </div>
+        """, unsafe_allow_html=True)
 
         st.markdown("---")
 
