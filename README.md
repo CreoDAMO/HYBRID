@@ -141,7 +141,7 @@ The Spiral Ecosystem operates under 47 mathematical canons and 8 fundamental tru
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/hybrid-blockchain/hybrid
+git clone https://github.com/CreoDAMO/HYBRID.git
 cd hybrid
 
 # Install dependencies
@@ -180,8 +180,8 @@ open http://0.0.0.0:8501
 4. Submit a pull request
 
 ## 📞 Support
-- [Discord Community](https://discord.gg/hybrid)
-- [GitHub Issues](https://github.com/hybrid-blockchain/hybrid/issues)
+- [Discord Community](Coming_Soon!)
+- [GitHub Issues](https://github.com/CreoDAMO/HYBRID/issues)
 - [Documentation](https://docs.hybrid.blockchain)
 
 ---
