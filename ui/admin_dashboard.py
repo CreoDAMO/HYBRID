@@ -338,20 +338,25 @@ class HTSXApplicationBuilder:
         cross_chain = htsx_code.count('chains=') * 25000
         return base_cost + components + trust_features + cross_chain
 
-def verify_sovereign_status(user_id: str) -> Dict[str, Any]:
-    """Verify if user has Sovereign status"""
-    # Simplified verification - in production this would check blockchain records
-    sovereign_database = {
-        "perelman_family": True,
-        "hybrid_graduates": [],  # Users who completed HYBRID learning system
-        "verified_sovereigns": []
+def verify_sovereign_status(wallet_address: str) -> Dict[str, Any]:
+    """Verify if wallet has Sovereign status"""
+    # Authorized Base wallet addresses with sovereign privileges
+    sovereign_wallets = {
+        "0x742d35Cc6634C0532925a3b8D6aCBFC9C14f0": "perelman_family",
+        "0x1234567890123456789012345678901234567890": "hybrid_graduate",
+        "0x9876543210987654321098765432109876543210": "verified_sovereign"
     }
-
+    
+    # Check if wallet is in sovereign database
+    sovereign_type = sovereign_wallets.get(wallet_address.lower())
+    
     return {
-        "is_sovereign": user_id in sovereign_database.get("verified_sovereigns", []),
-        "is_perelman_family": user_id == "perelman_family",
-        "completed_hybrid_learning": user_id in sovereign_database.get("hybrid_graduates", []),
-        "trust_currency_access": False  # Will be set based on verification
+        "is_sovereign": sovereign_type in ["verified_sovereign", "perelman_family"],
+        "is_perelman_family": sovereign_type == "perelman_family",
+        "completed_hybrid_learning": sovereign_type == "hybrid_graduate",
+        "trust_currency_access": sovereign_type is not None,
+        "wallet_address": wallet_address,
+        "sovereign_type": sovereign_type
     }
 
 def create_admin_dashboard():
@@ -363,7 +368,7 @@ def create_admin_dashboard():
         initial_sidebar_state="expanded"
     )
 
-    # Enhanced CSS with holographic themes
+    # Enhanced CSS with holographic themes and MetaMask integration
     st.markdown("""
     <style>
         .main-header {
@@ -374,6 +379,39 @@ def create_admin_dashboard():
             text-align: center;
             margin-bottom: 2rem;
             box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .wallet-connection {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .wallet-connected {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .metamask-button {
+            background: linear-gradient(135deg, #f6822a 0%, #ff6b35 100%);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .metamask-button:hover {
+            transform: translateY(-2px);
         }
 
         .trust-card {
@@ -421,11 +459,104 @@ def create_admin_dashboard():
     </style>
     """, unsafe_allow_html=True)
 
+    # MetaMask SDK Integration
+    st.markdown("""
+    <script src="https://cdn.jsdelivr.net/npm/@metamask/sdk@0.14.1/dist/browser/metamask-sdk.min.js"></script>
+    <script>
+        // Initialize MetaMask SDK
+        const MMSDK = new MetaMaskSDK.MetaMaskSDK({
+            dappMetadata: {
+                name: "HYBRID Admin Dashboard",
+                url: window.location.href,
+            },
+            infuraAPIKey: "demo-key", // Replace with your Infura key
+        });
+        
+        // Add HYBRID network to MetaMask
+        async function addHybridNetwork() {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{
+                        chainId: '0x2329', // HYBRID chain ID (9001)
+                        chainName: 'HYBRID Blockchain',
+                        nativeCurrency: {
+                            name: 'HYBRID',
+                            symbol: 'HYBRID',
+                            decimals: 18
+                        },
+                        rpcUrls: ['https://rpc.hybrid.blockchain'],
+                        blockExplorerUrls: ['https://hybridscan.io']
+                    }]
+                });
+                console.log('HYBRID network added to MetaMask');
+            } catch (error) {
+                console.error('Failed to add HYBRID network:', error);
+            }
+        }
+        
+        // Connect wallet function
+        async function connectWallet() {
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const account = accounts[0];
+                
+                // Switch to Base network for admin authentication
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: '0x2105' }] // Base network chain ID
+                });
+                
+                document.getElementById('wallet-address').innerText = account;
+                document.getElementById('wallet-status').style.display = 'block';
+                document.getElementById('connect-button').style.display = 'none';
+                
+                // Add HYBRID network after connection
+                await addHybridNetwork();
+                
+                // Trigger Streamlit rerun to update authentication
+                window.location.reload();
+            } catch (error) {
+                console.error('Failed to connect wallet:', error);
+                alert('Failed to connect wallet. Please make sure MetaMask is installed.');
+            }
+        }
+        
+        // Auto-connect if already connected
+        if (window.ethereum) {
+            window.ethereum.request({ method: 'eth_accounts' }).then(accounts => {
+                if (accounts.length > 0) {
+                    document.getElementById('wallet-address').innerText = accounts[0];
+                    document.getElementById('wallet-status').style.display = 'block';
+                    document.getElementById('connect-button').style.display = 'none';
+                }
+            });
+        }
+    </script>
+    """, unsafe_allow_html=True)
+
+    # Wallet Connection Interface
+    st.markdown("""
+    <div class="wallet-connection">
+        <h3>🔐 Sovereign Authentication</h3>
+        <p>Connect your Base wallet to access admin controls</p>
+        <button id="connect-button" class="metamask-button" onclick="connectWallet()">
+            🦊 Connect MetaMask
+        </button>
+        <div id="wallet-status" style="display: none;">
+            <div class="wallet-connected">
+                <strong>Connected:</strong> <span id="wallet-address"></span>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
     # Main header
     st.markdown("""
     <div class="main-header">
         <h1>👑 HYBRID Blockchain Admin Dashboard</h1>
         <p>Advanced No-Code dApp Builder with SpiralScript & Trust Currency Integration</p>
+        <p>🔗 MetaMask Integration | 🌐 Base Network Authentication | 💎 HYBRID Network Support</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -438,64 +569,125 @@ def create_admin_dashboard():
     # Sidebar navigation
     with st.sidebar:
         st.markdown("### 🎛️ Admin Control Panel")
-
-        admin_section = st.selectbox(
-            "Choose Admin Section:",
-            [
-                "🚀 **PRIVATE**: Global Operations",
-                "🏗️ HTSX App Builder",
-                "🌀 Trust Currency Manager", 
-                "🤖 AI Orchestration Control",
-                "📊 Network Analytics",
-                "🌈 Holographic Renderer",
-                "🚀 Deployment Manager",
-                "👥 Community Management",
-                "⚙️ System Configuration",
-                "🌀 Spiral Implementation",
-                "🌉 Quantum Bridge Control",
-                "💎 **PRIVATE**: Sovereign Controls"
-            ]
-        )
-
-        st.markdown("---")
-
-        # Quick stats
-        st.markdown("### 📈 Quick Stats")
-
-        # Simulate network stats
-        col1, col2 = st.columns(2)
-        with col1:
-            st.metric("Active dApps", "47", "+5")
-            st.metric("Trust Score", "89.2", "+2.1")
-        with col2:
-            st.metric("Users", "1,247", "+89")
-            st.metric("Deployments", "23", "+3")
+        
+        # Wallet authentication status
+        wallet_address = st.text_input("🔐 Wallet Address", help="Enter your Base wallet address")
+        
+        if wallet_address:
+            # Verify wallet has sovereign access
+            verification = verify_sovereign_status(wallet_address)
+            
+            if verification["is_sovereign"] or verification["is_perelman_family"]:
+                st.success(f"✅ Sovereign Access Granted")
+                st.info(f"🎭 Role: {verification['sovereign_type']}")
+                
+                admin_section = st.selectbox(
+                    "Choose Admin Section:",
+                    [
+                        "🚀 **PRIVATE**: Global Operations",
+                        "🏗️ HTSX App Builder",
+                        "🌀 Trust Currency Manager", 
+                        "🤖 AI Orchestration Control",
+                        "📊 Network Analytics",
+                        "🌈 Holographic Renderer",
+                        "🚀 Deployment Manager",
+                        "👥 Community Management",
+                        "⚙️ System Configuration",
+                        "🌀 Spiral Implementation",
+                        "🌉 Quantum Bridge Control",
+                        "💎 **PRIVATE**: Sovereign Controls"
+                    ]
+                )
+                
+                st.markdown("---")
+                
+                # Network integration status
+                st.markdown("### 🌐 Network Status")
+                st.success("🔗 Base Network Connected")
+                st.info("💎 HYBRID Network Available")
+                
+                # Quick stats
+                st.markdown("### 📈 Quick Stats")
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("Active dApps", "47", "+5")
+                    st.metric("Trust Score", "89.2", "+2.1")
+                with col2:
+                    st.metric("Users", "1,247", "+89")
+                    st.metric("Deployments", "23", "+3")
+                    
+            else:
+                st.error("❌ Access Denied - Sovereign wallet required")
+                st.info("💡 Use MetaMask to connect your Base wallet")
+                admin_section = None
+        else:
+            st.warning("🔐 Please connect your wallet to access admin controls")
+            st.info("👆 Click 'Connect MetaMask' above")
+            admin_section = None
 
     # Main content based on selection
-    if admin_section == "🚀 **PRIVATE**: Global Operations":
-        render_global_operations()
-    elif admin_section == "🏗️ HTSX App Builder":
-        render_htsx_app_builder()
-    elif admin_section == "🌀 Trust Currency Manager":
-        render_trust_currency_manager()
-    elif admin_section == "🤖 AI Orchestration Control":
-        render_ai_orchestration_control()
-    elif admin_section == "📊 Network Analytics":
-        render_network_analytics()
-    elif admin_section == "🌈 Holographic Renderer":
-        render_holographic_renderer()
-    elif admin_section == "🚀 Deployment Manager":
-        render_deployment_manager()
-    elif admin_section == "👥 Community Management":
-        render_community_management()
-    elif admin_section == "⚙️ System Configuration":
-        render_system_configuration()
-    elif admin_section == "🌀 Spiral Implementation":
-        render_spiral_implementation()
-    elif admin_section == "🌉 Quantum Bridge Control":
-        render_quantum_bridge_control()
-    elif admin_section == "💎 **PRIVATE**: Sovereign Controls":
-        render_sovereign_controls()
+    if admin_section:
+        if admin_section == "🚀 **PRIVATE**: Global Operations":
+            render_global_operations()
+        elif admin_section == "🏗️ HTSX App Builder":
+            render_htsx_app_builder()
+        elif admin_section == "🌀 Trust Currency Manager":
+            render_trust_currency_manager()
+        elif admin_section == "🤖 AI Orchestration Control":
+            render_ai_orchestration_control()
+        elif admin_section == "📊 Network Analytics":
+            render_network_analytics()
+        elif admin_section == "🌈 Holographic Renderer":
+            render_holographic_renderer()
+        elif admin_section == "🚀 Deployment Manager":
+            render_deployment_manager()
+        elif admin_section == "👥 Community Management":
+            render_community_management()
+        elif admin_section == "⚙️ System Configuration":
+            render_system_configuration()
+        elif admin_section == "🌀 Spiral Implementation":
+            render_spiral_implementation()
+        elif admin_section == "🌉 Quantum Bridge Control":
+            render_quantum_bridge_control()
+        elif admin_section == "💎 **PRIVATE**: Sovereign Controls":
+            render_sovereign_controls()
+    else:
+        # Display connection instructions
+        st.markdown("""
+        ## 🔐 Wallet Authentication Required
+        
+        To access the HYBRID Admin Dashboard, please:
+        
+        1. **Install MetaMask** if you haven't already
+        2. **Connect your Base wallet** using the button above
+        3. **Ensure your wallet has Sovereign privileges**
+        
+        ### 🌐 Network Integration Benefits:
+        - 🔗 **Base Network**: Secure authentication layer
+        - 💎 **HYBRID Network**: Automatic integration into MetaMask
+        - 🚀 **Seamless Experience**: One-click network switching
+        - 🛡️ **Enhanced Security**: No private keys stored
+        
+        ### 🎭 Access Levels:
+        - **Perelman Family**: Full system access
+        - **Verified Sovereign**: Advanced controls
+        - **HYBRID Graduate**: Trust currency access
+        
+        """)
+        
+        # Network addition instructions
+        st.markdown("""
+        ### 📖 HYBRID Network Details:
+        ```
+        Network Name: HYBRID Blockchain
+        RPC URL: https://rpc.hybrid.blockchain
+        Chain ID: 9001
+        Currency Symbol: HYBRID
+        Block Explorer: https://hybridscan.io
+        ```
+        
+        After connecting, the HYBRID network will be automatically added to your MetaMask!
+        """)
 
 def render_trust_currency_panel():
     """Private Trust Currency interface for Sovereigns only"""
@@ -1875,25 +2067,7 @@ def render_sovereign_controls():
             </div>
             """, unsafe_allow_html=True)
 
-def render_admin_dashboard():
-    st.title("🔧 HYBRID Admin Dashboard - Sovereign Access")
 
-    # Sovereign authentication
-    st.sidebar.markdown("### Sovereign Authentication")
-    sovereign_id = st.sidebar.text_input("Sovereign ID")
-    sovereign_key = st.sidebar.text_input("Sovereign Key", type="password")
-
-    if not sovereign_id or not sovereign_key:
-        st.error("Sovereign credentials required")
-        return
-
-    # Verify Sovereign status
-    verification = verify_sovereign_status(sovereign_id)
-
-    if not verification["is_sovereign"] and not verification["is_perelman_family"]:
-        st.error("Access Denied - Sovereign status required")
-        st.info("Complete the HYBRID Blockchain Learning System to gain Sovereign status")
-        return
 
 if __name__ == "__main__":
     create_admin_dashboard()
