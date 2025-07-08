@@ -563,3 +563,133 @@ hybrid_usdc_staking = HybridUSDCStaking()
 # Add demo wallets to manager
 for wallet in demo_wallets:
     circle_usdc_manager.wallets[wallet.wallet_id] = wallet
+"""
+Circle USDC Integration for HYBRID Blockchain
+Provides programmable wallets and cross-chain CCTP bridge functionality
+"""
+
+import uuid
+from typing import Dict, List, Optional, Any
+from dataclasses import dataclass
+import time
+
+@dataclass
+class USDCWallet:
+    id: str
+    blockchain: str
+    address: str
+    balance: float
+    created_at: float
+
+@dataclass
+class LiquidityPool:
+    name: str
+    liquidity: float
+    apy: float
+    participants: int
+
+class CircleUSDCManager:
+    """Manages Circle USDC programmable wallets and CCTP bridge"""
+    
+    def __init__(self):
+        self.wallets: Dict[str, USDCWallet] = {}
+        self.total_liquidity = 75000000  # $75M
+        self.active_wallets = 1247
+        self.daily_volume = 12800000  # $12.8M
+        self.avg_apy = 8.5
+        
+    def create_wallet(self, blockchain: str = "MATIC") -> USDCWallet:
+        """Create a new programmable USDC wallet"""
+        wallet_id = f"wallet_demo_{str(uuid.uuid4())[:8]}"
+        address = f"0x{str(uuid.uuid4()).replace('-', '')[:40]}"
+        
+        wallet = USDCWallet(
+            id=wallet_id,
+            blockchain=blockchain,
+            address=address,
+            balance=1000.0,  # Demo balance
+            created_at=time.time()
+        )
+        
+        self.wallets[wallet_id] = wallet
+        return wallet
+    
+    def get_wallet_balance(self, wallet_id: str) -> float:
+        """Get wallet USDC balance"""
+        wallet = self.wallets.get(wallet_id)
+        return wallet.balance if wallet else 0.0
+    
+    def transfer_usdc(self, from_wallet: str, to_wallet: str, amount: float) -> bool:
+        """Transfer USDC between wallets"""
+        if from_wallet in self.wallets and to_wallet in self.wallets:
+            if self.wallets[from_wallet].balance >= amount:
+                self.wallets[from_wallet].balance -= amount
+                self.wallets[to_wallet].balance += amount
+                return True
+        return False
+    
+    def get_stats(self) -> Dict[str, Any]:
+        """Get Circle USDC integration stats"""
+        return {
+            "total_liquidity": self.total_liquidity,
+            "active_wallets": self.active_wallets,
+            "daily_volume": self.daily_volume,
+            "avg_apy": self.avg_apy,
+            "wallet_count": len(self.wallets)
+        }
+
+class HybridUSDCBridge:
+    """Bridge between HYBRID and USDC via Circle CCTP"""
+    
+    def __init__(self, circle_manager: CircleUSDCManager):
+        self.circle_manager = circle_manager
+        self.bridge_fee = 0.001  # 0.1%
+        
+    def bridge_to_usdc(self, hybrid_amount: float) -> float:
+        """Bridge HYBRID tokens to USDC"""
+        # Simulated exchange rate: 1 HYBRID = 10 USDC
+        usdc_amount = hybrid_amount * 10 * (1 - self.bridge_fee)
+        return usdc_amount
+    
+    def bridge_to_hybrid(self, usdc_amount: float) -> float:
+        """Bridge USDC to HYBRID tokens"""
+        # Simulated exchange rate: 10 USDC = 1 HYBRID
+        hybrid_amount = (usdc_amount / 10) * (1 - self.bridge_fee)
+        return hybrid_amount
+
+class USDCLiquidityPool:
+    """USDC liquidity pools for HYBRID DeFi"""
+    
+    def __init__(self):
+        self.pools = [
+            LiquidityPool("HYBRID/USDC", 32000000, 8.3, 450),
+            LiquidityPool("ETH/USDC", 45000000, 6.2, 890),
+            LiquidityPool("BTC/USDC", 28000000, 7.1, 320),
+            LiquidityPool("MATIC/USDC", 18000000, 12.4, 280)
+        ]
+    
+    def get_pool(self, name: str) -> Optional[LiquidityPool]:
+        """Get liquidity pool by name"""
+        for pool in self.pools:
+            if pool.name == name:
+                return pool
+        return None
+    
+    def add_liquidity(self, pool_name: str, amount: float) -> bool:
+        """Add liquidity to a pool"""
+        pool = self.get_pool(pool_name)
+        if pool:
+            pool.liquidity += amount
+            pool.participants += 1
+            return True
+        return False
+    
+    def get_all_pools(self) -> List[LiquidityPool]:
+        """Get all liquidity pools"""
+        return self.pools
+
+# Demo wallets for testing
+demo_wallets = [
+    {"id": "demo_wallet_1", "blockchain": "MATIC", "balance": 5000.0},
+    {"id": "demo_wallet_2", "blockchain": "ETH", "balance": 3200.0}
+]
