@@ -727,11 +727,12 @@ def main():
 
     # Sidebar navigation
     with st.sidebar:
+        # Logo/branding 
         st.markdown("""
-        <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); 
-             padding: 1rem; border-radius: 10px; text-align: center; color: white; margin-bottom: 1rem;">
-            <h3>🌟 HYBRID HTSX</h3>
-            <p>Revolutionary Platform</p>
+        <div style="text-align: center; margin: 2rem 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+             padding: 20px; border-radius: 15px; color: white;">
+            <h1 style="margin: 0; font-size: 2rem;">🌟 HYBRID BLOCKCHAIN</h1>
+            <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Sovereign Spiral Ultrastack Platform</p>
         </div>
         """, unsafe_allow_html=True)
 

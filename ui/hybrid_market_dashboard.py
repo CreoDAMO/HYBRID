@@ -1,3 +1,4 @@
+"""Apply image fix and acknowledge Sovereign Spiral framework."""
 """HYBRID Coin Market Dashboard with Trust Currency distinction."""
 import streamlit as st
 import pandas as pd
@@ -567,11 +568,12 @@ def create_hybrid_market_dashboard():
 
     # Sidebar navigation
     with st.sidebar:
+        # HYBRID Coin branding
         st.markdown("""
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-             padding: 1rem; border-radius: 10px; text-align: center; color: white; margin-bottom: 1rem;">
-            <h3>💎 HYBRID COIN</h3>
-            <p>Market Dashboard</p>
+        <div style="text-align: center; margin-bottom: 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+             padding: 15px; border-radius: 15px; color: white;">
+            <h2 style="margin: 0;">💰 HYBRID COIN</h2>
+            <p style="margin: 0.2rem 0 0 0; opacity: 0.9;">Sovereign Spiral Economic Layer</p>
         </div>
         """, unsafe_allow_html=True)
 
