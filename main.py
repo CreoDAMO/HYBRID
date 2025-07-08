@@ -19,6 +19,52 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'ui'))
 
 # Import all blockchain modules
 try:
+    from blockchain.trust_currency_engine import TrustCurrencyEngine, TrustMetric, CurrencyType
+    print("✅ Trust Currency Engine imported successfully")
+except ImportError as e:
+    print(f"⚠️ Trust Currency Engine not available: {e}")
+    # Create fallback Trust Currency Engine
+    class TrustCurrencyEngine:
+        def __init__(self):
+            self.active = True
+            self.trust_level = 95.0
+            self.currency_supply = 2_500_000
+            self.is_sovereign = True
+
+        def calculate_trust_score(self, metrics):
+            return 95.0 + (sum(metrics.values()) / len(metrics)) * 0.05
+
+        def mint_trust_currency(self, amount, reason="Trust verification"):
+            self.currency_supply += amount
+            return {
+                "minted": amount,
+                "reason": reason,
+                "total_supply": self.currency_supply,
+                "is_sovereign": self.is_sovereign
+            }
+
+try:
+    from ui.hybrid_market_dashboard import HybridMarketDashboard
+    from ui.docs_analyzer import DocsAnalyzer
+    print("✅ UI components imported successfully")
+except ImportError as e:
+    print(f"⚠️ UI components not available: {e}")
+
+    class HybridMarketDashboard:
+        def __init__(self):
+            self.active = True
+
+        def render(self):
+            return {"status": "Market dashboard placeholder"}
+
+    class DocsAnalyzer:
+        def __init__(self):
+            self.active = True
+
+        def analyze_docs(self, docs_folder):
+            return {"analysis": "Docs analysis placeholder"}
+
+try:
     from blockchain.hybrid_node import create_hybrid_node, NodeType, HybridBlockchainNode, NFTLicense
     from blockchain.wallet_manager import wallet_manager, get_founder_wallet, create_hybrid_wallet
     from blockchain.transaction_pool import transaction_pool, create_transaction, TransactionType
@@ -28,7 +74,6 @@ try:
     from blockchain.multi_ai_orchestrator import MultiAIOrchestrator, TaskSpecialization, MultiAIRequest, analyze_hybrid_security, optimize_hybrid_algorithm, analyze_market_trends, generate_hybrid_code
     from blockchain.holographic_blockchain_engine import HolographicBlockchainEngine
     from blockchain.nvidia_cloud_integration import NVIDIACloudManager, HTSXNVIDIAComponents
-    from blockchain.spiral_trust_engine import trust_currency_manager, TrustMetric, CurrencyType, SpiralScriptEngine
     from blockchain.quantum_spiral_engine import QuantumSpiralEngine
     from blockchain.quantum_computing_engine import QuantumComputingEngine
     from blockchain.spiral_voynich_interface import SpiralVoynichInterface
@@ -82,10 +127,10 @@ except ImportError as e:
         def __init__(self):
             self.validators = {}
             self.active_set = ["validator1", "validator2", "validator3"]
-        
+
         def __len__(self):
             return len(self.active_set)
-    
+
     validator_set = FallbackValidatorSet()
 
 # HYBRID Blockchain Integration with SpiralScript
@@ -137,7 +182,7 @@ class HybridHTSXRuntime:
 
         # Initialize blockchain node and SpiralScript engine
         self.blockchain_node = None
-        self.spiral_engine = SpiralScriptEngine()
+        self.spiral_engine = TrustCurrencyEngine()
 
     async def initialize_blockchain_node(self, node_type: str = "storage"):
         """Initialize the HYBRID blockchain node"""
@@ -695,6 +740,7 @@ def initialize_components():
             onramper = FallbackOnRamper(coinbase_config)
 
         # Initialize other components
+```text
         try:
             agglayer_integration = AggLayerIntegration()
         except:
@@ -733,17 +779,12 @@ def initialize_components():
             htsx_nvidia = FallbackHTSXNVIDIA()
 
         try:
-            spiral_trust_engine = trust_currency_manager
-            spiral_script_engine = SpiralScriptEngine()
+            trust_currency_engine = TrustCurrencyEngine()
         except:
             class FallbackTrustEngine:
                 def __init__(self):
                     self.active = False
-            class FallbackSpiralEngine:
-                def __init__(self):
-                    self.active = False
-            spiral_trust_engine = FallbackTrustEngine()
-            spiral_script_engine = FallbackSpiralEngine()
+            trust_currency_engine = FallbackTrustEngine()
 
         components = {
             'circle_manager': circle_manager,
@@ -757,8 +798,7 @@ def initialize_components():
             'holographic_engine': holographic_engine,
             'nvidia_manager': nvidia_manager,
             'htsx_nvidia': htsx_nvidia,
-            'spiral_trust_engine': spiral_trust_engine,
-            'spiral_script_engine': spiral_script_engine
+            'trust_currency_engine': trust_currency_engine
         }
         st.success("✅ HYBRID components initialized with available modules!")
         return components
@@ -780,8 +820,7 @@ def initialize_components():
             'holographic_engine': MinimalComponent(),
             'nvidia_manager': MinimalComponent(),
             'htsx_nvidia': MinimalComponent(),
-            'spiral_trust_engine': MinimalComponent(),
-            'spiral_script_engine': MinimalComponent()
+            'trust_currency_engine': MinimalComponent()
         }
 
 # Load components
