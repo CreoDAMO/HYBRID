@@ -40,6 +40,83 @@ def check_blockchain_modules():
     blockchain_modules = [
         'blockchain.hybrid_node',
         'blockchain.wallet_manager', 
+        'blockchain.consensus',
+        'blockchain.ethermint',
+        'blockchain.staking',
+        'blockchain.governance'
+    ]
+    
+    results = {}
+    for module in blockchain_modules:
+        try:
+            importlib.import_module(module)
+            results[module] = "✅ Available"
+        except ImportError:
+            results[module] = "❌ Missing"
+    
+    return results
+
+def check_ui_modules():
+    """Check UI module availability"""
+    ui_modules = [
+        'ui.streamlit_ui',
+        'ui.admin_dashboard',
+        'ui.holographic_interface'
+    ]
+    
+    results = {}
+    for module in ui_modules:
+        try:
+            importlib.import_module(module)
+            results[module] = "✅ Available"
+        except ImportError:
+            results[module] = "❌ Missing"
+    
+    return results
+
+def check_component_modules():
+    """Check component module availability"""
+    component_modules = [
+        'components.hybrid_htsx',
+        'components.hybrid_htsx_holographic',
+        'components.spiral_script_compiler'
+    ]
+    
+    results = {}
+    for module in component_modules:
+        try:
+            importlib.import_module(module)
+            results[module] = "✅ Available"
+        except ImportError:
+            results[module] = "❌ Missing"
+    
+    return results
+
+def check_file_structure():
+    """Check critical file existence"""
+    critical_files = [
+        'main.py',
+        'start_hybrid.py',
+        'requirements.txt',
+        'blockchain/__init__.py',
+        'ui/__init__.py',
+        'components/hybrid_htsx.py'
+    ]
+    
+    results = {}
+    for file_path in critical_files:
+        if os.path.exists(file_path):
+            results[file_path] = "✅ Exists"
+        else:
+            results[file_path] = "❌ Missing"
+    
+    return results results
+
+def check_blockchain_modules():
+    """Check blockchain module availability"""
+    blockchain_modules = [
+        'blockchain.hybrid_node',
+        'blockchain.wallet_manager', 
         'blockchain.transaction_pool',
         'blockchain.block_producer',
         'blockchain.validator_set',

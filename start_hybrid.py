@@ -6,6 +6,7 @@ import time
 import signal
 import os
 import shlex
+import importlib
 
 def run_command(cmd, background=False):
     """Run a command safely"""
@@ -35,27 +36,60 @@ async def start_blockchain_node():
         print("\n⏹️ Stopping blockchain node...")
         await node.stop()
 
-def start_streamlit():
-    """Start Streamlit UI"""
-    print("🖥️ Starting HYBRID Streamlit UI...")
-    # Try different approaches to start streamlit
-    try:
-        # First try with module execution
-        cmd = [sys.executable, "-m", "streamlit", "run", "main.py", "--server.address=0.0.0.0", "--server.port=8501"]
-        return subprocess.Popen(cmd)
-    except Exception as e:
-        print(f"Failed to start with module: {e}")
+def check_and_install_dependencies():
+    """Check and install required dependencies"""
+    required_packages = [
+        'streamlit', 'plotly', 'pandas', 'numpy', 'requests',
+        'cryptography', 'mnemonic', 'aiohttp', 'fastapi', 'uvicorn',
+        'web3', 'eth_account', 'bech32', 'ecdsa', 'secp256k1'
+    ]
+    
+    missing_packages = []
+    
+    for package in required_packages:
         try:
-            # Try direct streamlit command
-            cmd = ["streamlit", "run", "main.py", "--server.address=0.0.0.0", "--server.port=8501"]
-            return subprocess.Popen(cmd)
-        except Exception as e2:
-            print(f"Failed to start streamlit: {e2}")
-            print("Installing streamlit...")
-            subprocess.run([sys.executable, "-m", "pip", "install", "streamlit"])
-            # Try again after install
-            cmd = [sys.executable, "-m", "streamlit", "run", "main.py", "--server.address=0.0.0.0", "--server.port=8501"]
-            return subprocess.Popen(cmd)
+            __import__(package)
+            print(f"✅ {package} - OK")
+        except ImportError:
+            missing_packages.append(package)
+            print(f"❌ {package} - Missing")
+    
+    if missing_packages:
+        print(f"📦 Installing missing packages: {', '.join(missing_packages)}")
+        try:
+            subprocess.run([
+                sys.executable, "-m", "pip", "install", "--upgrade"
+            ] + missing_packages, check=True)
+            print("✅ Dependencies installed successfully!")
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Failed to install dependencies: {e}")
+            return False
+    
+    return True
+
+def start_streamlit():
+    """Start Streamlit UI with proper error handling"""
+    print("🖥️ Starting HYBRID Streamlit UI...")
+    
+    # Check dependencies first
+    if not check_and_install_dependencies():
+        print("❌ Cannot start Streamlit - dependency installation failed")
+        return None
+    
+    try:
+        # Try with module execution
+        cmd = [
+            sys.executable, "-m", "streamlit", "run", "main.py",
+            "--server.address=0.0.0.0",
+            "--server.port=8501",
+            "--server.runOnSave=true",
+            "--server.allowRunOnSave=true"
+        ]
+        print(f"🚀 Executing: {' '.join(cmd)}")
+        return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except Exception as e:
+        print(f"❌ Failed to start Streamlit: {e}")
+        return None
 
 def main():
     print("🌟 HYBRID Blockchain + HTSX Runtime Starting...")
@@ -63,24 +97,41 @@ def main():
 
     # Start Streamlit UI
     streamlit_process = start_streamlit()
+    
+    if streamlit_process is None:
+        print("❌ Failed to start Streamlit UI")
+        print("🔍 Check the error messages above for details")
+        return
 
     try:
-        # Keep the main process running
+        # Monitor process health
         print("✅ HYBRID blockchain is running!")
         print("📱 UI available at: http://0.0.0.0:8501")
         print("🔗 RPC endpoint: http://0.0.0.0:26657")
         print("\nPress Ctrl+C to stop...")
 
-        while True:
+        # Check if process is still running
+        while streamlit_process.poll() is None:
             time.sleep(1)
+        
+        # If we get here, the process died
+        print("❌ Streamlit process terminated unexpectedly")
+        stdout, stderr = streamlit_process.communicate()
+        if stdout:
+            print("📝 Stdout:", stdout.decode())
+        if stderr:
+            print("🚨 Stderr:", stderr.decode())
 
     except KeyboardInterrupt:
         print("\n🛑 Shutting down HYBRID blockchain...")
 
         # Terminate processes
-        if streamlit_process:
+        if streamlit_process and streamlit_process.poll() is None:
             streamlit_process.terminate()
-            streamlit_process.wait()
+            try:
+                streamlit_process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                streamlit_process.kill()
 
         print("✅ HYBRID blockchain stopped successfully")
 
