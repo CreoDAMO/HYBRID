@@ -23,25 +23,25 @@ except Exception as e:
     print(f"❌ Trust Currency Engine error: {e}")
 
 try:
-    # Import UI components with error handling
-    from ui.docs_analyzer import DocsAnalyzer
-    print("✅ UI components imported successfully")
-except ImportError as e:
-    print(f"⚠️ UI components not available: {e}")
-
-try:
     # Import core blockchain modules
     from blockchain.hybrid_node import create_hybrid_node
     from blockchain.hybrid_wallet import hybrid_wallet_manager, get_founder_wallet
-    from ui.streamlit_ui import create_streamlit_ui
     print("✅ Core blockchain modules imported successfully")
 except Exception as e:
     st.error(f"❌ Core module error: {e}")
     print(f"❌ Core module error: {e}")
 
 try:
+    # Import UI components with error handling
+    from ui.streamlit_ui import create_streamlit_ui
+    print("✅ UI components imported successfully")
+except ImportError as e:
+    st.error(f"⚠️ UI components not available: {e}")
+    print(f"⚠️ UI components not available: {e}")
+
+try:
     # Import convergence engine  
-    from components.convergence_engine import ConvergenceEngine
+    from components.convergence_engine import convergence_engine
     print("✅ Convergence engine imported successfully")
 except Exception as e:
     st.error(f"❌ Convergence engine error: {e}")
@@ -107,7 +107,8 @@ def main():
 
     # Sidebar navigation
     with st.sidebar:
-        st.image("https://via.placeholder.com/200x80/667eea/ffffff?text=HYBRID+BLOCKCHAIN", width=200)
+        st.markdown("### 🌟 HYBRID BLOCKCHAIN")
+        st.markdown("*Revolutionary Multi-Chain Platform*")
 
         page = st.selectbox(
             "🌟 Choose Your Experience",

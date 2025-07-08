@@ -583,7 +583,8 @@ def create_comprehensive_documentation():
             - PRIVATE and LAWFUL operations
             """)
         
-        st.info("Trust Currency cannot be accessed through public interfaces - Sovereign authentication required.")U)
+        st.info("Trust Currency cannot be accessed through public interfaces - Sovereign authentication required.")
+        st.markdown("""
         - Used for Sovereign-to-Sovereign transactions
         - Requires mathematical proof verification
         """)
@@ -681,6 +682,10 @@ def render_hybrid_coin_interface():
     with col3:
         if st.button("🌉 Bridge HYBRID"):
             st.success("Opening bridge interface...")
+
+def create_streamlit_ui():
+    """Create the main Streamlit UI interface"""
+    create_hybrid_analytics_dashboard()
 
 def main():
     """Enhanced main application with admin dashboard integration"""

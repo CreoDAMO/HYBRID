@@ -302,6 +302,15 @@ class HybridDocsAnalyzer:
             """, unsafe_allow_html=True)
 
 
+# Export the main classes for use in other modules
+DocsAnalyzer = HybridDocsAnalyzer
+
+def create_docs_analyzer():
+    """Create and return a docs analyzer interface"""
+    analyzer = HybridDocsAnalyzer()
+    analyzer.render_documentation_overview()
+    return analyzer
+
 def main():
     """Main documentation analyzer interface"""
     st.set_page_config(
