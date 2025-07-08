@@ -1,0 +1,493 @@
+{
+  "scan_timestamp": "2025-07-08 12:57:27",
+  "health_score": 0,
+  "statistics": {
+    "files_scanned": 60,
+    "total_lines": 25505,
+    "import_errors": 0,
+    "syntax_errors": 3,
+    "logic_errors": 0,
+    "missing_files": 0,
+    "performance_issues": 4
+  },
+  "issues_by_severity": {
+    "critical": 3,
+    "high": 44,
+    "medium": 4,
+    "low": 1
+  },
+  "issues": [
+    {
+      "severity": "CRITICAL",
+      "category": "Syntax Error",
+      "file_path": "health_check.py",
+      "line_number": 113,
+      "description": "Syntax error: invalid syntax",
+      "fix_suggestion": "Fix syntax error according to Python grammar",
+      "code_snippet": "    return results results"
+    },
+    {
+      "severity": "CRITICAL",
+      "category": "Syntax Error",
+      "file_path": "blockchain/genesis.py",
+      "line_number": 222,
+      "description": "Syntax error: invalid syntax",
+      "fix_suggestion": "Fix syntax error according to Python grammar",
+      "code_snippet": "```"
+    },
+    {
+      "severity": "CRITICAL",
+      "category": "Syntax Error",
+      "file_path": "ui/hybridscan_ui.py",
+      "line_number": 805,
+      "description": "Syntax error: expected an indented block after 'if' statement on line 804",
+      "fix_suggestion": "Fix syntax error according to Python grammar",
+      "code_snippet": "world_config = {"
+    },
+    {
+      "severity": "MEDIUM",
+      "category": "Performance",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/altair/vegalite/v5/schema/channels.py",
+      "line_number": 0,
+      "description": "Large file detected (1150KB)",
+      "fix_suggestion": "Consider splitting large files into smaller modules",
+      "code_snippet": ""
+    },
+    {
+      "severity": "MEDIUM",
+      "category": "Performance",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/altair/vegalite/v5/schema/core.py",
+      "line_number": 0,
+      "description": "Large file detected (1517KB)",
+      "fix_suggestion": "Consider splitting large files into smaller modules",
+      "code_snippet": ""
+    },
+    {
+      "severity": "MEDIUM",
+      "category": "Performance",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/plotly/graph_objs/_figure.py",
+      "line_number": 0,
+      "description": "Large file detected (1036KB)",
+      "fix_suggestion": "Consider splitting large files into smaller modules",
+      "code_snippet": ""
+    },
+    {
+      "severity": "MEDIUM",
+      "category": "Performance",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/plotly/graph_objs/_figurewidget.py",
+      "line_number": 0,
+      "description": "Large file detected (1037KB)",
+      "fix_suggestion": "Consider splitting large files into smaller modules",
+      "code_snippet": ""
+    },
+    {
+      "severity": "LOW",
+      "category": "Configuration",
+      "file_path": ".streamlit/config.toml",
+      "line_number": 0,
+      "description": "Streamlit port not explicitly configured",
+      "fix_suggestion": "Add server port configuration",
+      "code_snippet": ""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": "blockchain/circle_usdc_integration.py",
+      "line_number": 339,
+      "description": "Potential hardcoded API key",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "        self.api_key = \"test_api_key\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": "ui/hybridscan_ui.py",
+      "line_number": 1202,
+      "description": "Potential hardcoded API key",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "            api_key='your-api-key',"
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": "ui/streamlit_ui.py",
+      "line_number": 637,
+      "description": "Potential hardcoded API key",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "        AXELAR_API_KEY = \"your_axelar_key\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/streamlit/user_info.py",
+      "line_number": 150,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    >>> cookie_secret = \"xxx\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/streamlit/user_info.py",
+      "line_number": 152,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    >>> client_secret = \"xxx\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/streamlit/user_info.py",
+      "line_number": 186,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    >>> cookie_secret = \"xxx\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/streamlit/user_info.py",
+      "line_number": 190,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    >>> client_secret = \"xxx\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/streamlit/user_info.py",
+      "line_number": 214,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    >>> cookie_secret = \"xxx\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/streamlit/user_info.py",
+      "line_number": 218,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    >>> client_secret = \"xxx\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/streamlit/user_info.py",
+      "line_number": 223,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    >>> client_secret = \"xxx\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/streamlit/user_info.py",
+      "line_number": 258,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    >>> cookie_secret = \"xxx\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/streamlit/user_info.py",
+      "line_number": 262,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    >>> client_secret = \"xxx\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/streamlit/user_info.py",
+      "line_number": 317,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    >>> cookie_secret = \"xxx\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/streamlit/user_info.py",
+      "line_number": 319,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    >>> client_secret = \"xxx\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/pydantic/types.py",
+      "line_number": 1819,
+      "description": "Potential hardcoded password",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    user = User(username='scolvin', password='password1')"
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/pydantic/types.py",
+      "line_number": 1846,
+      "description": "Potential hardcoded password",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    model = Model(password='IAmSensitive', password_bytes=b'IAmSensitiveBytes')"
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/starlette/datastructures.py",
+      "line_number": 166,
+      "description": "Potential hardcoded password",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "            url = str(self.replace(password=\"********\"))"
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/ecdsa/test_ecdh.py",
+      "line_number": 326,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "gshared_secret = \"8f457e34982478d1c34b9cd2d0c15911b72dd60d869e2cea\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/httpclient_test.py",
+      "line_number": 268,
+      "description": "Potential hardcoded password",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "                \"/auth\", auth_username=\"Aladdin\", auth_password=\"open sesame\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/httpclient_test.py",
+      "line_number": 278,
+      "description": "Potential hardcoded password",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "                auth_password=\"open sesame\","
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/httpclient_test.py",
+      "line_number": 287,
+      "description": "Potential hardcoded password",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "            self.fetch(\"/auth\", auth_username=\"test\", auth_password=\"123\u00a3\").body,"
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/httpclient_test.py",
+      "line_number": 295,
+      "description": "Potential hardcoded password",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "            self.fetch(\"/auth\", auth_username=username, auth_password=\"s\u0259cr\u0259t\").body,"
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/httpclient_test.py",
+      "line_number": 308,
+      "description": "Potential hardcoded password",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "                    auth_password=\"open sesame\","
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/curl_httpclient_test.py",
+      "line_number": 106,
+      "description": "Potential hardcoded password",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "            \"/digest\", auth_mode=\"digest\", auth_username=\"foo\", auth_password=\"bar\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/curl_httpclient_test.py",
+      "line_number": 123,
+      "description": "Potential hardcoded password",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "            auth_password=\"bar\u30e6\u00a3\","
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/auth_test.py",
+      "line_number": 337,
+      "description": "Potential hardcoded API key",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "            facebook_api_key=\"test_facebook_api_key\","
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/auth_test.py",
+      "line_number": 63,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "        return dict(key=\"asdf\", secret=\"qwer\")"
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/auth_test.py",
+      "line_number": 81,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "        if access_token != dict(key=\"uiop\", secret=\"5678\"):"
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/auth_test.py",
+      "line_number": 108,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "        return dict(key=\"asdf\", secret=\"qwer\")"
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/auth_test.py",
+      "line_number": 113,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "            dict(key=\"uiop\", secret=\"5678\"),"
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/auth_test.py",
+      "line_number": 230,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "                access_token=dict(key=\"hjkl\", secret=\"vbnm\"),"
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/auth_test.py",
+      "line_number": 336,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "            twitter_consumer_secret=\"test_twitter_consumer_secret\","
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/auth_test.py",
+      "line_number": 338,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "            facebook_secret=\"test_facebook_secret\","
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/auth_test.py",
+      "line_number": 380,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "        self.assertEqual(parsed[\"access_token\"], dict(key=\"uiop\", secret=\"5678\"))"
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/auth_test.py",
+      "line_number": 422,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "        self.assertEqual(parsed[\"access_token\"], dict(key=\"uiop\", secret=\"5678\"))"
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/web_test.py",
+      "line_number": 102,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    def __init__(self, cookie_secret=\"0123456789\", key_version=None):"
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/web_test.py",
+      "line_number": 753,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    COOKIE_SECRET = \"WebTest.COOKIE_SECRET\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/tornado/test/web_test.py",
+      "line_number": 2638,
+      "description": "Potential hardcoded secret",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    SECRET = \"It's a secret to everybody\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/streamlit/connections/snowflake_connection.py",
+      "line_number": 154,
+      "description": "Potential hardcoded password",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    >>> password = \"xxx\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/streamlit/connections/snowflake_connection.py",
+      "line_number": 212,
+      "description": "Potential hardcoded password",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    >>> password = \"xxx\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/streamlit/connections/sql_connection.py",
+      "line_number": 135,
+      "description": "Potential hardcoded password",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    >>> password = \"xxx\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/streamlit/runtime/connection_factory.py",
+      "line_number": 294,
+      "description": "Potential hardcoded password",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    >>> password = \"xxx\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/streamlit/runtime/connection_factory.py",
+      "line_number": 316,
+      "description": "Potential hardcoded password",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    >>> password = \"xxx\""
+    },
+    {
+      "severity": "HIGH",
+      "category": "Security",
+      "file_path": ".pythonlibs/lib/python3.12/site-packages/streamlit/runtime/connection_factory.py",
+      "line_number": 323,
+      "description": "Potential hardcoded password",
+      "fix_suggestion": "Use environment variables for secrets",
+      "code_snippet": "    >>> password = \"yyy\""
+    }
+  ],
+  "recommendations": [
+    "Fix syntax errors before running the application",
+    "Address all CRITICAL issues immediately"
+  ]
+}
