@@ -1,3 +1,4 @@
+python
 #!/usr/bin/env python3
 import streamlit as st
 import asyncio
@@ -46,7 +47,7 @@ except ImportError as e:
 
 try:
     from ui.hybrid_market_dashboard import HybridMarketDashboard
-    from ui.docs_analyzer import DocsAnalyzer
+    from ui.docs_analyzer import HybridDocsAnalyzer
     print("✅ UI components imported successfully")
 except ImportError as e:
     print(f"⚠️ UI components not available: {e}")
@@ -58,12 +59,24 @@ except ImportError as e:
         def render(self):
             return {"status": "Market dashboard placeholder"}
 
-    class DocsAnalyzer:
+    class HybridDocsAnalyzer:
         def __init__(self):
             self.active = True
 
-        def analyze_docs(self, docs_folder):
-            return {"analysis": "Docs analysis placeholder"}
+        def render_documentation_overview(self):
+            st.write("Documentation Overview Placeholder")
+
+        def render_file_explorer(self):
+            st.write("File Explorer Placeholder")
+
+        def render_api_reference(self):
+            st.write("API Reference Placeholder")
+
+        def render_technology_features(self):
+            st.write("Technology Features Placeholder")
+
+        def render_innovation_layers(self):
+            st.write("Innovation Layers Placeholder")
 
 try:
     from blockchain.hybrid_node import create_hybrid_node, NodeType, HybridBlockchainNode, NFTLicense
@@ -742,6 +755,77 @@ def main():
 
     for activity in activities:
         st.text(activity)
+
+    # Import UI components
+    try:
+        from ui.docs_analyzer import HybridDocsAnalyzer
+        docs_analyzer = HybridDocsAnalyzer()
+        st.success("✅ Documentation analyzer loaded!")
+    except Exception as e:
+        st.warning(f"⚠️ UI components not available: {e}")
+        docs_analyzer = None
+
+    # Holographic interface engine
+    try:
+        from ui.holographic_interface import HolographicInterface
+        holographic_engine = HolographicInterface()
+        st.success("✅ Holographic engine loaded!")
+    except Exception as e:
+        st.warning(f"⚠️ UI components not available: {e}")
+        holographic_engine = None
+
+    # Main navigation
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "🏠 Dashboard", 
+        "💰 Market & Trading",
+        "🔧 Node Operations", 
+        "🌈 Holographic Visualization",
+        "📚 Documentation"
+    ])
+
+    with tab1:
+        st.header("🏠 HYBRID Ecosystem Dashboard")
+        st.write("Welcome to the HYBRID blockchain ecosystem!")
+
+    with tab2:
+        st.header("💰 HYBRID Market & Trading")
+        st.write("Real-time market data and trading interfaces")
+
+    with tab3:
+        st.header("🔧 HYBRID Node Operations")
+        st.write("Manage and monitor your HYBRID nodes")
+
+    with tab4:
+        st.header("🌈 Holographic Blockchain Visualization")
+        if holographic_engine:
+            holographic_engine.render_holographic_interface()
+        else:
+            st.error("Holographic engine not available")
+
+    with tab5:
+        st.header("📚 Complete Documentation Analysis")
+        if docs_analyzer:
+            # Render main overview
+            docs_analyzer.render_documentation_overview()
+
+            # Create sub-tabs for detailed analysis
+            subtab1, subtab2, subtab3, subtab4 = st.tabs([
+                "📁 Files Explorer", "🔌 API Reference", "🚀 Tech Features", "🌟 Innovation Layers"
+            ])
+
+            with subtab1:
+                docs_analyzer.render_file_explorer()
+
+            with subtab2:
+                docs_analyzer.render_api_reference()
+
+            with subtab3:
+                docs_analyzer.render_technology_features()
+
+            with subtab4:
+                docs_analyzer.render_innovation_layers()
+        else:
+            st.error("Documentation analyzer not available")
 
 if __name__ == "__main__":
     main()
