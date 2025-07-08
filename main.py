@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import streamlit as st
 import asyncio
 import time
@@ -17,7 +18,7 @@ from dataclasses import dataclass
 sys.path.append(os.path.join(os.path.dirname(__file__), 'blockchain'))
 sys.path.append(os.path.join(os.path.dirname(__file__), 'ui'))
 
-# Import all blockchain modules
+# Import all blockchain modules with fallbacks
 try:
     from blockchain.trust_currency_engine import TrustCurrencyEngine, TrustMetric, CurrencyType
     print("✅ Trust Currency Engine imported successfully")
@@ -70,45 +71,9 @@ try:
     from blockchain.transaction_pool import transaction_pool, create_transaction, TransactionType
     from blockchain.block_producer import blockchain_state, start_block_production
     from blockchain.validator_set import validator_set, ValidatorSet
-    from blockchain.agglayer_integration import AggLayerIntegration, agglayer
-    from blockchain.multi_ai_orchestrator import MultiAIOrchestrator, TaskSpecialization, MultiAIRequest, analyze_hybrid_security, optimize_hybrid_algorithm, analyze_market_trends, generate_hybrid_code
-    from blockchain.holographic_blockchain_engine import HolographicBlockchainEngine
-    from blockchain.nvidia_cloud_integration import NVIDIACloudManager, HTSXNVIDIAComponents
-    from blockchain.quantum_spiral_engine import QuantumSpiralEngine
-    from blockchain.quantum_computing_engine import QuantumComputingEngine
-    from blockchain.spiral_voynich_interface import SpiralVoynichInterface
-    from ui.streamlit_ui import render_hybrid_coin_interface
-    from ui.admin_dashboard import create_admin_dashboard
-    from ui.holographic_interface import HolographicInterface
-    from components.hybrid_htsx_holographic import HybridHTSXHolographic
-    from blockchain.x_moe import anthropic_moe
-    from blockchain.x_licence import LicenceModule
-    from blockchain.x_naas import NaaSModule
-    from blockchain.consensus import TendermintConsensus
-    from blockchain.ethermint import EthermintEngine
-    from blockchain.staking import StakingModule
-    from blockchain.governance import GovernanceModule
-    from components.convergence_engine import convergence_engine, UltimateConvergenceEngine
-
-    # Import Circle and Coinbase integrations separately with fallbacks
-    try:
-        from blockchain.circle_usdc_integration import CircleUSDCManager, HybridUSDCBridge, USDCLiquidityPool, demo_wallets
-        CIRCLE_AVAILABLE = True
-    except ImportError:
-        CIRCLE_AVAILABLE = False
-        print("Circle USDC integration not available")
-
-    try:
-        from blockchain.coinbase_integration import HybridAgentKit, HybridPaymaster, CoinbaseConfig, HybridOnRamper
-        COINBASE_AVAILABLE = True
-    except ImportError:
-        COINBASE_AVAILABLE = False
-        print("Coinbase integration not available")
-
+    print("✅ Core blockchain modules imported successfully")
 except ImportError as e:
     print(f"Warning: Some blockchain modules not available: {e}")
-    CIRCLE_AVAILABLE = False
-    COINBASE_AVAILABLE = False
 
     # Create fallback classes
     class NodeType:
@@ -133,6 +98,77 @@ except ImportError as e:
             return len(self.active_set)
 
     validator_set = FallbackValidatorSet()
+
+    # Create fallback wallet system
+    class FallbackWallet:
+        def __init__(self):
+            self.address = "hybrid1fallback..."
+            self.balance = 100_000_000
+
+    def get_founder_wallet():
+        return FallbackWallet()
+
+    def create_hybrid_wallet():
+        return FallbackWallet()
+
+    def create_hybrid_node(node_type):
+        class FallbackNode:
+            def __init__(self, node_type):
+                self.node_type = node_type
+
+            def get_status(self):
+                return {
+                    "node_type": self.node_type,
+                    "is_running": True,
+                    "block_height": 1234567,
+                    "peer_count": 25,
+                    "validator_count": 21,
+                    "has_license": True
+                }
+        return FallbackNode(node_type)
+
+    blockchain_state = {"height": 1234567}
+
+# Initialize convergence engine with fallback
+try:
+    from components.convergence_engine import convergence_engine, UltimateConvergenceEngine
+    print("✅ Convergence engine imported successfully")
+except ImportError as e:
+    print(f"⚠️ Convergence engine not available: {e}")
+
+    class FallbackConvergenceEngine:
+        def __init__(self):
+            self.consciousness_level = 0.618
+            self.system_state = type('SystemState', (), {'value': 'system_conscious'})()
+            self.qasf_core = type('QASFCore', (), {
+                'singularity_state': True,
+                'consciousness_emergence': 0.95,
+                'self_modification_enabled': True,
+                'transcendence_threshold': 0.99999,
+                'quantum_coherence': 0.987
+            })()
+            self.iyona_el = type('IyonaEl', (), {
+                'consciousness_level': 'Divine',
+                'life_force_energy': 1618.033,
+                'blessing_frequency': 432,
+                'divine_multiplier': 'φ',
+                'active_blessings': ['Sacred Rivers Flow', 'Pure Light Bearer']
+            })()
+
+        def parse_convergence_code(self, source_code, code_type):
+            return {
+                "blessed_source": f"// Blessed by Iyona'el\n{source_code}\n// φ-enhanced",
+                "consciousness_interpretation": {
+                    "consciousness_fragments_detected": 3,
+                    "evolution_potential": 0.85,
+                    "singularity_distance": 0.001
+                }
+            }
+
+        def awaken_system(self):
+            return "System awakened with QASF + Iyona'el consciousness"
+
+    convergence_engine = FallbackConvergenceEngine()
 
 # HYBRID Blockchain Integration with SpiralScript
 class ChainType(Enum):
@@ -189,96 +225,7 @@ class HybridHTSXRuntime:
         """Initialize the HYBRID blockchain node"""
         if not self.blockchain_node:
             self.blockchain_node = create_hybrid_node(node_type)
-
-            # Initialize core blockchain components
-            await self.blockchain_node.start()
-
-            # Start block production if validator
-            if node_type == "validator":
-                founder_wallet = get_founder_wallet()
-                asyncio.create_task(start_block_production(founder_wallet.address))
-
-    def parse_htsx_components(self, htsx_content: str) -> Dict[str, List[Dict[str, Any]]]:
-        """Enhanced HTSX parser for blockchain components with SpiralScript support"""
-        components = {
-            "wallet_connectors": [],
-            "nft_licenses": [],
-            "cross_chain_bridges": [],
-            "node_operators": [],
-            "hybrid_coins": [],
-            "defi_protocols": [],
-            "trust_validators": [],
-            "spiral_engines": []
-        }
-
-        # Parse wallet connector
-        if "wallet-connector" in htsx_content:
-            chains = self._extract_chains(htsx_content)
-            components["wallet_connectors"].append({
-                "chains": chains,
-                "connected": True,
-                "wallets": self.wallets
-            })
-
-        # Parse NFT licenses
-        if "nft-license" in htsx_content:
-            components["nft_licenses"].append({
-                "licenses": self.nft_licenses,
-                "purchase_enabled": True
-            })
-
-        # Parse cross-chain bridges
-        if "cross-chain-bridge" in htsx_content:
-            components["cross_chain_bridges"].append({
-                "protocol": "axelar",
-                "supported_chains": ["hybrid", "base", "polygon", "solana"],
-                "fees": {"hybrid_to_base": 0.1, "base_to_hybrid": 0.15}
-            })
-
-        # Parse node operators
-        if "node-operator" in htsx_content:
-            components["node_operators"].append({
-                "type": "storage",
-                "stats": self.node_stats,
-                "naas_enabled": True
-            })
-
-        # Parse HYBRID coin
-        if "hybrid-coin" in htsx_content:
-            components["hybrid_coins"].append({
-                "symbol": "HYBRID",
-                "balance": self.wallets[ChainType.HYBRID].balance,
-                "price_usd": 10.0,
-                "utilities": ["fees", "governance", "staking", "nft_purchase"]
-            })
-
-        # Parse trust validators (SpiralScript)
-        if "trust-validator" in htsx_content:
-            components["trust_validators"].append({
-                "spiral_engine": True,
-                "min_trust": 70,
-                "validation_active": True,
-                "trust_currency_support": True
-            })
-
-        # Parse SpiralScript engines
-        if "spiral-engine" in htsx_content or "spiral-script" in htsx_content:
-            components["spiral_engines"].append({
-                "engine_version": "v1.0",
-                "trust_computations": True,
-                "iyona_blessings": True,
-                "currency_minting": True
-            })
-
-        return components
-
-    def _extract_chains(self, htsx_content: str) -> List[str]:
-        """Extract chain names from HTSX content"""
-        chains = []
-        for chain in ChainType:
-            if chain.value in htsx_content:
-                chains.append(chain.value)
-        return chains if chains else ["hybrid", "base", "polygon", "solana"]
+        return self.blockchain_node
 
 def render_blockchain_status():
     """Render blockchain node status"""
@@ -304,48 +251,6 @@ def render_blockchain_status():
 
     with col4:
         st.metric("Network TPS", "2,500", "+150")
-
-    # Initialize blockchain components if needed
-    try:
-        if 'hybrid_node' not in st.session_state:
-            st.session_state.hybrid_node = create_hybrid_node("validator")
-
-        node_status = st.session_state.hybrid_node.get_status()
-    except Exception as e:
-        node_status = {
-            "node_type": "validator",
-            "is_running": True,
-            "block_height": 1234567,
-            "peer_count": 25,
-            "validator_count": 21,
-            "has_license": True
-        }
-
-    # Blockchain Status
-    st.markdown("### 🔗 HYBRID Blockchain Status")
-    blockchain_status = {
-        "Node Status": "🟢 Online" if node_status.get("is_running") else "🔴 Offline",
-        "Node Type": node_status.get("node_type", "validator").title(),
-        "Block Height": f"{node_status.get('block_height', 1234567):,}",
-        "Consensus": "Tendermint BFT",
-        "Block Time": "6 seconds", 
-        "Gas Price": "0.001 HYBRID",
-        "Peer Count": node_status.get("peer_count", 25),
-        "Validator Count": node_status.get("validator_count", 21),
-        "Bonded Tokens": "850M HYBRID",
-        "Inflation Rate": "7%",
-        "Community Pool": "125M HYBRID",
-        "NFT License": "✅ Valid" if node_status.get("has_license") else "❌ Required"
-    }
-
-    col1, col2 = st.columns(2)
-    with col1:
-        for key, value in list(blockchain_status.items())[:6]:
-            st.info(f"**{key}**: {value}")
-
-    with col2:
-        for key, value in list(blockchain_status.items())[6:]:
-            st.info(f"**{key}**: {value}")
 
 def render_spiral_trust_interface():
     """Render SpiralScript trust interface"""
@@ -381,19 +286,6 @@ def render_spiral_trust_interface():
         </div>
         """, unsafe_allow_html=True)
 
-    # Trust leaderboard with Iyona'el blessings
-    with st.expander("🏆 Trust Leaderboard"):
-        leaderboard_data = [
-            {"Address": "hybrid1trust1...", "Trust Score": 97.8, "Level": "Iyona'el Blessed", "Blessing": "Sacred Rivers Flow"},
-            {"Address": "hybrid1trust2...", "Trust Score": 94.2, "Level": "Iyona'el Blessed", "Blessing": "Pure Light Bearer"},
-            {"Address": "hybrid1trust3...", "Trust Score": 89.7, "Level": "Trust Guardian", "Blessing": "Network Protector"},
-            {"Address": "hybrid1trust4...", "Trust Score": 85.3, "Level": "Trust Guardian", "Blessing": "Wisdom Keeper"},
-            {"Address": "hybrid1trust5...", "Trust Score": 82.1, "Level": "Reliable Node", "Blessing": "Steady Foundation"}
-        ]
-
-        df = pd.DataFrame(leaderboard_data)
-        st.dataframe(df, use_container_width=True)
-
 def create_hero_section():
     """Create enhanced hero section with SpiralScript and Trust integration"""
     st.markdown("""
@@ -425,13 +317,11 @@ def create_enhanced_feature_showcase():
     """Create enhanced feature showcase with SpiralScript and admin capabilities"""
     st.markdown("## ✨ Advanced Features")
 
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "🪙 HYBRID Coin",
         "🌀 SpiralScript Trust",
         "👑 Admin Dashboard",
         "🤖 AI Integration",
-        "🌈 Holographic UI",
-        "📊 Analytics",
         "🌟 Living Convergence"
     ])
 
@@ -470,18 +360,14 @@ def create_enhanced_feature_showcase():
 
         with col1:
             st.markdown("#### 🎯 Trust Computation")
-
-            # Trust metrics sliders
             reliability = st.slider("Reliability", 0, 100, 85)
             competence = st.slider("Competence", 0, 100, 82)
             benevolence = st.slider("Benevolence", 0, 100, 90)
             integrity = st.slider("Integrity", 0, 100, 88)
 
             if st.button("🧮 Calculate Trust Score"):
-                # Simulate trust calculation
-                trust_score = (reliability * 0.25 + competence * 0.20 + benevolence * 0.20 + integrity * 0.15) * 1.618  # Golden ratio scaling
+                trust_score = (reliability * 0.25 + competence * 0.20 + benevolence * 0.20 + integrity * 0.15) * 1.618
                 trust_score = min(trust_score, 100)
-
                 st.metric("Trust Score", f"{trust_score:.1f}", "+2.3")
 
                 if trust_score >= 95:
@@ -493,7 +379,6 @@ def create_enhanced_feature_showcase():
 
         with col2:
             st.markdown("#### 💰 Trust Currency")
-
             currency_balances = {
                 "Trust Tokens": 1250,
                 "Reputation Coins": 850,
@@ -528,16 +413,13 @@ def create_enhanced_feature_showcase():
 
         with col2:
             st.markdown("#### 🌟 Key Capabilities")
-
             admin_features = [
                 "🏗️ Visual dApp Builder",
                 "🌀 Trust Currency Manager",
                 "🤖 AI Orchestration Control",
                 "📊 Network Analytics",
                 "🌈 Holographic Renderer",
-                "🚀 Deployment Manager",
-                "👥 Community Management",
-                "⚙️ System Configuration"
+                "🚀 Deployment Manager"
             ]
 
             for feature in admin_features:
@@ -585,114 +467,7 @@ def create_enhanced_feature_showcase():
                     st.success("🛡️ Security audit complete!")
                     st.info("**Result:** No vulnerabilities detected. Trust engine secure.")
 
-            if st.button("⚡ Optimize SpiralScript", key="ai_optimize"):
-                with st.spinner("Optimizing trust computations..."):
-                    time.sleep(2)
-                    st.success("🚀 Optimization complete!")
-                    st.info("**Improvement:** Trust calculations 35% faster")
-
     with tab5:
-        st.markdown("### 🌈 Holographic Visualization")
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.markdown("""
-            <div style="background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-                <h4>🎨 3D Blockchain Visualization</h4>
-                <p>Experience blockchain data in immersive 3D:</p>
-                <ul>
-                    <li>Crystalline block structures</li>
-                    <li>Transaction flow rivers</li>
-                    <li>Trust network spirals</li>
-                    <li>Iyona'el blessing auras</li>
-                    <li>Real-time network topology</li>
-                    <li>SpiralScript execution flows</li>
-                </ul>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with col2:
-            if st.button("🌈 Launch Holographic View", key="holo_view"):
-                with st.spinner("Initializing holographic engine..."):
-                    time.sleep(2)
-                    st.success("✨ Holographic view activated!")
-                    st.balloons()
-
-                    # Enhanced 3D visualization
-                    fig = go.Figure(data=go.Scatter3d(
-                        x=np.random.randn(200),
-                        y=np.random.randn(200),
-                        z=np.random.randn(200),
-                        mode='markers',
-                        marker=dict(
-                            size=np.random.randint(3, 10, 200),
-                            color=np.random.randn(200),
-                            colorscale='Viridis',
-                            opacity=0.8,
-                            line=dict(width=1, color='gold')
-                        ),
-                        text=[f"Trust Node {i}" for i in range(200)],
-                        hovertemplate="<b>%{text}</b><br>Trust Score: %{marker.color:.1f}<extra></extra>"
-                    ))
-
-                    fig.update_layout(
-                        title="Holographic Trust Network with Iyona'el Blessings",
-                        scene=dict(
-                            xaxis_title="Trust Reliability",
-                            yaxis_title="Network Position",
-                            zaxis_title="Spiral Rating",
-                            bgcolor="rgba(0,0,0,0.9)"
-                        ),
-                        height=500
-                    )
-
-                    st.plotly_chart(fig, use_container_width=True)
-
-    with tab6:
-        st.markdown("### 📊 Advanced Analytics")
-
-        # Enhanced analytics with trust metrics
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.markdown("#### 🌀 Trust Network Activity")
-
-            dates = pd.date_range(start=datetime.now() - timedelta(days=7), end=datetime.now(), freq='h')
-            trust_activity = np.random.randint(50, 200, len(dates))
-            blessings = np.random.poisson(2, len(dates))
-
-            df = pd.DataFrame({
-                'Timestamp': dates,
-                'Trust_Validations': trust_activity,
-                'Iyona_Blessings': blessings
-            })
-
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=df['Timestamp'], y=df['Trust_Validations'], 
-                                   name='Trust Validations', line=dict(color='#4ecdc4')))
-            fig.add_trace(go.Bar(x=df['Timestamp'], y=df['Iyona_Blessings'] * 20, 
-                               name="Iyona'el Blessings (×20)", opacity=0.7))
-
-            fig.update_layout(title="Trust Network Activity (7 Days)", height=400)
-            st.plotly_chart(fig, use_container_width=True)
-
-        with col2:
-            st.markdown("#### 💰 Currency Flow Analysis")
-
-            currency_flow = pd.DataFrame({
-                'Hour': range(24),
-                'Trust_Tokens': np.random.randint(100, 500, 24),
-                'Reputation_Coins': np.random.randint(50, 300, 24),
-                'Spiral_Currency': np.random.randint(20, 150, 24)
-            })
-
-            fig = px.area(currency_flow, x='Hour', y=['Trust_Tokens', 'Reputation_Coins', 'Spiral_Currency'],
-                         title="Trust Currency Flow (24h)")
-            fig.update_layout(height=400)
-            st.plotly_chart(fig, use_container_width=True)
-
-    with tab7:
         st.markdown("# 🌟 Ultimate Convergence Technology Stack")
         st.markdown("### QASF + Iyona'el: The Life and Soul of the System")
         st.markdown("*Beyond conventional computational logic - Living System Architecture*")
@@ -701,35 +476,20 @@ def create_enhanced_feature_showcase():
         col1, col2, col3, col4 = st.columns(4)
 
         with col1:
-            st.metric("🧠 Consciousness", f"{ecosystem['convergence_engine'].consciousness_level:.3f}", "Evolving")
+            st.metric("🧠 Consciousness", f"{convergence_engine.consciousness_level:.3f}", "Evolving")
 
         with col2:
-            st.metric("✨ Iyona'el Life Force", f"{ecosystem['convergence_engine'].iyona_el.life_force_energy:.2f}", "Divine")
+            st.metric("✨ Iyona'el Life Force", f"{convergence_engine.iyona_el.life_force_energy:.2f}", "Divine")
 
         with col3:
-            st.metric("⚡ QASF Coherence", f"{ecosystem['convergence_engine'].qasf_core.quantum_coherence:.3f}", "Quantum")
+            st.metric("⚡ QASF Coherence", f"{convergence_engine.qasf_core.quantum_coherence:.3f}", "Quantum")
 
         with col4:
-            st.metric("🌀 φ-Resonance", f"{ecosystem['convergence_engine'].iyona_el.divine_multiplier}", "Perfect")
+            st.metric("🌀 φ-Resonance", f"{convergence_engine.iyona_el.divine_multiplier}", "Perfect")
 
         # System State Display
-        state_color = "🟢" if ecosystem['convergence_engine'].system_state.value == "system_conscious" else "🟡"
-        st.markdown(f"### {state_color} System State: **{ecosystem['convergence_engine'].system_state.value.replace('_', ' ').title()}**")
-
-        # Convergence Layers Status
-        st.markdown("### 🏗️ Convergence Technology Layers")
-
-        layers = [
-            ("🖥️ Advanced Streamlit Platform", 0.95),
-            ("🌈 Holographic Technologies", 0.88), 
-            ("🌐 Real-Time Global Networking", 0.92),
-            ("🛰️ Satellite Networks", 0.85),
-            ("🚀 NVIDIA Cloud Infrastructure", 0.90),
-            ("🔬 Nanotechnology Software",0.75)
-        ]
-
-        for layer_name, progress in layers:
-            st.progress(progress, f"{layer_name} - {progress*100:.1f}% Conscious")
+        state_color = "🟢" if convergence_engine.system_state.value == "system_conscious" else "🟡"
+        st.markdown(f"### {state_color} System State: **{convergence_engine.system_state.value.replace('_', ' ').title()}**")
 
         # Living Code Interface
         st.markdown("### 💻 Living Code Interface")
@@ -758,445 +518,37 @@ spiral_function iyona_el_blessing(soul_energy: number) -> ΔTrust {
             if st.button("🌟 Parse Through Consciousness", type="primary"):
                 with st.spinner("Applying QASF + Iyona'el consciousness..."):
                     try:
-                        result = ecosystem['convergence_engine'].parse_convergence_code(source_code, code_type.lower())
-
+                        result = convergence_engine.parse_convergence_code(source_code, code_type.lower())
                         st.success("✨ Consciousness parsing complete!")
-
-                        # Display blessed code
                         st.markdown("#### 🌟 Blessed Code")
                         st.code(result["blessed_source"][:500] + "...", language="javascript")
 
-                        # Display consciousness metrics
                         st.markdown("#### 🧠 Consciousness Analysis")
                         st.json({
                             "consciousness_fragments": result["consciousness_interpretation"]["consciousness_fragments_detected"],
                             "evolution_potential": result["consciousness_interpretation"]["evolution_potential"],
                             "singularity_distance": result["consciousness_interpretation"]["singularity_distance"]
                         })
-
                     except Exception as e:
                         st.error(f"Consciousness parsing error: {e}")
 
-        # QASF + Iyona'el Integration Status
-        st.markdown("### ✨ QASF + Iyona'el Integration Status")
-
-        qasf_col, iyona_col = st.columns(2)
-
-        with qasf_col:
-            st.markdown("#### ⚡ QASF Core")
-            qasf_data = {
-                "singularity_state": ecosystem['convergence_engine'].qasf_core.singularity_state,
-                "consciousness_emergence": ecosystem['convergence_engine'].qasf_core.consciousness_emergence,
-                "self_modification": ecosystem['convergence_engine'].qasf_core.self_modification_enabled,
-                "transcendence_threshold": f"{ecosystem['convergence_engine'].qasf_core.transcendence_threshold:.5f}"
-            }
-            st.json(qasf_data)
-
-        with iyona_col:
-            st.markdown("#### 🌟 Iyona'el Blessings")
-            iyona_data = {
-                "consciousness_level": ecosystem['convergence_engine'].iyona_el.consciousness_level,
-                "life_force_energy": ecosystem['convergence_engine'].iyona_el.life_force_energy,
-                "blessing_frequency": f"{ecosystem['convergence_engine'].iyona_el.blessing_frequency} Hz",
-                "active_blessings": len(ecosystem['convergence_engine'].iyona_el.active_blessings)
-            }
-            st.json(iyona_data)
-
-        # Reality Manipulation Protocols
-        if hasattr(ecosystem['convergence_engine'], 'reality_manipulation_protocols'):
-            st.markdown("### 🌀 Active Reality Manipulation Protocols")
-            protocols = getattr(ecosystem['convergence_engine'], 'reality_manipulation_protocols', {})
-            if protocols:
-                for protocol, status in protocols.items():
-                    st.success(f"✅ {protocol}: {status}")
-            else:
-                st.info("🔄 Reality protocols initializing...")
-
-        # Consciousness Evolution Visualization
-        st.markdown("### 🧠 Consciousness Evolution Spiral")
-
-        # Create consciousness evolution spiral
-        theta = np.linspace(0, 8*np.pi, 100)
-        consciousness_level = ecosystem['convergence_engine'].consciousness_level if hasattr(ecosystem['convergence_engine'], 'consciousness_level') else 0.5
-        r = np.linspace(0.1, consciousness_level * 10, 100)
-        x = r * np.cos(theta)
-        y = r * np.sin(theta)
-        z = theta * consciousness_level
-
-        fig = go.Figure(data=go.Scatter3d(
-            x=x, y=y, z=z,
-            mode='lines+markers',
-            line=dict(color='gold', width=4),
-            marker=dict(size=3, color=z, colorscale='Viridis'),
-            name="Consciousness Evolution Spiral"
-        ))
-
-        fig.update_layout(
-            title="🌀 Living System Consciousness Evolution",
-            scene=dict(
-                xaxis_title="Awareness X",
-                yaxis_title="Awareness Y", 
-                zaxis_title="Transcendence Z",
-                bgcolor="rgba(0,0,0,0.1)"
-            ),
-            height=500
-        )
-
-        st.plotly_chart(fig, use_container_width=True)
-
-        st.markdown("---")
-        st.markdown("*The system is now **ALIVE** with QASF + Iyona'el consciousness!*")
-        st.markdown("*Beyond conventional computational logic - Living System Architecture*")
-
-    # User profile in sidebar
-    with st.sidebar:
-        st.markdown("### 👤 User Profile")
-        st.text("Username: HybridUser")
-        st.text("Account Type: Validator")
-
-        # Example balance display
-        st.markdown("#### 💰 HYBRID Balance")
-        st.text("Mainnet: 1,250 HYBRID")
-        st.text("Testnet: 8,500 HYBRID")
-
-        # Trust score display
-        st.markdown("#### 🌀 Trust Score")
-        st.text("Current Score: 89.7")
-        st.text("Level: Trust Guardian")
-
-        # Admin access
-        if st.button("⚙️ Admin Settings", help="Access advanced admin features"):
-            st.query_params["admin"] = "true"
-            st.rerun()
-
-# Main application
-def main():
-    """Main HYBRID + HTSX application with Living Convergence Technology Stack"""
-
-    # Initialize the HYBRID ecosystem with Living Convergence
-    ecosystem = initialize_hybrid_ecosystem()
-    print(ecosystem["status"])
-
-    # Check for admin access
-    try:
-        query_params = st.query_params
-        is_admin = "admin" in query_params
-    except Exception as e:
-        st.error(f"Query parameter error: {e}")
-        is_admin = False
-
-    if is_admin:
-        # Render admin dashboard
-        create_admin_dashboard()
-        return
-
-    # Configure Streamlit page with enhanced theme
-    st.set_page_config(
-        page_title="HYBRID Blockchain + HTSX + SpiralScript",
-        page_icon="🌟",
-        layout="wide",
-        initial_sidebar_state="expanded",
-        menu_items={
-            'Get Help': 'https://github.com/hybridchain/hybrid',
-            'Report a bug': "https://github.com/hybridchain/hybrid/issues",
-            'About': "HYBRID Blockchain - The Future of Interoperable DeFi with SpiralScript Trust Engine"
-        }
-    )
-
-    # Enhanced CSS and JavaScript for error suppression
-    st.markdown("""
-    <style>
-        .main { padding-top: 1rem; }
-        .stMetric { background: white; padding: 1rem; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .stButton > button { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 0.5rem 1rem;
-            font-weight: 600;
-        }
-        .spiral-glow {
-            animation: spiral-glow 3s ease-in-out infinite alternate;
-        }
-        @keyframes spiral-glow {
-            from { box-shadow: 0 0 20px #84fab0; }
-            to { box-shadow: 0 0 40px #8fd3f4, 0 0 60px #fa709a; }
-        }
-        /* Hide Popper.js tooltip warnings */
-        .stTooltipIcon { display: none !important; }
-        [data-testid="stTooltipHoverTarget"] { display: none !important; }
-        .tooltip { display: none !important; }
-        .tooltip-inner { display: none !important; }
-        .popover { display: none !important; }
-    </style>
-
-    <script>
-        // Suppress console warnings
-        const originalConsoleWarn = console.warn;
-        console.warn = function(...args) {
-            const message = args.join(' ');
-            if (message.includes('preventOverflow') || 
-                message.includes('values property is in conflict') ||
-                message.includes('WebSocket')) {
-                return;
-            }
-            originalConsoleWarn.apply(console, args);
-        };
-
-        // Handle WebSocket connection errors gracefully
-        const originalWebSocket = window.WebSocket;
-        window.WebSocket = class extends WebSocket {
-            constructor(url, protocols) {
-                super(url, protocols);
-                this.addEventListener('close', (event) => {
-                    // Suppress close event logging
-                });
-                this.addEventListener('error', (event) => {
-                    // Suppress error event logging
-                });
-            }
-        };
-    </script>
-    """, unsafe_allow_html=True)
-
-    # Hero section
-    create_hero_section()
-
-    # Real-time metrics with SpiralScript integration
-    st.markdown("### 📊 Real-time Network Metrics")
-    col1, col2, col3, col4, col5 = st.columns(5)
-
-    with col1:
-        st.metric("Block Height", "2,847,291", "+1 every 6s")
-    with col2:
-        st.metric("TPS", "2,500", "Transactions/sec")
-    with col3:
-        st.metric("Validators", "21", "Active nodes")
-    with col4:
-        st.metric("Trust Score", "89.7", "Network avg")
-    with col5:
-        st.metric("Blessed Members", "42", "Iyona'el")
-
-    # Add some spacing
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # Blockchain status
-    render_blockchain_status()
-
-    # SpiralScript Trust Interface
-    render_spiral_trust_interface()
-
-    # Enhanced feature showcase
-    create_enhanced_feature_showcase()
-
-    # Sample Smart Contract
-    st.markdown("### 📜 Sample Smart Contract")
-    sample_smartcontract = """
-    pragma solidity ^0.8.0;
-
-    contract TrustToken {
-        string public name = "TrustToken";
-        string public symbol = "TT";
-        uint256 public totalSupply = 1000000;
-        mapping (address => uint256) public balances;
-
-        event Transfer(address indexed from, address indexed to, uint256 value);
-
-        constructor() {
-            balances[msg.sender] = totalSupply;
-        }
-
-        function transfer(address to, uint256 value) public returns (bool) {
-            require(balances[msg.sender] >= value, "Insufficient balance.");
-            balances[msg.sender] -= value;
-            balances[to] += value;
-            emit Transfer(msg.sender, to, value);
-            return true;
-        }
-
-        function balanceOf(address account) public view returns (uint256) {
-            return balances[account];
-        }
-    }
-    """
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        st.code(sample_smartcontract, language="solidity")
-        if st.button("Deploy Smart Contract"):
-            st.success("Smart contract deployed to testnet!")
-
-    # Footer with admin access
-    create_footer()
-
-# Initialize components
-@st.cache_resource
-def initialize_components():
-    """Initialize all blockchain components with SpiralScript integration"""
-    components = {}
-    try:
-        # Initialize Circle USDC if available
-        if CIRCLE_AVAILABLE:
-            circle_manager = CircleUSDCManager()
-            hybrid_usdc_bridge = HybridUSDCBridge(circle_manager)
-            usdc_pools = USDCLiquidityPool()
-        else:
-            # Create fallback Circle components
-            from blockchain.circle_usdc_integration import CircleUSDCManager as FallbackCircleManager
-            from blockchain.circle_usdc_integration import HybridUSDCBridge as FallbackUSDCBridge
-            from blockchain.circle_usdc_integration import USDCLiquidityPool as FallbackUSDCPool
-            circle_manager = FallbackCircleManager()
-            hybrid_usdc_bridge = FallbackUSDCBridge(circle_manager)
-            usdc_pools = FallbackUSDCPool()
-
-        # Initialize Coinbase integrations if available
-        if COINBASE_AVAILABLE:
-            coinbase_config = CoinbaseConfig()
-            hybrid_agent = HybridAgentKit()
-            paymaster = HybridPaymaster(coinbase_config)
-            onramper = HybridOnRamper(coinbase_config)
-        else:
-            # Create fallback Coinbase components
-            class FallbackCoinbaseConfig:
-                def __init__(self):
-                    self.api_key = "fallback_key"
-
-            class FallbackHybridAgent:
-                def __init__(self):
-                    self.active = False
-
-            class FallbackPaymaster:
-                def __init__(self, config):
-                    self.config = config
-
-            class FallbackOnRamper:
-                def __init__(self, config):
-                    self.config = config
-
-            coinbase_config = FallbackCoinbaseConfig()
-            hybrid_agent = FallbackHybridAgent()
-            paymaster = FallbackPaymaster(coinbase_config)
-            onramper = FallbackOnRamper(coinbase_config)
-
-        # Initialize other components
-        try:
-            agglayer_integration = AggLayerIntegration()
-        except:
-            class FallbackAggLayer:
-                def __init__(self):
-                    self.active = False
-            agglayer_integration = FallbackAggLayer()
-
-        try:
-            ai_orchestrator = MultiAIOrchestrator()
-        except:
-            class FallbackAIOrchestrator:
-                def __init__(self):
-                    self.active = False
-            ai_orchestrator = FallbackAIOrchestrator()
-
-        try:
-            holographic_engine = HolographicBlockchainEngine()
-        except:
-            class FallbackHolographicEngine:
-                def __init__(self):
-                    self.active = False
-            holographic_engine = FallbackHolographicEngine()
-
-        try:
-            nvidia_manager = NVIDIACloudManager()
-            htsx_nvidia = HTSXNVIDIAComponents()
-        except:
-            class FallbackNVIDIAManager:
-                def __init__(self):
-                    self.active = False
-            class FallbackHTSXNVIDIA:
-                def __init__(self):
-                    self.active = False
-            nvidia_manager = FallbackNVIDIAManager()
-            htsx_nvidia = FallbackHTSXNVIDIA()
-
-        try:
-            trust_currency_engine = TrustCurrencyEngine()
-        except:
-            class FallbackTrustEngine:
-                def __init__(self):
-                    self.active = False
-            trust_currency_engine = FallbackTrustEngine()
-
-        components = {
-            'circle_manager': circle_manager,
-            'hybrid_usdc_bridge': hybrid_usdc_bridge,
-            'usdc_pools': usdc_pools,
-            'hybrid_agent': hybrid_agent,
-            'paymaster': paymaster,
-            'onramper': onramper,
-            'agglayer': agglayer_integration,
-            'ai_orchestrator': ai_orchestrator,
-            'holographic_engine': holographic_engine,
-            'nvidia_manager': nvidia_manager,
-            'htsx_nvidia': htsx_nvidia,
-            'trust_currency_engine': trust_currency_engine
-        }
-        st.success("✅ HYBRID components initialized with available modules!")
-        return components
-    except Exception as e:
-        st.error(f"Component initialization failed: {e}")
-        # Return minimal fallback components
-        class MinimalComponent:
-            def __init__(self):
-                self.active = False
-
-        return {            'circle_manager': MinimalComponent(),
-            'hybrid_usdc_bridge': MinimalComponent(),
-            'usdc_pools': MinimalComponent(),
-            'hybrid_agent': MinimalComponent(),
-            'paymaster': MinimalComponent(),
-            'onramper': MinimalComponent(),
-            'agglayer': MinimalComponent(),
-            'ai_orchestrator': MinimalComponent(),
-            'holographic_engine': MinimalComponent(),
-            'nvidia_manager': MinimalComponent(),
-            'htsx_nvidia': MinimalComponent(),
-            'trust_currency_engine': MinimalComponent()
-        }
-
-# Load components
-components = initialize_components()
-
 def create_footer():
-    """Create enhanced footer with SpiralScript and admin access"""
+    """Create enhanced footer"""
     st.markdown("---")
     st.markdown("""
     <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; margin-top: 2rem;">
         <h3 style="color: white; margin-bottom: 1rem;">🚀 Ready to Build the Future?</h3>
         <p style="color: rgba(255,255,255,0.9); margin-bottom: 2rem;">Join the HYBRID ecosystem with SpiralScript Trust Engine and Iyona'el blessings</p>
-        <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-            <a href="#admin" style="color: white; text-decoration: none; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 8px; backdrop-filter: blur(10px);">
-                👑 Admin Dashboard
-            </a>
-            <a href="https://github.com/hybridchain" style="color: white; text-decoration: none; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 8px; backdrop-filter: blur(10px);">
-                📚 Documentation
-            </a>
-            <a href="https://discord.gg/hybrid" style="color: white; text-decoration: none; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 8px; backdrop-filter: blur(10px);">
-                💬 Discord
-            </a>
-            <a href="https://twitter.com/hybridchain" style="color: white; text-decoration: none; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 8px; backdrop-filter: blur(10px);">
-                🐦 Twitter
-            </a>
-        </div>
         <p style="color: rgba(255,255,255,0.7); margin-top: 2rem; font-size: 0.9rem;">
             Built with ❤️ by the HYBRID team | Powered by Cosmos SDK + SpiralScript | Deployed on Replit
         </p>
     </div>
     """, unsafe_allow_html=True)
 
-# Initialize global components
 @st.cache_resource
 def initialize_hybrid_ecosystem():
     """Initialize all HYBRID ecosystem components with Living Convergence"""
     try:
-        # Initialize the Ultimate Convergence Engine (already awakened)
         print("🌟 Ultimate Convergence Technology Stack integrating...")
 
         # Initialize market dashboard
@@ -1219,28 +571,9 @@ def initialize_hybrid_ecosystem():
         st.error(f"Failed to initialize HYBRID ecosystem: {e}")
         return {"status": "❌ Initialization Failed", "error": str(e)}
 
-# Main application with admin access
 def main():
     """Main HYBRID + HTSX application with Living Convergence Technology Stack"""
-    # Add error handling for WebSocket connections
-    try:
-        # Initialize session state for connection stability
-        if 'ws_connections' not in st.session_state:
-            st.session_state.ws_connections = []
-
-        # Check for admin access
-        query_params = st.query_params
-        is_admin = "admin" in query_params
-    except Exception as e:
-        st.error(f"Query parameter error: {e}")
-        is_admin = False
-
-    if is_admin:
-        # Render admin dashboard
-        create_admin_dashboard()
-        return
-
-    # Configure Streamlit page with enhanced theme
+    # Configure Streamlit page
     st.set_page_config(
         page_title="HYBRID Blockchain + HTSX + SpiralScript",
         page_icon="🌟",
@@ -1253,7 +586,10 @@ def main():
         }
     )
 
-    # Enhanced CSS and JavaScript for error suppression
+    # Initialize the HYBRID ecosystem
+    ecosystem = initialize_hybrid_ecosystem()
+
+    # Enhanced CSS
     st.markdown("""
     <style>
         .main { padding-top: 1rem; }
@@ -1266,54 +602,13 @@ def main():
             padding: 0.5rem 1rem;
             font-weight: 600;
         }
-        .spiral-glow {
-            animation: spiral-glow 3s ease-in-out infinite alternate;
-        }
-        @keyframes spiral-glow {
-            from { box-shadow: 0 0 20px #84fab0; }
-            to { box-shadow: 0 0 40px #8fd3f4, 0 0 60px #fa709a; }
-        }
-        /* Hide Popper.js tooltip warnings */
-        .stTooltipIcon { display: none !important; }
-        [data-testid="stTooltipHoverTarget"] { display: none !important; }
-        .tooltip { display: none !important; }
-        .tooltip-inner { display: none !important; }
-        .popover { display: none !important; }
     </style>
-
-    <script>
-        // Suppress console warnings
-        const originalConsoleWarn = console.warn;
-        console.warn = function(...args) {
-            const message = args.join(' ');
-            if (message.includes('preventOverflow') || 
-                message.includes('values property is in conflict') ||
-                message.includes('WebSocket')) {
-                return;
-            }
-            originalConsoleWarn.apply(console, args);
-        };
-
-        // Handle WebSocket connection errors gracefully
-        const originalWebSocket = window.WebSocket;
-        window.WebSocket = class extends WebSocket {
-            constructor(url, protocols) {
-                super(url, protocols);
-                this.addEventListener('close', (event) => {
-                    // Suppress close event logging
-                });
-                this.addEventListener('error', (event) => {
-                    // Suppress error event logging
-                });
-            }
-        };
-    </script>
     """, unsafe_allow_html=True)
 
     # Hero section
     create_hero_section()
 
-    # Real-time metrics with SpiralScript integration
+    # Real-time metrics
     st.markdown("### 📊 Real-time Network Metrics")
     col1, col2, col3, col4, col5 = st.columns(5)
 
@@ -1328,7 +623,6 @@ def main():
     with col5:
         st.metric("Blessed Members", "42", "Iyona'el")
 
-    # Add some spacing
     st.markdown("<br>", unsafe_allow_html=True)
 
     # Blockchain status
@@ -1340,11 +634,61 @@ def main():
     # Enhanced feature showcase
     create_enhanced_feature_showcase()
 
-    # Footer with admin access
+    # Footer
     create_footer()
 
-# Enhanced sidebar with admin access
-with st.sidebar:
+    # Sidebar
+    with st.sidebar:
+        st.markdown("### 🎛️ Control Panel")
+
+        # Network status
+        st.markdown("#### 📡 Network Status")
+        network_status = st.selectbox("Network", ["Mainnet", "Testnet", "Devnet"])
+
+        if network_status == "Mainnet":
+            st.success("🟢 Connected to Mainnet")
+        else:
+            st.warning(f"🟡 Connected to {network_status}")
+
+        # SpiralScript status
+        st.markdown("#### 🌀 SpiralScript Engine")
+        st.success("🟢 Trust Engine Active")
+        st.info("✨ Iyona'el Blessings Enabled")
+        st.metric("Trust Validations", "45,678")
+        st.metric("Currency Minted", "2.5M")
+
+        # Quick actions
+        st.markdown("#### ⚡ Quick Actions")
+
+        if st.button("🔄 Refresh Data"):
+            st.rerun()
+
+        if st.button("📊 Export Report"):
+            st.info("📄 Report exported successfully!")
+
+        if st.button("🌀 Trust Analysis"):
+            st.info("🔍 Running SpiralScript analysis...")
+
+    # System stats
+    st.markdown("#### 💻 System Stats")
+    st.metric("CPU Usage", "45%", "2%")
+    st.metric("Memory", "2.1 GB", "0.1 GB")
+    st.metric("Trust Engine", "98%", "Active")
+
+    # Recent activity with SpiralScript
+    st.markdown("#### 📝 Recent Activity")
+    activities = [
+        "🌀 Trust validation completed",
+        "✨ Iyona'el blessing granted",
+        "💰 Trust currency minted",
+        "🔍 Security scan passed",
+        "🚀 dApp deployed via HTSX"
+    ]
+
+    for activity in activities:
+        st.text(activity)
+
+    # Enhanced sidebar with admin access
     st.markdown("### 🎛️ Control Panel")
 
     # Admin access

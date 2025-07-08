@@ -85,13 +85,9 @@ def start_streamlit():
     
     # Check if streamlit is available
     try:
-        __import__('streamlit')
+        import streamlit
         print("✅ Streamlit is available")
-    except ImportError:
-        print("❌ Streamlit not available, trying simple web server...")
-        return start_simple_server()
-    
-    try:
+        
         # Try with module execution
         cmd = [
             sys.executable, "-m", "streamlit", "run", "main.py",
@@ -101,7 +97,10 @@ def start_streamlit():
             "--server.allowRunOnSave=true"
         ]
         print(f"🚀 Executing: {' '.join(cmd)}")
-        return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return subprocess.Popen(cmd)
+    except ImportError:
+        print("❌ Streamlit not available, trying simple web server...")
+        return start_simple_server()
     except Exception as e:
         print(f"❌ Failed to start Streamlit: {e}")
         print("🔄 Falling back to simple web server...")
